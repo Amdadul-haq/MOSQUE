@@ -1,182 +1,418 @@
+//app/(tabs)/mosque-info.tsx
 import React from "react";
-import { ScrollView, View, Text, Linking, Alert } from "react-native";
+import { ScrollView, View, StyleSheet, Linking } from "react-native";
+import {
+  useTheme,
+  Text,
+  Card,
+  Button,
+  Chip,
+  Divider,
+} from "react-native-paper";
 import { Header } from "../../src/components/Header";
-import { Card, CardHeader } from "../../src/components/Card";
-import { Button } from "../../src/components/Button";
-import { DummyData } from "../../src/constants";
+import { Container } from "../../src/components/common/Container";
+import { Section } from "../../src/components/common/Section";
+import { PrayerTimes } from "../../src/components/PrayerTimes";
+import { MosqueInfo } from "../../src/types";
+
+const mosqueData: MosqueInfo = {
+  id: "1",
+  name: "Al-Masjid Al-Jamia",
+  established: "1995",
+  description:
+    "A vibrant community mosque serving Muslims in the area with daily prayers, educational programs, and community events. We strive to be a center for spiritual growth, education, and community service.",
+  address: "123 Islamic Street, Muslim Town, City 12345",
+  phone: "+1 (555) 123-4567",
+  email: "info@almasjid.org",
+  imam: {
+    name: "Imam Omar Farooq",
+    phone: "+1 (555) 123-4568",
+    bio: "Graduate of Islamic University of Madinah with 15 years of experience in community leadership and Islamic education.",
+    email: "imam@almasjid.org",
+  },
+  prayerTimes: {
+    fajr: "5:30 AM",
+    dhuhr: "12:30 PM",
+    asr: "4:15 PM",
+    maghrib: "6:45 PM",
+    isha: "8:00 PM",
+    jumuah: "1:00 PM",
+  },
+  services: [
+    "Daily Five Prayers",
+    "Jumuah Friday Prayer",
+    "Quran Classes for All Ages",
+    "Islamic Studies Program",
+    "Youth Activities",
+    "Marriage Services",
+    "Funeral Services",
+    "Community Hall Rental",
+    "Islamic Library",
+    "Parking Facility",
+    "Wudu Area",
+    "Disabled Access",
+  ],
+};
 
 export default function MosqueInfoScreen() {
-  const handleContact = (type: string, value: string) => {
-    Alert.alert("Contact", `${type}: ${value}`);
+  const theme = useTheme();
+
+  const handleContact = async (
+    type: "call" | "email" | "maps",
+    value: string
+  ) => {
+    try {
+      switch (type) {
+        case "call":
+          await Linking.openURL(`tel:${value}`);
+          break;
+        case "email":
+          await Linking.openURL(`mailto:${value}`);
+          break;
+        case "maps":
+          // For demo, we'll use a generic maps URL
+          await Linking.openURL(
+            `https://maps.google.com/?q=${encodeURIComponent(value)}`
+          );
+          break;
+      }
+    } catch (error) {
+      console.error("Error opening link:", error);
+    }
   };
 
-  const openMap = () => {
-    Alert.alert("Open Map", "Opening mosque location in maps...");
-  };
+  const prayerTimesList = Object.entries(mosqueData.prayerTimes).map(
+    ([prayer, time]) => ({
+      name: prayer === "jumuah" ? "Friday Prayer" : prayer,
+      time,
+      isCurrent:
+        prayer === "dhuhr" &&
+        new Date().getHours() >= 12 &&
+        new Date().getHours() < 16,
+    })
+  );
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <Header title="Mosque Information" />
+    <Container>
+      <Header title="Mosque Information" subtitle="Learn about our community" />
 
-      <ScrollView className="flex-1 p-4">
-        {/* Mosque Basic Info */}
-        <Card className="mb-6">
-          <CardHeader
-            title={DummyData.mosqueInfo.name}
-            subtitle="Established 1995"
-          />
-          <Text className="text-gray-600 dark:text-gray-400 mb-4">
-            A vibrant community mosque serving Muslims in the area with daily
-            prayers, educational programs, and community events.
-          </Text>
-          <Button
-            title="Get Directions"
-            onPress={openMap}
-            variant="outline"
-            fullWidth
-          />
-        </Card>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Mosque Overview */}
+        <Section title="About Our Mosque">
+          <Card style={styles.overviewCard}>
+            <Card.Content>
+              <Text
+                style={[styles.mosqueName, { color: theme.colors.primary }]}
+              >
+                {mosqueData.name}
+              </Text>
+              <Text
+                style={[
+                  styles.established,
+                  { color: theme.colors.onSurfaceVariant },
+                ]}
+              >
+                Established {mosqueData.established}
+              </Text>
+              <Text
+                style={[styles.description, { color: theme.colors.onSurface }]}
+              >
+                {mosqueData.description}
+              </Text>
+              <Button
+                mode="outlined"
+                icon="map-marker"
+                onPress={() => handleContact("maps", mosqueData.address)}
+                style={styles.directionsButton}
+              >
+                Get Directions
+              </Button>
+            </Card.Content>
+          </Card>
+        </Section>
 
         {/* Contact Information */}
-        <Card className="mb-6">
-          <CardHeader title="Contact Information" />
-          <View className="space-y-3">
-            <View className="flex-row justify-between items-center">
-              <View>
-                <Text className="font-medium text-gray-900 dark:text-white">
-                  Address
-                </Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">
-                  {DummyData.mosqueInfo.address}
-                </Text>
-              </View>
-              <Button
-                title="Copy"
-                onPress={() =>
-                  handleContact("Address", DummyData.mosqueInfo.address)
-                }
-                size="sm"
-                variant="outline"
-              />
-            </View>
-
-            <View className="flex-row justify-between items-center">
-              <View>
-                <Text className="font-medium text-gray-900 dark:text-white">
-                  Phone
-                </Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">
-                  {DummyData.mosqueInfo.phone}
-                </Text>
-              </View>
-              <Button
-                title="Call"
-                onPress={() =>
-                  handleContact("Phone", DummyData.mosqueInfo.phone)
-                }
-                size="sm"
-                variant="outline"
-              />
-            </View>
-
-            <View className="flex-row justify-between items-center">
-              <View>
-                <Text className="font-medium text-gray-900 dark:text-white">
-                  Email
-                </Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">
-                  {DummyData.mosqueInfo.email}
-                </Text>
-              </View>
-              <Button
-                title="Email"
-                onPress={() =>
-                  handleContact("Email", DummyData.mosqueInfo.email)
-                }
-                size="sm"
-                variant="outline"
-              />
-            </View>
-          </View>
-        </Card>
-
-        {/* Imam Information */}
-        <Card className="mb-6">
-          <CardHeader title="Imam Information" />
-          <View className="flex-row items-start space-x-4">
-            <View className="w-16 h-16 bg-primary rounded-full items-center justify-center">
-              <Text className="text-white text-2xl font-bold">I</Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                {DummyData.mosqueInfo.imam.name}
-              </Text>
-              <Text className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                {DummyData.mosqueInfo.imam.bio}
-              </Text>
-              <Button
-                title="Contact Imam"
-                onPress={() =>
-                  handleContact("Imam Phone", DummyData.mosqueInfo.imam.phone)
-                }
-                size="sm"
-                variant="outline"
-                className="mt-3"
-              />
-            </View>
-          </View>
-        </Card>
-
-        {/* Prayer Times */}
-        <Card className="mb-6">
-          <CardHeader title="Daily Prayer Times" />
-          <View className="space-y-3">
-            {Object.entries(DummyData.mosqueInfo.prayerTimes).map(
-              ([prayer, time]) => (
-                <View
-                  key={prayer}
-                  className="flex-row justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
-                >
-                  <Text className="font-medium text-gray-900 dark:text-white capitalize">
-                    {prayer}
+        <Section title="Contact Information">
+          <Card style={styles.contactCard}>
+            <Card.Content style={styles.contactContent}>
+              <View style={styles.contactItem}>
+                <View style={styles.contactInfo}>
+                  <Text
+                    style={[
+                      styles.contactLabel,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    📍 Address
                   </Text>
-                  <Text className="text-primary font-semibold text-lg">
-                    {time}
+                  <Text
+                    style={[
+                      styles.contactValue,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    {mosqueData.address}
                   </Text>
                 </View>
-              )
-            )}
-          </View>
-        </Card>
-
-        {/* Services */}
-        <Card>
-          <CardHeader title="Services & Facilities" />
-          <View className="space-y-2">
-            {[
-              "Daily Five Prayers",
-              "Jumuah Friday Prayer",
-              "Quran Classes for All Ages",
-              "Islamic Studies",
-              "Marriage Services",
-              "Funeral Services",
-              "Community Hall",
-              "Library",
-              "Parking Facility",
-            ].map((service, index) => (
-              <View
-                key={index}
-                className="flex-row items-center py-2 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
-              >
-                <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-                <Text className="text-gray-700 dark:text-gray-300">
-                  {service}
-                </Text>
+                <Button
+                  mode="text"
+                  compact
+                  onPress={() => handleContact("maps", mosqueData.address)}
+                >
+                  Map
+                </Button>
               </View>
-            ))}
-          </View>
-        </Card>
+
+              <Divider style={styles.divider} />
+
+              <View style={styles.contactItem}>
+                <View style={styles.contactInfo}>
+                  <Text
+                    style={[
+                      styles.contactLabel,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    📞 Phone
+                  </Text>
+                  <Text
+                    style={[
+                      styles.contactValue,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    {mosqueData.phone}
+                  </Text>
+                </View>
+                <Button
+                  mode="text"
+                  compact
+                  onPress={() => handleContact("call", mosqueData.phone)}
+                >
+                  Call
+                </Button>
+              </View>
+
+              <Divider style={styles.divider} />
+
+              <View style={styles.contactItem}>
+                <View style={styles.contactInfo}>
+                  <Text
+                    style={[
+                      styles.contactLabel,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    ✉️ Email
+                  </Text>
+                  <Text
+                    style={[
+                      styles.contactValue,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    {mosqueData.email}
+                  </Text>
+                </View>
+                <Button
+                  mode="text"
+                  compact
+                  onPress={() => handleContact("email", mosqueData.email)}
+                >
+                  Email
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
+        </Section>
+
+        {/* Imam Information */}
+        <Section title="Imam Information">
+          <Card style={styles.imamCard}>
+            <Card.Content>
+              <View style={styles.imamHeader}>
+                <View
+                  style={[
+                    styles.imamAvatar,
+                    { backgroundColor: theme.colors.primary },
+                  ]}
+                >
+                  <Text style={styles.imamInitial}>
+                    {mosqueData.imam.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </Text>
+                </View>
+                <View style={styles.imamInfo}>
+                  <Text
+                    style={[styles.imamName, { color: theme.colors.onSurface }]}
+                  >
+                    {mosqueData.imam.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.imamBio,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    {mosqueData.imam.bio}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.imamActions}>
+                <Button
+                  mode="outlined"
+                  compact
+                  icon="phone"
+                  onPress={() => handleContact("call", mosqueData.imam.phone)}
+                >
+                  Call Imam
+                </Button>
+                <Button
+                  mode="outlined"
+                  compact
+                  icon="email"
+                  onPress={() => handleContact("email", mosqueData.imam.email)}
+                >
+                  Email
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
+        </Section>
+
+        {/* Prayer Times */}
+        <Section title="Prayer Times">
+          <PrayerTimes times={prayerTimesList} />
+        </Section>
+
+        {/* Services & Facilities */}
+        <Section title="Services & Facilities">
+          <Card style={styles.servicesCard}>
+            <Card.Content>
+              <View style={styles.servicesGrid}>
+                {mosqueData.services.map((service, index) => (
+                  <Chip
+                    key={index}
+                    mode="outlined"
+                    style={styles.serviceChip}
+                    textStyle={styles.serviceChipText}
+                  >
+                    {service}
+                  </Chip>
+                ))}
+              </View>
+            </Card.Content>
+          </Card>
+        </Section>
       </ScrollView>
-    </View>
+    </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  overviewCard: {
+    borderRadius: 16,
+  },
+  mosqueName: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  established: {
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  directionsButton: {
+    borderRadius: 8,
+  },
+  contactCard: {
+    borderRadius: 12,
+  },
+  contactContent: {
+    gap: 8,
+  },
+  contactItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  contactLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  contactValue: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  imamCard: {
+    borderRadius: 12,
+  },
+  imamHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 16,
+  },
+  imamAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  imamInitial: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  imamInfo: {
+    flex: 1,
+  },
+  imamName: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  imamBio: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  imamActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  servicesCard: {
+    borderRadius: 12,
+  },
+  servicesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  serviceChip: {
+    margin: 2,
+  },
+  serviceChipText: {
+    fontSize: 12,
+  },
+});

@@ -1,62 +1,74 @@
+//app/(tabs)/_layout.tsx
 import React from "react";
 import { Tabs } from "expo-router";
-import { useColorScheme } from "../../src/hooks/useColorScheme";
+import { useTheme } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const theme = useTheme();
+
+  const screenOptions: BottomTabNavigationOptions = {
+    tabBarActiveTintColor: theme.colors.primary,
+    tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+    tabBarStyle: {
+      backgroundColor: theme.colors.surface,
+      borderTopColor: theme.colors.outline,
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    headerStyle: {
+      backgroundColor: theme.colors.surface,
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    headerTintColor: theme.colors.onSurface,
+    headerTitleStyle: {
+      fontWeight: "600",
+    },
+  };
+
+  const tabs = [
+    {
+      name: "index",
+      title: "Home",
+      icon: "home" as const,
+    },
+    {
+      name: "donations",
+      title: "Donations",
+      icon: "heart" as const,
+    },
+    {
+      name: "mosque-info",
+      title: "Mosque Info",
+      icon: "mosque" as const,
+    },
+    {
+      name: "profile",
+      title: "Profile",
+      icon: "account" as const,
+    },
+  ];
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "#16a34a",
-        tabBarInactiveTintColor: colorScheme === "dark" ? "#9ca3af" : "#6b7280",
-        tabBarStyle: {
-          backgroundColor: colorScheme === "dark" ? "#1f2937" : "#ffffff",
-          borderTopColor: colorScheme === "dark" ? "#374151" : "#e5e7eb",
-        },
-        headerStyle: {
-          backgroundColor: colorScheme === "dark" ? "#1f2937" : "#ffffff",
-        },
-        headerTintColor: colorScheme === "dark" ? "#ffffff" : "#1f2937",
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="donations"
-        options={{
-          title: "Donations",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="heart" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="mosque-info"
-        options={{
-          title: "Mosque Info",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="mosque" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
-          ),
-        }}
-      />
+    <Tabs screenOptions={screenOptions}>
+      {tabs.map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            title: tab.title,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name={tab.icon}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

@@ -1,3 +1,4 @@
+// src/constants/index.ts
 export const Colors = {
   primary: '#16a34a',
   accent: '#facc15',

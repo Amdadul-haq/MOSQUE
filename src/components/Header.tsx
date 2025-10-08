@@ -1,81 +1,71 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
-import { useColorScheme } from "../hooks/useColorScheme";
+import { View, Text, StyleSheet } from "react-native";
+import { useTheme, Appbar } from "react-native-paper";
 
 interface HeaderProps {
   title: string;
-  showBack?: boolean;
-  onBackPress?: () => void;
+  subtitle?: string;
   rightComponent?: React.ReactNode;
+  showBackButton?: boolean;
+  onBackPress?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   title,
-  showBack = false,
-  onBackPress,
+  subtitle,
   rightComponent,
+  showBackButton = false,
+  onBackPress,
 }) => {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
-
-  const headerStyle = {
-    backgroundColor: theme.colors.surface,
-    borderBottomColor: colorScheme === "dark" ? "#374151" : "#e5e7eb",
-  };
 
   return (
-    <View style={[styles.header, headerStyle]}>
-      <View style={styles.headerContent}>
-        <View style={styles.headerLeft}>
-          {showBack && (
-            <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-              <Text style={[styles.backText, { color: theme.colors.primary }]}>
-                ←
-              </Text>
-            </TouchableOpacity>
-          )}
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}> 
-            {title}
+    <Appbar.Header
+      style={[styles.header, { backgroundColor: theme.colors.surface }]}
+      elevated
+    >
+      {showBackButton && (
+        <Appbar.BackAction
+          onPress={onBackPress}
+          color={theme.colors.onSurface}
+        />
+      )}
+      <View style={styles.titleContainer}>
+        <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+          {title}
+        </Text>
+        {subtitle && (
+          <Text
+            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
+          >
+            {subtitle}
           </Text>
-        </View>
-        {rightComponent && (
-          <View style={styles.headerRight}>{rightComponent}</View>
         )}
       </View>
-    </View>
+      <View style={styles.rightContainer}>{rightComponent}</View>
+    </Appbar.Header>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    elevation: 2,
+    shadowOpacity: 0.1,
   },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+  titleContainer: {
     flex: 1,
-  },
-  backButton: {
-    marginRight: 12,
-  },
-  backText: {
-    fontSize: 20,
-    fontWeight: "bold",
+    marginLeft: 8,
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    flex: 1,
+    fontWeight: "700",
   },
-  headerRight: {
-    marginLeft: "auto",
+  subtitle: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  rightContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

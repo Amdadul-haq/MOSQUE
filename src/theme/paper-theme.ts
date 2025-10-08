@@ -1,3 +1,4 @@
+// src/theme/paper-theme.ts
 import { 
   DefaultTheme as PaperDefaultTheme, 
   MD3DarkTheme as PaperDarkTheme 

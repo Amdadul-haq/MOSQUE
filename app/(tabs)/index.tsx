@@ -1,218 +1,201 @@
+//app/(tabs)/index.tsx
 import React from "react";
-import { ScrollView, View, Text, Alert, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
-import { useColorScheme } from "../../src/hooks/useColorScheme";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { useTheme, Card, Button } from "react-native-paper";
 import { Header } from "../../src/components/Header";
-import { Card, CardHeader } from "../../src/components/Card";
-import { Button } from "../../src/components/Button";
-import { DummyData } from "../../src/constants";
+import { Container } from "../../src/components/common/Container";
+import { Section } from "../../src/components/common/Section";
+import { PrayerTimes } from "../../src/components/PrayerTimes";
+import { StatsGrid } from "../../src/components/StatsGrid";
+import { QuickActions } from "../../src/components/QuickActions";
+import { useHomeData } from "../../src/hooks/useHomeData";
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
-
-  const handleQuickAction = (action: string) => {
-    Alert.alert("Quick Action", `${action} button pressed!`);
-  };
-
-  const containerStyle = {
-    backgroundColor: theme.colors.background,
-  };
+  const {
+    stats,
+    upcomingEvents,
+    prayerTimes,
+    quickActions,
+    handleQuickAction,
+  } = useHomeData();
 
   return (
-    <View style={[styles.container, containerStyle]}>
-      <Header title="Al-Masjid Al-Jamia" />
+    <Container>
+      <Header
+        title="Al-Masjid Al-Jamia"
+        subtitle="Welcome to your spiritual hub"
+      />
 
       <ScrollView
-        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Welcome Section */}
-        <Card style={styles.card}>
-          <CardHeader
-            title="Assalamu Alaikum 👋"
-            subtitle="Welcome to Mosque Management System"
-          />
-          <Text style={[styles.description, { color: theme.colors.onSurface }]}>
-            Manage your mosque activities, donations, and community events in
-            one place.
-          </Text>
-          <Button
-            title="Make a Donation"
-            onPress={() => handleQuickAction("Donation")}
-            fullWidth
-          />
+        {/* Welcome Card */}
+        <Card style={styles.welcomeCard}>
+          <Card.Content>
+            <Text
+              style={[styles.welcomeTitle, { color: theme.colors.primary }]}
+            >
+              Assalamu Alaikum 👋
+            </Text>
+            <Text
+              style={[
+                styles.welcomeSubtitle,
+                { color: theme.colors.onSurface },
+              ]}
+            >
+              Welcome back to your mosque community
+            </Text>
+            <Text
+              style={[
+                styles.welcomeText,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
+              Manage your spiritual journey, donations, and community events in
+              one place.
+            </Text>
+            <Button
+              mode="contained"
+              onPress={() => handleQuickAction("donation")}
+              style={styles.donateButton}
+              icon="heart"
+            >
+              Make a Donation
+            </Button>
+          </Card.Content>
         </Card>
 
+        {/* Prayer Times */}
+        <Section title="Today's Prayer Times">
+          <PrayerTimes times={prayerTimes} />
+        </Section>
+
         {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-            Quick Actions
-          </Text>
-          <View style={styles.actionsRow}>
-            <View style={styles.actionButton}>
-              <Button
-                title="Prayer Times"
-                onPress={() => handleQuickAction("Prayer Times")}
-                variant="outline"
-                size="sm"
-                fullWidth
-              />
-            </View>
-            <View style={styles.actionButton}>
-              <Button
-                title="Events"
-                onPress={() => handleQuickAction("Events")}
-                variant="outline"
-                size="sm"
-                fullWidth
-              />
-            </View>
-          </View>
-        </View>
+        <Section title="Quick Actions">
+          <QuickActions actions={quickActions} onAction={handleQuickAction} />
+        </Section>
+
+        {/* Stats */}
+        <Section title="Today's Summary">
+          <StatsGrid stats={stats} />
+        </Section>
 
         {/* Upcoming Events */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-            Upcoming Events
-          </Text>
-          {DummyData.events.map((event) => (
-            <Card key={event.id} style={styles.eventCard}>
-              <View style={styles.eventRow}>
-                <View style={styles.eventInfo}>
-                  <Text
-                    style={[styles.eventTitle, { color: theme.colors.onSurface }]}
-                  >
-                    {event.title}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.eventDate,
-                      { color: theme.colors.onSurface },
-                    ]}
-                  >
-                    {event.date} at {event.time}
-                  </Text>
-                </View>
-                <Button
-                  title="View"
-                  onPress={() => Alert.alert("Event", `Viewing ${event.title}`)}
-                  size="sm"
-                />
-              </View>
-            </Card>
-          ))}
-        </View>
-
-        {/* Stats Cards */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}> 
-            Today's Summary
-          </Text>
-          <View style={styles.statsRow}>
-            <Card style={styles.statCard}>
-              <Text style={styles.statNumber}>5</Text>
-              <Text
-                style={[styles.statLabel, { color: theme.colors.onSurface }]}
-              >
-                Prayers
-              </Text>
-            </Card>
-            <Card style={styles.statCard}>
-              <Text style={[styles.statNumber, styles.statAccent]}>12</Text>
-              <Text
-                style={[styles.statLabel, { color: theme.colors.onSurface }]}
-              >
-                Attendees
-              </Text>
-            </Card>
-            <Card style={styles.statCard}>
-              <Text style={styles.statNumber}>$350</Text>
-              <Text
-                style={[styles.statLabel, { color: theme.colors.onSurface }]}
-              >
-                Donations
-              </Text>
-            </Card>
+        <Section
+          title="Upcoming Events"
+          action={
+            <Button
+              mode="text"
+              compact
+              onPress={() => handleQuickAction("events")}
+            >
+              View All
+            </Button>
+          }
+        >
+          <View style={styles.eventsContainer}>
+            {upcomingEvents.map((event) => (
+              <Card key={event.id} style={styles.eventCard} mode="contained">
+                <Card.Content>
+                  <View style={styles.eventHeader}>
+                    <View style={styles.eventInfo}>
+                      <Text
+                        style={[
+                          styles.eventTitle,
+                          { color: theme.colors.onSurface },
+                        ]}
+                      >
+                        {event.title}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.eventDate,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        {event.date} • {event.time}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.eventDescription,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        {event.description}
+                      </Text>
+                    </View>
+                    <Button
+                      mode="outlined"
+                      compact
+                      onPress={() => handleQuickAction("event", event.id)}
+                    >
+                      View
+                    </Button>
+                  </View>
+                </Card.Content>
+              </Card>
+            ))}
           </View>
-        </View>
+        </Section>
       </ScrollView>
-    </View>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
   scrollContent: {
-    padding: 16,
+    paddingBottom: 20,
   },
-  card: {
+  welcomeCard: {
     marginBottom: 24,
+    borderRadius: 16,
   },
-  description: {
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
     fontSize: 16,
-    marginBottom: 16,
-    lineHeight: 22,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  actionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  actionButton: {
-    width: "48%",
-  },
-  eventCard: {
+    fontWeight: "600",
     marginBottom: 8,
   },
-  eventRow: {
+  welcomeText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  donateButton: {
+    borderRadius: 12,
+  },
+  eventsContainer: {
+    gap: 8,
+  },
+  eventCard: {
+    borderRadius: 12,
+  },
+  eventHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   eventInfo: {
     flex: 1,
+    marginRight: 12,
   },
   eventTitle: {
     fontSize: 16,
     fontWeight: "600",
+    marginBottom: 4,
   },
   eventDate: {
     fontSize: 14,
-    marginTop: 2,
+    marginBottom: 4,
   },
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  statCard: {
-    flex: 1,
-    marginHorizontal: 4,
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#16a34a",
-  },
-  statAccent: {
-    color: "#facc15",
-  },
-  statLabel: {
+  eventDescription: {
     fontSize: 12,
-    marginTop: 4,
+    lineHeight: 16,
   },
 });
