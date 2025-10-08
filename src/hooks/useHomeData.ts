@@ -1,3 +1,4 @@
+// src/hooks/useHomeData.ts
 import { useState, useCallback, useMemo } from "react";
 import { Alert } from "react-native";
 

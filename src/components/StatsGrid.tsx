@@ -1,3 +1,4 @@
+// src/components/StatsGrid.tsx
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme, Card } from "react-native-paper";

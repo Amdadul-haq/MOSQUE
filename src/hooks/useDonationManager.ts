@@ -1,3 +1,4 @@
+// src/hooks/useDonationManager.ts
 import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { Donation } from '../types';

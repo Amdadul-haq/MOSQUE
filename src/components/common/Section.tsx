@@ -1,3 +1,4 @@
+// src/components/common/Section.tsx
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";

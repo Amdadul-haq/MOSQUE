@@ -1,17 +1,19 @@
-//app/(tabs)/index.tsx
+// app/(tabs)/index.tsx
 import React from "react";
-import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { ScrollView, View, Text, StyleSheet, StatusBar } from "react-native";
 import { useTheme, Card, Button } from "react-native-paper";
-import { Header } from "../../src/components/Header";
+import { Header, HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { PrayerTimes } from "../../src/components/PrayerTimes";
 import { StatsGrid } from "../../src/components/StatsGrid";
 import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const {
     stats,
     upcomingEvents,
@@ -20,137 +22,188 @@ export default function HomeScreen() {
     handleQuickAction,
   } = useHomeData();
 
+  const handleProfilePress = () => {
+    handleQuickAction("profile");
+  };
+
+  const handleNotificationPress = () => {
+    handleQuickAction("notifications");
+  };
+
   return (
-    <Container>
-      <Header
-        title="Al-Masjid Al-Jamia"
-        subtitle="Welcome to your spiritual hub"
+    <Container padding={false}>
+      {/* StatusBar with transparent background */}
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
       />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Welcome Card */}
-        <Card style={styles.welcomeCard}>
-          <Card.Content>
-            <Text
-              style={[styles.welcomeTitle, { color: theme.colors.primary }]}
-            >
-              Assalamu Alaikum 👋
-            </Text>
-            <Text
-              style={[
-                styles.welcomeSubtitle,
-                { color: theme.colors.onSurface },
-              ]}
-            >
-              Welcome back to your mosque community
-            </Text>
-            <Text
-              style={[
-                styles.welcomeText,
-                { color: theme.colors.onSurfaceVariant },
-              ]}
-            >
-              Manage your spiritual journey, donations, and community events in
-              one place.
-            </Text>
-            <Button
-              mode="contained"
-              onPress={() => handleQuickAction("donation")}
-              style={styles.donateButton}
-              icon="heart"
-            >
-              Make a Donation
-            </Button>
-          </Card.Content>
-        </Card>
+      {/* Main content with safe area handling */}
+      <View style={styles.container}>
+        {/* Using the enhanced HomeHeader */}
+        <HomeHeader
+          onProfilePress={handleProfilePress}
+          onNotificationPress={handleNotificationPress}
+          notificationCount={3}
+        />
 
-        {/* Prayer Times */}
-        <Section title="Today's Prayer Times">
-          <PrayerTimes times={prayerTimes} />
-        </Section>
-
-        {/* Quick Actions */}
-        <Section title="Quick Actions">
-          <QuickActions actions={quickActions} onAction={handleQuickAction} />
-        </Section>
-
-        {/* Stats */}
-        <Section title="Today's Summary">
-          <StatsGrid stats={stats} />
-        </Section>
-
-        {/* Upcoming Events */}
-        <Section
-          title="Upcoming Events"
-          action={
-            <Button
-              mode="text"
-              compact
-              onPress={() => handleQuickAction("events")}
-            >
-              View All
-            </Button>
-          }
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 20 },
+          ]}
+          style={styles.scrollView}
         >
-          <View style={styles.eventsContainer}>
-            {upcomingEvents.map((event) => (
-              <Card key={event.id} style={styles.eventCard} mode="contained">
-                <Card.Content>
-                  <View style={styles.eventHeader}>
-                    <View style={styles.eventInfo}>
-                      <Text
-                        style={[
-                          styles.eventTitle,
-                          { color: theme.colors.onSurface },
-                        ]}
-                      >
-                        {event.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.eventDate,
-                          { color: theme.colors.onSurfaceVariant },
-                        ]}
-                      >
-                        {event.date} • {event.time}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.eventDescription,
-                          { color: theme.colors.onSurfaceVariant },
-                        ]}
-                      >
-                        {event.description}
-                      </Text>
-                    </View>
-                    <Button
-                      mode="outlined"
-                      compact
-                      onPress={() => handleQuickAction("event", event.id)}
-                    >
-                      View
-                    </Button>
-                  </View>
-                </Card.Content>
-              </Card>
-            ))}
+          <View style={styles.content}>
+            {/* Welcome Card */}
+            <Card style={styles.welcomeCard}>
+              <Card.Content>
+                <Text
+                  style={[styles.welcomeTitle, { color: theme.colors.primary }]}
+                >
+                  Assalamu Alaikum 👋
+                </Text>
+                <Text
+                  style={[
+                    styles.welcomeSubtitle,
+                    { color: theme.colors.onSurface },
+                  ]}
+                >
+                  Welcome back to your mosque community
+                </Text>
+                <Text
+                  style={[
+                    styles.welcomeText,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Manage your spiritual journey, donations, and community events
+                  in one place.
+                </Text>
+                <Button
+                  mode="contained"
+                  onPress={() => handleQuickAction("donation")}
+                  style={styles.donateButton}
+                  icon="heart"
+                >
+                  Make a Donation
+                </Button>
+              </Card.Content>
+            </Card>
+
+            {/* Prayer Times */}
+            <Section title="Today's Prayer Times">
+              <PrayerTimes times={prayerTimes} />
+            </Section>
+
+            {/* Quick Actions */}
+            <Section title="Quick Actions">
+              <QuickActions
+                actions={quickActions}
+                onAction={handleQuickAction}
+              />
+            </Section>
+
+            {/* Stats */}
+            <Section title="Today's Summary">
+              <StatsGrid stats={stats} />
+            </Section>
+
+            {/* Upcoming Events */}
+            <Section
+              title="Upcoming Events"
+              action={
+                <Button
+                  mode="text"
+                  compact
+                  onPress={() => handleQuickAction("events")}
+                >
+                  View All
+                </Button>
+              }
+            >
+              <View style={styles.eventsContainer}>
+                {upcomingEvents.map((event) => (
+                  <Card
+                    key={event.id}
+                    style={styles.eventCard}
+                    mode="contained"
+                  >
+                    <Card.Content>
+                      <View style={styles.eventHeader}>
+                        <View style={styles.eventInfo}>
+                          <Text
+                            style={[
+                              styles.eventTitle,
+                              { color: theme.colors.onSurface },
+                            ]}
+                          >
+                            {event.title}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.eventDate,
+                              { color: theme.colors.onSurfaceVariant },
+                            ]}
+                          >
+                            {event.date} • {event.time}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.eventDescription,
+                              { color: theme.colors.onSurfaceVariant },
+                            ]}
+                          >
+                            {event.description}
+                          </Text>
+                        </View>
+                        <Button
+                          mode="outlined"
+                          compact
+                          onPress={() => handleQuickAction("event", event.id)}
+                        >
+                          View
+                        </Button>
+                      </View>
+                    </Card.Content>
+                  </Card>
+                ))}
+              </View>
+            </Section>
           </View>
-        </Section>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    paddingBottom: 20,
+    flexGrow: 1,
+  },
+  content: {
+    padding: 16,
+    paddingTop: 8,
   },
   welcomeCard: {
     marginBottom: 24,
     borderRadius: 16,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   welcomeTitle: {
     fontSize: 24,

@@ -1,4 +1,4 @@
-//app/(tabs)/_layout.tsx
+// app/(tabs)/_layout.tsx
 import React from "react";
 import { Tabs } from "expo-router";
 import { useTheme } from "react-native-paper";
@@ -17,15 +17,7 @@ export default function TabLayout() {
       elevation: 0,
       shadowOpacity: 0,
     },
-    headerStyle: {
-      backgroundColor: theme.colors.surface,
-      elevation: 0,
-      shadowOpacity: 0,
-    },
-    headerTintColor: theme.colors.onSurface,
-    headerTitleStyle: {
-      fontWeight: "600",
-    },
+    headerShown: false, // This hides the default header with tab names
   };
 
   const tabs = [
