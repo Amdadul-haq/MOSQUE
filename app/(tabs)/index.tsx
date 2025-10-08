@@ -10,6 +10,13 @@ import { StatsGrid } from "../../src/components/StatsGrid";
 import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  PrayerTime,
+  StatItem,
+  QuickAction,
+  Event,
+  Announcement,
+} from "../../src/types";
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -20,6 +27,7 @@ export default function HomeScreen() {
     prayerTimes,
     quickActions,
     handleQuickAction,
+    announcements,
   } = useHomeData();
 
   const handleProfilePress = () => {
@@ -32,16 +40,13 @@ export default function HomeScreen() {
 
   return (
     <Container padding={false}>
-      {/* StatusBar with dark content for better visibility */}
       <StatusBar
         barStyle="dark-content"
         translucent
         backgroundColor="transparent"
       />
 
-      {/* Main content with safe area handling */}
       <View style={styles.container}>
-        {/* Using the enhanced HomeHeader */}
         <HomeHeader
           onProfilePress={handleProfilePress}
           onNotificationPress={handleNotificationPress}
@@ -57,22 +62,49 @@ export default function HomeScreen() {
           style={styles.scrollView}
         >
           <View style={styles.content}>
-            {/* Rest of your content remains the same */}
+            {/* Welcome Card with Announcements */}
             <Card style={styles.welcomeCard}>
               <Card.Content>
-                <Text
-                  style={[styles.welcomeTitle, { color: theme.colors.primary }]}
-                >
-                  Assalamu Alaikum 👋
-                </Text>
-                <Text
-                  style={[
-                    styles.welcomeSubtitle,
-                    { color: theme.colors.onSurface },
-                  ]}
-                >
-                  Welcome back to your mosque community
-                </Text>
+                <View style={styles.welcomeHeader}>
+                  <View style={styles.welcomeTextContainer}>
+                    <Text
+                      style={[
+                        styles.welcomeTitle,
+                        { color: theme.colors.primary },
+                      ]}
+                    >
+                      Assalamu Alaikum 👋
+                    </Text>
+                    <Text
+                      style={[
+                        styles.welcomeSubtitle,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      Welcome back to your mosque community
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.dateBadge,
+                      { backgroundColor: theme.colors.primaryContainer },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dateText,
+                        { color: theme.colors.onPrimaryContainer },
+                      ]}
+                    >
+                      {new Date().toLocaleDateString("en-US", {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </Text>
+                  </View>
+                </View>
+
                 <Text
                   style={[
                     styles.welcomeText,
@@ -82,21 +114,58 @@ export default function HomeScreen() {
                   Manage your spiritual journey, donations, and community events
                   in one place.
                 </Text>
+
+                {/* Quick Announcements */}
+                {announcements.length > 0 && (
+                  <Card
+                    style={[
+                      styles.announcementCard,
+                      { backgroundColor: theme.colors.surfaceVariant },
+                    ]}
+                    mode="contained"
+                  >
+                    <Card.Content>
+                      <Text
+                        style={[
+                          styles.announcementTitle,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        📢 {announcements[0].title}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.announcementText,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        {announcements[0].message}
+                      </Text>
+                    </Card.Content>
+                  </Card>
+                )}
+
                 <Button
                   mode="contained"
                   onPress={() => handleQuickAction("donation")}
                   style={styles.donateButton}
                   icon="heart"
+                  contentStyle={styles.donateButtonContent}
                 >
                   Make a Donation
                 </Button>
               </Card.Content>
             </Card>
 
-            <Section title="Today's Prayer Times">
+            {/* Prayer Times */}
+            <Section
+              title="Today's Prayer Times"
+              subtitle="Next: Dhuhr in 2h 15m"
+            >
               <PrayerTimes times={prayerTimes} />
             </Section>
 
+            {/* Quick Actions */}
             <Section title="Quick Actions">
               <QuickActions
                 actions={quickActions}
@@ -104,10 +173,12 @@ export default function HomeScreen() {
               />
             </Section>
 
+            {/* Stats */}
             <Section title="Today's Summary">
               <StatsGrid stats={stats} />
             </Section>
 
+            {/* Upcoming Events */}
             <Section
               title="Upcoming Events"
               action={
@@ -115,13 +186,14 @@ export default function HomeScreen() {
                   mode="text"
                   compact
                   onPress={() => handleQuickAction("events")}
+                  textColor={theme.colors.primary}
                 >
                   View All
                 </Button>
               }
             >
               <View style={styles.eventsContainer}>
-                {upcomingEvents.map((event) => (
+                {upcomingEvents.slice(0, 3).map((event: Event) => (
                   <Card
                     key={event.id}
                     style={styles.eventCard}
@@ -130,6 +202,16 @@ export default function HomeScreen() {
                     <Card.Content>
                       <View style={styles.eventHeader}>
                         <View style={styles.eventInfo}>
+                          <View style={styles.eventTypeBadge}>
+                            <Text
+                              style={[
+                                styles.eventType,
+                                { color: theme.colors.primary },
+                              ]}
+                            >
+                              {event.type.toUpperCase()}
+                            </Text>
+                          </View>
                           <Text
                             style={[
                               styles.eventTitle,
@@ -144,23 +226,26 @@ export default function HomeScreen() {
                               { color: theme.colors.onSurfaceVariant },
                             ]}
                           >
-                            {event.date} • {event.time}
+                            {event.date} • {event.time} • {event.location}
                           </Text>
-                          <Text
-                            style={[
-                              styles.eventDescription,
-                              { color: theme.colors.onSurfaceVariant },
-                            ]}
-                          >
-                            {event.description}
-                          </Text>
+                          {event.description && (
+                            <Text
+                              style={[
+                                styles.eventDescription,
+                                { color: theme.colors.onSurfaceVariant },
+                              ]}
+                            >
+                              {event.description}
+                            </Text>
+                          )}
                         </View>
                         <Button
                           mode="outlined"
                           compact
                           onPress={() => handleQuickAction("event", event.id)}
+                          style={styles.eventButton}
                         >
-                          View
+                          Details
                         </Button>
                       </View>
                     </Card.Content>
@@ -175,7 +260,6 @@ export default function HomeScreen() {
   );
 }
 
-// ... styles remain the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -192,7 +276,7 @@ const styles = StyleSheet.create({
   },
   welcomeCard: {
     marginBottom: 24,
-    borderRadius: 16,
+    borderRadius: 20,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: {
@@ -201,6 +285,15 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+  },
+  welcomeHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  welcomeTextContainer: {
+    flex: 1,
   },
   welcomeTitle: {
     fontSize: 24,
@@ -212,19 +305,45 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 8,
   },
+  dateBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginLeft: 12,
+  },
+  dateText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
   welcomeText: {
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 16,
   },
+  announcementCard: {
+    marginBottom: 16,
+    borderRadius: 12,
+  },
+  announcementTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  announcementText: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
   donateButton: {
     borderRadius: 12,
   },
+  donateButtonContent: {
+    paddingVertical: 6,
+  },
   eventsContainer: {
-    gap: 8,
+    gap: 12,
   },
   eventCard: {
-    borderRadius: 12,
+    borderRadius: 16,
   },
   eventHeader: {
     flexDirection: "row",
@@ -234,6 +353,14 @@ const styles = StyleSheet.create({
   eventInfo: {
     flex: 1,
     marginRight: 12,
+  },
+  eventTypeBadge: {
+    marginBottom: 8,
+  },
+  eventType: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   eventTitle: {
     fontSize: 16,
@@ -247,5 +374,8 @@ const styles = StyleSheet.create({
   eventDescription: {
     fontSize: 12,
     lineHeight: 16,
+  },
+  eventButton: {
+    borderRadius: 8,
   },
 });

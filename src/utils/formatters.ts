@@ -1,20 +1,30 @@
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
+// src/utils/formatters.ts
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays === 0) return 'Today';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
     day: 'numeric',
-  }).format(date);
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+  });
 };
 
 export const capitalizeWords = (str: string): string => {
-  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  return str.replace(/\b\w/g, l => l.toUpperCase());
 };

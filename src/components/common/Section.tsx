@@ -5,12 +5,14 @@ import { useTheme } from "react-native-paper";
 
 interface SectionProps {
   title: string;
+  subtitle?: string;
   children: React.ReactNode;
   action?: React.ReactNode;
 }
 
 export const Section: React.FC<SectionProps> = ({
   title,
+  subtitle,
   children,
   action,
 }) => {
@@ -19,9 +21,21 @@ export const Section: React.FC<SectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-          {title}
-        </Text>
+        <View style={styles.titleContainer}>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
+              {subtitle}
+            </Text>
+          )}
+        </View>
         {action}
       </View>
       {children}
@@ -36,11 +50,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 16,
+  },
+  titleContainer: {
+    flex: 1,
   },
   title: {
     fontSize: 20,
     fontWeight: "700",
+  },
+  subtitle: {
+    fontSize: 14,
+    marginTop: 4,
   },
 });

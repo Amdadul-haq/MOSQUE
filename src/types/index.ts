@@ -1,12 +1,34 @@
 // src/types/index.ts
+export interface PrayerTime {
+  name: string;
+  time: string;
+  isCurrent?: boolean;
+}
+
+export interface PrayerProgress {
+  name: string;
+  completed: boolean;
+  time: string;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  progress: number;
+  total: number;
+  unlocked: boolean;
+  date: string;
+}
+
 export interface Donation {
   id: string;
   donor: string;
-  type: 'zakat' | 'sadaqah' | 'construction' | 'other';
+  type: string;
   amount: number;
   date: string;
   anonymous: boolean;
-  description?: string;
 }
 
 export interface MosqueInfo {
@@ -23,8 +45,28 @@ export interface MosqueInfo {
     bio: string;
     email: string;
   };
-  prayerTimes: Record<string, string>;
+  prayerTimes: {
+    fajr: string;
+    dhuhr: string;
+    asr: string;
+    maghrib: string;
+    isha: string;
+    jumuah: string;
+  };
   services: string[];
+  facilities?: string[];
+  upcomingEvents?: Event[];
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  type: string;
+  imam: string;
+  description?: string;
+  location?: string;
 }
 
 export interface UserProfile {
@@ -33,18 +75,41 @@ export interface UserProfile {
   email: string;
   phone: string;
   joinDate: string;
-  role: 'member' | 'volunteer' | 'admin';
+  role: string;
+  membership?: string;
+  prayerStreak?: number;
+  totalPrayers?: number;
   preferences: {
     notifications: boolean;
     prayerReminders: boolean;
+    darkMode: boolean;
     language: string;
-    theme: 'light' | 'dark' | 'auto';
+    theme: string;
+    qiblaDirection: boolean;
+    vibration: boolean;
   };
 }
 
-export interface PrayerTime {
-  name: string;
-  time: string;
-  isCurrent?: boolean;
-  iqamah?: string;
+export interface StatItem {
+  label: string;
+  value: string;
+  icon: string;
+  color: string;
+  trend?: string;
+}
+
+export interface QuickAction {
+  id: string;
+  title: string;
+  icon: string;
+  color: string;
+  screen: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  type: 'info' | 'warning' | 'urgent';
 }
