@@ -32,9 +32,9 @@ export default function HomeScreen() {
 
   return (
     <Container padding={false}>
-      {/* StatusBar with transparent background */}
+      {/* StatusBar with dark content for better visibility */}
       <StatusBar
-        barStyle="light-content"
+        barStyle="dark-content"
         translucent
         backgroundColor="transparent"
       />
@@ -57,7 +57,7 @@ export default function HomeScreen() {
           style={styles.scrollView}
         >
           <View style={styles.content}>
-            {/* Welcome Card */}
+            {/* Rest of your content remains the same */}
             <Card style={styles.welcomeCard}>
               <Card.Content>
                 <Text
@@ -93,12 +93,10 @@ export default function HomeScreen() {
               </Card.Content>
             </Card>
 
-            {/* Prayer Times */}
             <Section title="Today's Prayer Times">
               <PrayerTimes times={prayerTimes} />
             </Section>
 
-            {/* Quick Actions */}
             <Section title="Quick Actions">
               <QuickActions
                 actions={quickActions}
@@ -106,12 +104,10 @@ export default function HomeScreen() {
               />
             </Section>
 
-            {/* Stats */}
             <Section title="Today's Summary">
               <StatsGrid stats={stats} />
             </Section>
 
-            {/* Upcoming Events */}
             <Section
               title="Upcoming Events"
               action={
@@ -179,6 +175,7 @@ export default function HomeScreen() {
   );
 }
 
+// ... styles remain the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
