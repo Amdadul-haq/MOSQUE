@@ -10,6 +10,8 @@ import { StatsGrid } from "../../src/components/StatsGrid";
 import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+
 import {
   PrayerTime,
   StatItem,
@@ -19,6 +21,8 @@ import {
 } from "../../src/types";
 
 export default function HomeScreen() {
+    const router = useRouter();
+
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const {
@@ -147,7 +151,7 @@ export default function HomeScreen() {
 
                 <Button
                   mode="contained"
-                  onPress={() => handleQuickAction("donation")}
+                  onPress={() => router.push("/donation/type")} 
                   style={styles.donateButton}
                   icon="heart"
                   contentStyle={styles.donateButtonContent}

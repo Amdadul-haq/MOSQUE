@@ -22,6 +22,8 @@ import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { StatsGrid } from "../../src/components/StatsGrid";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
+import { useRouter } from "expo-router";
+
 import {
   formatCurrency,
   formatDate,
@@ -33,6 +35,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type TimeFilter = "all" | "month" | "week" | "today";
 
 export default function DonationsScreen() {
+    const router = useRouter();
+
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
@@ -164,7 +168,7 @@ export default function DonationsScreen() {
         rightComponent={
           <Button
             mode="contained"
-            onPress={() => setShowAddModal(true)}
+            onPress={() => router.push("/donation/type")} // Changed this line
             icon="plus"
             compact
             style={styles.addButton}
@@ -318,7 +322,7 @@ export default function DonationsScreen() {
                   </Text>
                   <Button
                     mode="outlined"
-                    onPress={() => setShowAddModal(true)}
+                    onPress={() => router.push("/donation/type")} // Changed this line
                     style={styles.emptyButton}
                   >
                     Make First Donation
@@ -404,7 +408,7 @@ export default function DonationsScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => setShowAddModal(true)}
+        onPress={() => router.push("/donation/type")} // Changed this line
         color="white"
         label="Add Donation"
       />

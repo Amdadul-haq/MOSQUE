@@ -1,6 +1,7 @@
 // src/hooks/useHomeData.ts
 import { useState, useCallback } from 'react';
 import { PrayerTime, StatItem, QuickAction, Event, Announcement } from '../types';
+import { router } from 'expo-router';
 
 export const useHomeData = () => {
   const [stats, setStats] = useState<StatItem[]>([
@@ -110,7 +111,7 @@ export const useHomeData = () => {
     // Handle different quick actions
     switch (actionId) {
       case 'donation':
-        // Navigate to donations screen
+        router.push("/donation/type");
         break;
       case 'profile':
         // Navigate to profile screen
@@ -121,7 +122,7 @@ export const useHomeData = () => {
       default:
         break;
     }
-  }, []);
+  }, [router]);
 
   return {
     stats,
