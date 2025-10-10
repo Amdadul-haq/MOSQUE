@@ -66,60 +66,55 @@ export default function DonationSuccessScreen() {
         quality: 1,
       });
 
-      // Try to save to media library, fallback to sharing if permission fails
+      // In development build, we can use MediaLibrary directly
       try {
-        if (Platform.OS === "ios" || Platform.OS === "android") {
-          const { status } = await MediaLibrary.requestPermissionsAsync();
-          if (status === "granted") {
-            await MediaLibrary.saveToLibraryAsync(uri);
-            Alert.alert(
-              "✅ Receipt Saved",
-              "Donation receipt has been saved to your photos",
-              [{ text: "OK" }]
-            );
-          } else {
-            // If permission denied, offer to share instead
-            Alert.alert(
-              "Permission Required",
-              "To save to photos, please allow storage access. Would you like to share the receipt instead?",
-              [
-                { text: "Cancel", style: "cancel" },
-                { text: "Share", onPress: () => shareReceipt() },
-              ]
-            );
-          }
-        } else {
-          // For web, use sharing
-          await Sharing.shareAsync(uri);
-        }
-      } catch (permissionError) {
-        // If media library fails, fall back to sharing
-        console.log(
-          "Media library failed, falling back to sharing:",
-          permissionError
-        );
-        await Sharing.shareAsync(uri, {
-          mimeType: "image/png",
-          dialogTitle: "Share Donation Receipt",
-          UTI: "image/png",
-        });
-      }
+        // Request permission
+        const { status } = await MediaLibrary.requestPermissionsAsync();
 
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (status === "granted") {
+          // Save directly to gallery
+          const asset = await MediaLibrary.createAssetAsync(uri);
+          await MediaLibrary.createAlbumAsync("Downloads", asset, false);
+
+          Alert.alert(
+            "✅ Receipt Downloaded",
+            "Donation receipt has been saved to your Photos gallery in 'Downloads' album",
+            [{ text: "OK" }]
+          );
+          await Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+          );
+        } else {
+          // If permission denied, use sharing as fallback
+          Alert.alert(
+            "Permission Required",
+            "Please allow photo library access to save receipts directly. Using sharing instead.",
+            [{ text: "OK", onPress: () => shareReceiptDirect(uri) }]
+          );
+        }
+      } catch (mediaError) {
+        console.log("Media library error:", mediaError);
+        // Fallback to sharing
+        await shareReceiptDirect(uri);
+      }
     } catch (error) {
       console.error("Error downloading receipt:", error);
-      // Fallback to sharing if everything else fails
-      try {
-        if (receiptRef.current) {
-          const uri = await captureRef(receiptRef.current, {
-            format: "png",
-            quality: 1,
-          });
-          await Sharing.shareAsync(uri);
-        }
-      } catch (fallbackError) {
-        Alert.alert("Error", "Failed to process receipt. Please try again.");
-      }
+      Alert.alert("Error", "Failed to download receipt. Please try again.", [
+        { text: "OK" },
+      ]);
+    }
+  };
+
+  const shareReceiptDirect = async (uri: string) => {
+    try {
+      await Sharing.shareAsync(uri, {
+        mimeType: "image/png",
+        dialogTitle: "Save Donation Receipt",
+        UTI: "image/png",
+      });
+    } catch (shareError) {
+      console.error("Error sharing:", shareError);
+      Alert.alert("Error", "Failed to share receipt.");
     }
   };
 
@@ -134,11 +129,7 @@ export default function DonationSuccessScreen() {
         quality: 0.8,
       });
 
-      await Sharing.shareAsync(uri, {
-        mimeType: "image/png",
-        dialogTitle: "Share Donation Receipt",
-        UTI: "image/png",
-      });
+      await shareReceiptDirect(uri);
     } catch (error) {
       console.error("Error sharing receipt:", error);
       Alert.alert("Error", "Failed to share receipt. Please try again.");
@@ -298,7 +289,7 @@ export default function DonationSuccessScreen() {
           </View>
 
           {/* Receipt Actions */}
-          <Card style={styles.actionsCard}>
+          <Card style={styles.messageCard}>
             <Card.Content>
               <Text
                 style={[styles.actionsTitle, { color: theme.colors.onSurface }]}
@@ -311,46 +302,30 @@ export default function DonationSuccessScreen() {
                   { color: theme.colors.onSurfaceVariant },
                 ]}
               >
-                Save or share your donation receipt for records
+                Save your donation receipt directly to your device
               </Text>
 
               <View style={styles.receiptActions}>
                 <Button
-                  mode="outlined"
+                  mode="contained"
                   onPress={downloadReceipt}
                   style={styles.receiptButton}
                   contentStyle={styles.receiptButtonContent}
                   icon="download"
                 >
-                  Save Receipt
+                  Download to Gallery
                 </Button>
 
                 <Button
-                  mode="contained-tonal"
+                  mode="outlined"
                   onPress={shareReceipt}
                   style={styles.receiptButton}
                   contentStyle={styles.receiptButtonContent}
                   icon="share-variant"
                 >
-                  Share
+                  Share Receipt
                 </Button>
               </View>
-            </Card.Content>
-          </Card>
-
-          {/* Gratitude Message */}
-          <Card style={styles.messageCard}>
-            <Card.Content>
-              <Text
-                style={[
-                  styles.gratitudeText,
-                  { color: theme.colors.onSurface },
-                ]}
-              >
-                "Thank you for your generous donation. May Allah accept your
-                charity and reward you abundantly in this life and the
-                hereafter."
-              </Text>
             </Card.Content>
           </Card>
 
@@ -530,10 +505,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     marginBottom: 16,
+    lineHeight: 16,
   },
   receiptActions: {
     flexDirection: "row",
     gap: 12,
+    marginBottom: 16,
   },
   receiptButton: {
     flex: 1,
@@ -541,6 +518,24 @@ const styles = StyleSheet.create({
   },
   receiptButtonContent: {
     paddingVertical: 6,
+  },
+  downloadInstructions: {
+    padding: 12,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#16a34a",
+  },
+  instructionsTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#16a34a",
+    marginBottom: 8,
+  },
+  instructionsText: {
+    fontSize: 12,
+    color: "#666",
+    lineHeight: 18,
   },
   messageCard: {
     borderRadius: 16,
