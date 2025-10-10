@@ -15,6 +15,8 @@ import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
+import * as Haptics from "expo-haptics";
+
 
 export default function DonationReviewScreen() {
   const theme = useTheme();
@@ -82,7 +84,11 @@ export default function DonationReviewScreen() {
     progressAnim.setValue(0);
   };
 
-  const completeDonation = () => {
+  const completeDonation = async () => {
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success
+        );
+
     addDonation({
       donor: isAnonymous ? "Anonymous" : "Current User",
       type: selectedType,

@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 import { useTheme } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
+import * as Haptics from "expo-haptics"; // ⬅️ Haptic Import Added
 
 export default function TabLayout() {
   const theme = useTheme();
@@ -17,7 +18,7 @@ export default function TabLayout() {
       elevation: 0,
       shadowOpacity: 0,
     },
-    headerShown: false, // This hides the default header with tab names
+    headerShown: false,
   };
 
   const tabs = [
@@ -58,6 +59,11 @@ export default function TabLayout() {
                 color={color}
               />
             ),
+          }}
+          listeners={{
+            tabPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            },
           }}
         />
       ))}

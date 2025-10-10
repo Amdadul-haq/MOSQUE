@@ -23,6 +23,7 @@ import { UserProfile, PrayerProgress, Achievement } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 const initialProfile: UserProfile = {
   id: "1",
@@ -147,14 +148,21 @@ export default function ProfileScreen() {
     Alert.alert("Edit Profile", "Profile editing would open here");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async() => {
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Warning
+        );
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Logout",
         style: "destructive",
-        onPress: () =>
-          Alert.alert("Logged Out", "You have been successfully logged out"),
+        onPress: async () => {
+          await Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Warning
+          );
+          Alert.alert("Logged Out", "You have been successfully logged out");
+        },
       },
     ]);
   };

@@ -21,8 +21,8 @@ export interface DonationType {
 export interface PaymentMethod {
   id: string;
   name: string;
-  description: string;
-  icon: string;
+  description?: string;
+  icon?: string;
   accountNumber?: string;
   instructions?: string;
 }
