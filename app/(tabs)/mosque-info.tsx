@@ -19,18 +19,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const mosqueData: MosqueInfo = {
   id: "1",
-  name: "Al-Masjid Al-Jamia",
-  established: "1995",
+  name: "Khiarpara Jame Masjid",
+  established: "1972",
   description:
     "A vibrant community mosque serving Muslims in the area with daily prayers, educational programs, and community events. We strive to be a center for spiritual growth, education, and community service.",
-  address: "123 Islamic Street, Muslim Town, City 12345",
-  phone: "+1 (555) 123-4567",
-  email: "info@almasjid.org",
+  address: "Khiarpara, Badargonj, Rangpur",
+  phone: "01575494393",
+  email: "milon.s2k21@gmail.com",
   imam: {
-    name: "Imam Omar Farooq",
-    phone: "+1 (555) 123-4568",
+    name: "Omar Farooq",
+    phone: "01767313871",
     bio: "Graduate of Islamic University of Madinah with 15 years of experience in community leadership and Islamic education.",
-    email: "imam@almasjid.org",
+    email: "milon.s2k21@gmail.com",
   },
   prayerTimes: {
     fajr: "5:30 AM",
@@ -182,7 +182,9 @@ export default function MosqueInfoScreen() {
                       backgroundColor: theme.colors.primary,
                     },
                   ]}
-                  color={viewMode === "info" ? "white" : theme.colors.onSurface}
+                  iconColor={
+                    viewMode === "info" ? "white" : theme.colors.onSurface
+                  }
                 />
                 <ToggleButton
                   icon="calendar"
@@ -193,7 +195,7 @@ export default function MosqueInfoScreen() {
                       backgroundColor: theme.colors.primary,
                     },
                   ]}
-                  color={
+                  iconColor={
                     viewMode === "events" ? "white" : theme.colors.onSurface
                   }
                 />

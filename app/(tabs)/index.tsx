@@ -54,7 +54,7 @@ export default function HomeScreen() {
         <HomeHeader
           onProfilePress={handleProfilePress}
           onNotificationPress={handleNotificationPress}
-          notificationCount={3}
+          // notificationCount={3}
         />
 
         <ScrollView
@@ -172,7 +172,10 @@ export default function HomeScreen() {
             {/* Quick Actions */}
             <Section title="Quick Actions">
               <QuickActions
-                actions={quickActions}
+                actions={quickActions.map(action => ({
+                  ...action,
+                  description: action.description ?? ""
+                }))}
                 onAction={handleQuickAction}
               />
             </Section>

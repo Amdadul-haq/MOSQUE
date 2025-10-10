@@ -10,7 +10,7 @@ import {
   Divider,
 } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, DonationType } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -98,7 +98,7 @@ export default function DonationTypeScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
+      <SimpleHeader
         title="Make Donation"
         showBackButton={true}
         onBackPress={() => router.back()}

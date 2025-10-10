@@ -30,7 +30,7 @@ export const useHomeData = () => {
       id: "1",
       title: "Friday Jumuah Prayer",
       date: "Today",
-      time: "1:00 PM",
+      time: "12:30 PM",
       type: "prayer",
       imam: "Imam Omar",
       location: "Main Hall",
@@ -100,8 +100,8 @@ export const useHomeData = () => {
     {
       id: "1",
       title: "Friday Prayer Update",
-      message: "Jumuah prayer will start at 1:00 PM this week",
-      date: "2024-01-15",
+      message: "Jumuah prayer will start at 12:30 PM this week",
+      date: "2025-10-10",
       type: "info",
     },
   ]);

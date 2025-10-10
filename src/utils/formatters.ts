@@ -1,8 +1,8 @@
 // src/utils/formatters.ts
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-IN', {
+  return new Intl.NumberFormat('bn-BD', {
     style: 'currency',
-    currency: 'INR',
+    currency: 'BDT',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);

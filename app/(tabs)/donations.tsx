@@ -165,18 +165,21 @@ export default function DonationsScreen() {
       <Header
         title="Donations"
         subtitle="Support your mosque community"
-        rightComponent={
-          <Button
-            mode="contained"
-            onPress={() => router.push("/donation/type")} // Changed this line
-            icon="plus"
-            compact
-            style={styles.addButton}
-          >
-            Add
-          </Button>
-        }
+        // rightComponent={
+        //   <Button
+        //     mode="contained"
+        //     onPress={() => router.push("/donation/type")} // Changed this line
+        //     icon="plus"
+        //     compact
+        //     style={styles.addButton}
+        //   >
+        //     Add
+        //   </Button>
+        // }
+    
       />
+
+      
 
       <ScrollView
         style={styles.scrollView}

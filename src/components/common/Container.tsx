@@ -23,6 +23,7 @@ export const Container: React.FC<ContainerProps> = ({
           flex: 1,
           backgroundColor: theme.colors.background,
           padding: padding ? 16 : 0,
+
         },
         style,
       ]}

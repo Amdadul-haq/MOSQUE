@@ -13,6 +13,7 @@ import {
   Chip,
   ProgressBar,
   ToggleButton,
+  FAB,
 } from "react-native-paper";
 import { Header } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
@@ -21,13 +22,14 @@ import { StatsGrid } from "../../src/components/StatsGrid";
 import { UserProfile, PrayerProgress, Achievement } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 
 const initialProfile: UserProfile = {
   id: "1",
-  name: "Ahmed Abdullah",
-  email: "ahmed.abdullah@example.com",
-  phone: "+1 (555) 123-4567",
-  joinDate: "January 2024",
+  name: "Md.Amdadul Haq Milon",
+  email: "milon.s2k21@gmail.com",
+  phone: "01575494393",
+  joinDate: "January 2020",
   role: "member",
   membership: "Premium Member",
   prayerStreak: 12,
@@ -184,17 +186,6 @@ export default function ProfileScreen() {
       <Header
         title="Profile"
         subtitle="Manage your account and preferences"
-        rightComponent={
-          <Button
-            mode="contained-tonal"
-            onPress={handleEditProfile}
-            icon="pencil"
-            compact
-            style={styles.editButton}
-          >
-            Edit
-          </Button>
-        }
       />
 
       <ScrollView
@@ -301,7 +292,7 @@ export default function ProfileScreen() {
                         backgroundColor: theme.colors.primary,
                       },
                     ]}
-                    color={
+                    iconColor={
                       activeTab === "overview"
                         ? "white"
                         : theme.colors.onSurface
@@ -316,7 +307,7 @@ export default function ProfileScreen() {
                         backgroundColor: theme.colors.primary,
                       },
                     ]}
-                    color={
+                    iconColor={
                       activeTab === "achievements"
                         ? "white"
                         : theme.colors.onSurface
@@ -331,7 +322,7 @@ export default function ProfileScreen() {
                         backgroundColor: theme.colors.primary,
                       },
                     ]}
-                    color={
+                    iconColor={
                       activeTab === "settings"
                         ? "white"
                         : theme.colors.onSurface
@@ -724,6 +715,13 @@ export default function ProfileScreen() {
           </Button>
         </View>
       </ScrollView>
+      <FAB
+        icon="pencil"
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        onPress={() => router.push("/donation/type")} // Changed this line
+        color="white"
+        label="Edit"
+      />
     </Container>
   );
 }
@@ -954,5 +952,12 @@ const styles = StyleSheet.create({
   },
   logoutButtonContent: {
     paddingVertical: 6,
+  },
+  fab: {
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
   },
 });

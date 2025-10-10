@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     // Shadow for Android
     elevation: 8,
     // Shadow for iOS
@@ -234,7 +234,7 @@ export const HomeHeader: React.FC<{
 }> = ({ onProfilePress, onNotificationPress, notificationCount = 0 }) => {
   return (
     <Header
-      title="Al-Masjid Al-Jamia"
+      title="Khiarpara Jame Mosque"
       subtitle="Welcome to your spiritual hub"
       showProfile={true}
       showNotifications={true}
