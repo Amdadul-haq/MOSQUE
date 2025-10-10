@@ -219,7 +219,7 @@ export default function DonationSuccessScreen() {
               <Card.Content>
                 {/* Receipt Header */}
                 <View style={styles.receiptHeader}>
-                  <Text style={styles.mosqueName}>Al-Masjid Al-Jamia</Text>
+                  <Text style={styles.mosqueName}>Khiarpara Jame Moshjid</Text>
                   <Text style={styles.receiptTitle}>DONATION RECEIPT</Text>
                   <Text style={styles.receiptSubtitle}>
                     Official Tax Deductible Receipt
@@ -281,7 +281,9 @@ export default function DonationSuccessScreen() {
                       Authorized Signature
                     </Text>
                     <View style={styles.signatureLine} />
-                    <Text style={styles.mosqueStamp}>Al-Masjid Al-Jamia</Text>
+                    <Text style={styles.mosqueStamp}>
+                      Khiarpara Jame Moshjid
+                    </Text>
                   </View>
 
                   <View style={styles.footerNote}>
