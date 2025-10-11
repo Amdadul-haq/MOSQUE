@@ -21,8 +21,7 @@ import {
 } from "../../src/types";
 
 export default function HomeScreen() {
-    const router = useRouter();
-
+  const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const {
@@ -42,6 +41,10 @@ export default function HomeScreen() {
     handleQuickAction("notifications");
   };
 
+  const handleViewFinancials = () => {
+    router.push("/financials/financials");
+  };
+
   return (
     <Container padding={false}>
       <StatusBar
@@ -54,7 +57,6 @@ export default function HomeScreen() {
         <HomeHeader
           onProfilePress={handleProfilePress}
           onNotificationPress={handleNotificationPress}
-          // notificationCount={3}
         />
 
         <ScrollView
@@ -151,7 +153,7 @@ export default function HomeScreen() {
 
                 <Button
                   mode="contained"
-                  onPress={() => router.push("/donation/type")} 
+                  onPress={() => router.push("/donation/type")}
                   style={styles.donateButton}
                   icon="heart"
                   contentStyle={styles.donateButtonContent}
@@ -172,12 +174,47 @@ export default function HomeScreen() {
             {/* Quick Actions */}
             <Section title="Quick Actions">
               <QuickActions
-                actions={quickActions.map(action => ({
+                actions={quickActions.map((action) => ({
                   ...action,
-                  description: action.description ?? ""
+                  description: action.description ?? "",
                 }))}
                 onAction={handleQuickAction}
               />
+            </Section>
+
+            {/* View Financials Button */}
+            <Section title="Mosque Financials">
+              <Card style={styles.financialsCard}>
+                <Card.Content style={styles.financialsContent}>
+                  <View style={styles.financialsTextContainer}>
+                    <Text
+                      style={[
+                        styles.financialsTitle,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      Financial Overview
+                    </Text>
+                    <Text
+                      style={[
+                        styles.financialsSubtitle,
+                        { color: theme.colors.onSurfaceVariant },
+                      ]}
+                    >
+                      View detailed financial reports and analytics
+                    </Text>
+                  </View>
+                  <Button
+                    mode="outlined"
+                    onPress={handleViewFinancials}
+                    style={styles.financialsButton}
+                    contentStyle={styles.financialsButtonContent}
+                    icon="chart-box"
+                  >
+                    View Full Financials
+                  </Button>
+                </Card.Content>
+              </Card>
             </Section>
 
             {/* Stats */}
@@ -345,6 +382,35 @@ const styles = StyleSheet.create({
   },
   donateButtonContent: {
     paddingVertical: 6,
+  },
+  financialsCard: {
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  financialsContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  financialsTextContainer: {
+    flex: 1,
+  },
+  financialsTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  financialsSubtitle: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  financialsButton: {
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  financialsButtonContent: {
+    paddingVertical: 4,
   },
   eventsContainer: {
     gap: 12,

@@ -114,3 +114,56 @@ export interface Announcement {
   date: string;
   type: 'info' | 'warning' | 'urgent';
 }
+
+export interface FinancialData {
+  currentMonth: MonthlyFinancials;
+  lifetime: LifetimeFinancials;
+  monthlyTrends: MonthlyTrend[];
+}
+
+export interface MonthlyFinancials {
+  month: string;
+  year: number;
+  totalDonations: number;
+  totalExpenses: number;
+  balance: number;
+  donationCount: number;
+  expenseCount: number;
+  categories: FinancialCategory[];
+}
+
+export interface LifetimeFinancials {
+  totalDonations: number;
+  totalExpenses: number;
+  netBalance: number;
+  totalDonationCount: number;
+  totalExpenseCount: number;
+  averageMonthlyDonations: number;
+  averageMonthlyExpenses: number;
+}
+
+export interface FinancialCategory {
+  name: string;
+  amount: number;
+  type: 'donation' | 'expense';
+  percentage: number;
+  icon: string;
+  color: string;
+}
+
+export interface MonthlyTrend {
+  month: string;
+  donations: number;
+  expenses: number;
+  balance: number;
+}
+
+export interface FinancialSummaryItem {
+  label: string;
+  value: string;
+  amount: number;
+  type: 'donation' | 'expense' | 'balance';
+  trend?: string;
+  icon: string;
+  color: string;
+}

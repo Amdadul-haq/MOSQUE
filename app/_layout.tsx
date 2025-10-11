@@ -1,4 +1,4 @@
-// app/_layout.tsx
+// app/_layout.tsx - Stack.Screen add korbo
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -46,6 +46,10 @@ export default function RootLayout() {
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="financials"
+            options={{ headerShown: false }}
+          />
         </Stack>
       </PaperProvider>
     </SafeAreaProvider>
