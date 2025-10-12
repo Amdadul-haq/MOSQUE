@@ -1,10 +1,10 @@
-// src/services/pdf-service.ts - Fixed with correct FileSystem API for v19+
+// src/services/pdf-service.ts - Fixed with file sharing instead of gallery
 import { PDFReportData, PDFExportConfig } from '../types/pdf-report';
 import { formatCurrency } from '../utils/formatters';
-import * as MediaLibrary from 'expo-media-library';
-import * as FileSystem from 'expo-file-system';
+import { File, Directory, Paths } from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as Haptics from 'expo-haptics';
 
 export class PDFService {
   static async generateFinancialReport(
@@ -12,6 +12,10 @@ export class PDFService {
     config: PDFExportConfig
   ): Promise<string> {
     try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      console.log('Starting PDF generation...');
+      
       // Create HTML content for PDF
       const htmlContent = this.generateHTMLContent(data, config);
       
@@ -23,23 +27,60 @@ export class PDFService {
 
       const fileName = `Financial_Report_${data.reportPeriod.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
       
-      // Get the directory path from the generated URI
-      const originalDir = uri.substring(0, uri.lastIndexOf('/'));
-      const newPath = `${originalDir}/${fileName}`;
+      console.log('PDF generated at:', uri);
       
-      // Move file to new location with proper name
-      await FileSystem.moveAsync({
-        from: uri,
-        to: newPath
-      });
+      // Create File instance for the generated PDF
+      const sourceFile = new File(uri);
+      
+      // Create destination file in documents directory
+      const documentsDir = new Directory(Paths.document);
+      const destinationFile = new File(documentsDir, fileName);
+      
+      // Copy file to documents directory with proper name
+      await sourceFile.copy(destinationFile);
+      
+      // Delete the original temporary file
+      await sourceFile.delete();
 
-      // Save to gallery
-      await this.saveToGallery(newPath);
+      console.log('File saved to:', destinationFile.uri);
+      
+      // Share the file - this will open share dialog where user can choose browser
+      await this.shareFile(destinationFile.uri, 'application/pdf');
       
       return fileName;
     } catch (error) {
       console.error('PDF Generation Error:', error);
-      throw new Error('Failed to generate PDF report');
+      throw new Error('Failed to generate PDF report: ' + (error as Error).message);
+    }
+  }
+
+  static async generateExcelExport(data: PDFReportData): Promise<string> {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      console.log('Starting Excel export...');
+      
+      // Create CSV content for Excel export
+      const csvContent = this.getExcelTemplate(data);
+      const fileName = `Financial_Data_${data.reportPeriod.replace(/\s+/g, '_')}_${Date.now()}.csv`;
+      
+      // Create file in documents directory
+      const documentsDir = new Directory(Paths.document);
+      const file = new File(documentsDir, fileName);
+      
+      // Write CSV content to file
+      await file.create();
+      await file.write(csvContent, { encoding: 'utf8' });
+
+      console.log('CSV file saved to:', file.uri);
+      
+      // Share the file
+      await this.shareFile(file.uri, 'text/csv');
+      
+      return fileName;
+    } catch (error) {
+      console.error('Excel Export Error:', error);
+      throw new Error('Failed to generate Excel export: ' + (error as Error).message);
     }
   }
 
@@ -393,56 +434,24 @@ export class PDFService {
     return text.replace(/[&<>"']/g, (m) => map[m]);
   }
 
-  private static async saveToGallery(filePath: string): Promise<void> {
+  private static async shareFile(fileUri: string, mimeType: string): Promise<void> {
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-
-      if (status === "granted") {
-        const asset = await MediaLibrary.createAssetAsync(filePath);
-        const album = await MediaLibrary.getAlbumAsync('Mosque Financials');
-        
-        if (album === null) {
-          await MediaLibrary.createAlbumAsync('Mosque Financials', asset, false);
-        } else {
-          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-        }
-      } else {
-        throw new Error('Gallery permission denied');
+      console.log('Sharing file:', fileUri);
+      
+      if (!(await Sharing.isAvailableAsync())) {
+        throw new Error('Sharing is not available on this device');
       }
-    } catch (error) {
-      console.error('Save to gallery error:', error);
-      // Don't throw error here, just log it
-    }
-  }
 
-  static async generateExcelExport(data: PDFReportData): Promise<string> {
-    try {
-      // Create CSV content for Excel export
-      const csvContent = this.getExcelTemplate(data);
-      const fileName = `Financial_Data_${data.reportPeriod.replace(/\s+/g, '_')}_${Date.now()}.csv`;
-      
-      // Generate a temporary file path using the same approach as PDF
-      const tempUri = await Print.printToFileAsync({
-        html: `<pre>${this.escapeHtml(csvContent)}</pre>`,
-        base64: false,
+      await Sharing.shareAsync(fileUri, {
+        mimeType,
+        dialogTitle: 'Download Financial Report',
+        UTI: mimeType
       });
 
-      const originalDir = tempUri.uri.substring(0, tempUri.uri.lastIndexOf('/'));
-      const filePath = `${originalDir}/${fileName}`;
-      
-      // Move and rename the file
-      await FileSystem.moveAsync({
-        from: tempUri.uri,
-        to: filePath
-      });
-
-      // Save to gallery
-      await this.saveToGallery(filePath);
-      
-      return fileName;
+      console.log('File shared successfully');
     } catch (error) {
-      console.error('Excel Export Error:', error);
-      throw new Error('Failed to generate Excel export');
+      console.error('Share file error:', error);
+      throw new Error('Failed to share file: ' + (error as Error).message);
     }
   }
 
@@ -476,7 +485,6 @@ ${data.monthlyTrends.map(item =>
 ).join('\n')}`;
   }
 
-  // Add the missing method that was causing the error
   static getReportTemplate(data: PDFReportData): string {
     return `Financial Report Preview
 =======================
@@ -493,37 +501,12 @@ Summary:
 This report contains detailed financial breakdown and monthly trends.`;
   }
 
+  // Remove media library methods since we're using sharing
   static async checkGalleryPermissions(): Promise<boolean> {
-    try {
-      const { status } = await MediaLibrary.getPermissionsAsync();
-      return status === 'granted';
-    } catch (error) {
-      console.error('Permission check error:', error);
-      return false;
-    }
+    return true;
   }
 
   static async requestGalleryPermissions(): Promise<boolean> {
-    try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      return status === 'granted';
-    } catch (error) {
-      console.error('Permission request error:', error);
-      return false;
-    }
-  }
-
-  // Additional method to share file directly
-  static async shareFile(filePath: string): Promise<void> {
-    try {
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(filePath);
-      } else {
-        throw new Error('Sharing is not available on this device');
-      }
-    } catch (error) {
-      console.error('Share file error:', error);
-      throw error;
-    }
+    return true;
   }
 }

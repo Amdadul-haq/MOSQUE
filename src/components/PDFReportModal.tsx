@@ -40,62 +40,45 @@ export default function PDFReportModal({
   >(null);
 
   // Check permissions when modal opens
-  useEffect(() => {
-    if (visible) {
-      checkPermissions();
-    }
-  }, [visible]);
+  // useEffect(() => {
+  //   if (visible) {
+  //     checkPermissions();
+  //   }
+  // }, [visible]);
 
-  const checkPermissions = async () => {
-    const hasPerm = await PDFService.checkGalleryPermissions();
-    setHasGalleryPermission(hasPerm);
-  };
+  // const checkPermissions = async () => {
+  //   const hasPerm = await PDFService.checkGalleryPermissions();
+  //   setHasGalleryPermission(hasPerm);
+  // };
 
-  const handleGenerateReport = async () => {
-    if (hasGalleryPermission === false) {
-      const granted = await PDFService.requestGalleryPermissions();
-      if (!granted) {
-        Alert.alert(
-          "Permission Required",
-          "This app needs gallery access to save financial reports. Please grant permission in settings.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-      setHasGalleryPermission(true);
+const handleGenerateReport = async () => {
+  setIsGenerating(true);
+
+  try {
+    console.log(`Starting ${exportType} export...`);
+
+    if (exportType === "pdf") {
+      await PDFService.generateFinancialReport(reportData, exportConfig);
+    } else {
+      await PDFService.generateExcelExport(reportData);
     }
 
-    setIsGenerating(true);
-
-    try {
-      let fileName: string;
-
-      if (exportType === "pdf") {
-        fileName = await PDFService.generateFinancialReport(
-          reportData,
-          exportConfig
-        );
-      } else {
-        fileName = await PDFService.generateExcelExport(reportData);
-      }
-
-      Alert.alert(
-        "✅ Export Successful",
-        `${exportType.toUpperCase()} file has been saved to your gallery in "Mosque Financials" album.\n\nFile: ${fileName}`,
-        [{ text: "OK", onPress: onDismiss }]
-      );
-    } catch (error: any) {
-      console.error("Export error:", error);
-      Alert.alert(
-        "❌ Export Failed",
-        error.message || "Failed to generate report. Please try again.",
-        [{ text: "OK" }]
-      );
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
+    Alert.alert(
+      "✅ Export Ready",
+      `Your ${exportType.toUpperCase()} file is ready!\n\nUse the share dialog to:\n• Open in browser\n• Save to Downloads\n• Save to Google Drive\n• Send via email\n• Save to any other app`,
+      [{ text: "OK", onPress: onDismiss }]
+    );
+  } catch (error: any) {
+    console.error("Export error:", error);
+    Alert.alert(
+      "❌ Export Failed",
+      error.message || "Failed to generate report. Please try again.",
+      [{ text: "OK" }]
+    );
+  } finally {
+    setIsGenerating(false);
+  }
+};
   return (
     <Portal>
       <Modal
