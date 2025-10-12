@@ -17,10 +17,10 @@ import { mockFinancialData } from "../../src/data/mockFinancialData";
 import { formatCurrency } from "../../src/utils/formatters";
 import { FinancialSummaryItem } from "../../src/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FinancialChart from "../../src/components/FinancialChart";
-import CategoryBreakdown from "../../src/components/CategoryBreakdown";
-import LineChart from "../../src/components/LineChart";
-import PDFReportModal from "../../src/components/PDFReportModal";
+import FinancialChart from "../../src/components/Financials/FinancialChart";
+import CategoryBreakdown from "../../src/components/Financials/CategoryBreakdown";
+import LineChart from "../../src/components/Financials/LineChart";
+import PDFReportModal from "../../src/components/Financials/PDFReportModal";
 import { PDFReportData } from "../../src/types/pdf-report";
 
 export default function FinancialsScreen() {

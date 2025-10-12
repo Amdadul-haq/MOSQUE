@@ -9,8 +9,8 @@ import Svg, {
   Line,
   Text as SvgText,
 } from "react-native-svg";
-import { MonthlyTrend } from "../types";
-import { formatCurrency } from "../utils/formatters";
+import { MonthlyTrend } from "../../types";
+import { formatCurrency } from "../../utils/formatters";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CHART_WIDTH = SCREEN_WIDTH - 64;

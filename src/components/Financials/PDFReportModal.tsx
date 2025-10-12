@@ -12,8 +12,8 @@ import {
   ActivityIndicator,
 } from "react-native-paper";
 import { useTheme } from "react-native-paper";
-import { PDFReportData, PDFExportConfig } from "../types/pdf-report";
-import { PDFService } from "../services/pdf-service";
+import { PDFReportData, PDFExportConfig } from "../../types/pdf-report";
+import { PDFService } from "../../services/pdf-service";
 
 interface PDFReportModalProps {
   visible: boolean;

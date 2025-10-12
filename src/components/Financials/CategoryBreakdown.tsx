@@ -2,8 +2,8 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme, Text, Card } from "react-native-paper";
-import { FinancialCategory } from "../types";
-import { formatCurrency } from "../utils/formatters";
+import { FinancialCategory } from "../../types";
+import { formatCurrency } from "../../utils/formatters";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 interface CategoryBreakdownProps {
