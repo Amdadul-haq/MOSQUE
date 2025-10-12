@@ -1,6 +1,12 @@
-// app/financials/financials.tsx
-import React from "react";
-import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
+// app/financials/financials.tsx - Complete Updated Version
+import React, { useState, useCallback } from "react";
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  StatusBar,
+  RefreshControl,
+} from "react-native";
 import { useTheme, Text, Card, Button, Divider } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { Header } from "../../src/components/Header";
@@ -11,14 +17,30 @@ import { mockFinancialData } from "../../src/data/mockFinancialData";
 import { formatCurrency } from "../../src/utils/formatters";
 import { FinancialSummaryItem } from "../../src/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FinancialChart from "../../src/components/FinancialChart";
+import CategoryBreakdown from "../../src/components/CategoryBreakdown";
+import LineChart from "../../src/components/LineChart";
+import PDFReportModal from "../../src/components/PDFReportModal";
+import { PDFReportData } from "../../src/types/pdf-report";
 
 export default function FinancialsScreen() {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentMonth, lifetime } = mockFinancialData;
+  const [refreshing, setRefreshing] = useState(false);
+  const [pdfModalVisible, setPdfModalVisible] = useState(false);
 
-  // Prepare current month summary data
+  const { currentMonth, monthlyTrends, lifetime } = mockFinancialData;
+
+  // Refresh function
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
+  // Current month summary
   const currentMonthSummary: FinancialSummaryItem[] = [
     {
       label: "Total Donations",
@@ -49,7 +71,7 @@ export default function FinancialsScreen() {
     },
   ];
 
-  // Prepare lifetime summary data
+  // Lifetime summary
   const lifetimeSummary: FinancialSummaryItem[] = [
     {
       label: "Total Donations",
@@ -77,8 +99,53 @@ export default function FinancialsScreen() {
     },
   ];
 
+  // Prepare PDF report data
+  const pdfReportData: PDFReportData = {
+    mosqueName: "Khiarpara Jame Masjid",
+    reportPeriod: `${currentMonth.month} ${currentMonth.year}`,
+    generatedDate: new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    financialSummary: {
+      totalDonations: currentMonth.totalDonations,
+      totalExpenses: currentMonth.totalExpenses,
+      netBalance: currentMonth.balance,
+      donationCount: currentMonth.donationCount,
+      expenseCount: currentMonth.expenseCount,
+    },
+    donationBreakdown: currentMonth.categories
+      .filter((cat) => cat.type === "donation")
+      .map((cat) => ({
+        category: cat.name,
+        amount: cat.amount,
+        percentage: cat.percentage,
+        type: "donation" as const,
+      })),
+    expenseBreakdown: currentMonth.categories
+      .filter((cat) => cat.type === "expense")
+      .map((cat) => ({
+        category: cat.name,
+        amount: cat.amount,
+        percentage: cat.percentage,
+        type: "expense" as const,
+      })),
+    monthlyTrends: monthlyTrends.map((trend) => ({
+      month: trend.month,
+      donations: trend.donations,
+      expenses: trend.expenses,
+      balance: trend.balance,
+    })),
+    notes: "Generated automatically from Mosque Management System",
+  };
+
   const handleBack = () => {
     router.back();
+  };
+
+  const handleExportPDF = () => {
+    setPdfModalVisible(true);
   };
 
   const getIconColor = (type: "donation" | "expense" | "balance") => {
@@ -119,6 +186,14 @@ export default function FinancialsScreen() {
           { paddingBottom: insets.bottom + 20 },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
+        }
       >
         <View style={styles.content}>
           {/* Current Month Financial Summary */}
@@ -202,6 +277,40 @@ export default function FinancialsScreen() {
                 </Text>
               </View>
             </View>
+          </Section>
+
+          {/* Monthly Trends Bar Chart */}
+          <Section title="Monthly Trends" subtitle="Donations vs Expenses">
+            <FinancialChart data={monthlyTrends} />
+          </Section>
+
+          {/* Line Chart */}
+          <Section title="Financial Growth" subtitle="Balance trend over time">
+            <LineChart data={monthlyTrends} />
+          </Section>
+
+          {/* Donation Categories */}
+          <Section
+            title="Donation Breakdown"
+            subtitle="Where donations come from"
+          >
+            <CategoryBreakdown
+              categories={currentMonth.categories}
+              type="donation"
+              title="Donation Sources"
+            />
+          </Section>
+
+          {/* Expense Categories */}
+          <Section
+            title="Expense Breakdown"
+            subtitle="Where funds are allocated"
+          >
+            <CategoryBreakdown
+              categories={currentMonth.categories}
+              type="expense"
+              title="Expense Categories"
+            />
           </Section>
 
           {/* Lifetime Overview */}
@@ -298,38 +407,122 @@ export default function FinancialsScreen() {
             </View>
           </Section>
 
-          {/* Future Features Note */}
-          <Section title="Comming Soon">
-            <Card style={styles.futureCard} mode="contained">
-              <Card.Content style={styles.futureContent}>
-                <MaterialCommunityIcons
-                  name="lightbulb-on"
-                  size={24}
-                  color={theme.colors.primary}
-                />
-                <View style={styles.futureText}>
-                  <Text
-                    style={[
-                      styles.futureTitle,
-                      { color: theme.colors.onSurface },
-                    ]}
+          {/* Export Features */}
+          <Section title="Reports & Export" subtitle="Download financial data">
+            <Card style={styles.featuresCard}>
+              <Card.Content style={styles.featuresContent}>
+                <View style={styles.featureItem}>
+                  <MaterialCommunityIcons
+                    name="file-pdf-box"
+                    size={24}
+                    color={theme.colors.primary}
+                  />
+                  <View style={styles.featureText}>
+                    <Text
+                      style={[
+                        styles.featureTitle,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      PDF Financial Report
+                    </Text>
+                    <Text
+                      style={[
+                        styles.featureDescription,
+                        { color: theme.colors.onSurfaceVariant },
+                      ]}
+                    >
+                      Detailed monthly financial statement
+                    </Text>
+                  </View>
+                  <Button
+                    mode="outlined"
+                    compact
+                    style={styles.featureButton}
+                    onPress={handleExportPDF}
                   >
-                    Coming Soon
-                  </Text>
-                  <Text
-                    style={[
-                      styles.futureDescription,
-                      { color: theme.colors.onSurfaceVariant },
-                    ]}
+                    Export PDF
+                  </Button>
+                </View>
+
+                <Divider style={styles.featureDivider} />
+
+                <View style={styles.featureItem}>
+                  <MaterialCommunityIcons
+                    name="file-excel"
+                    size={24}
+                    color={theme.colors.primary}
+                  />
+                  <View style={styles.featureText}>
+                    <Text
+                      style={[
+                        styles.featureTitle,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      Excel Data Export
+                    </Text>
+                    <Text
+                      style={[
+                        styles.featureDescription,
+                        { color: theme.colors.onSurfaceVariant },
+                      ]}
+                    >
+                      Raw financial data for analysis
+                    </Text>
+                  </View>
+                  <Button
+                    mode="outlined"
+                    compact
+                    style={styles.featureButton}
+                    onPress={handleExportPDF}
                   >
-                    Annual reports, expense categories, and export features
-                  </Text>
+                    Export Excel
+                  </Button>
+                </View>
+
+                <Divider style={styles.featureDivider} />
+
+                <View style={styles.featureItem}>
+                  <MaterialCommunityIcons
+                    name="chart-box"
+                    size={24}
+                    color={theme.colors.primary}
+                  />
+                  <View style={styles.featureText}>
+                    <Text
+                      style={[
+                        styles.featureTitle,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      Annual Report 2024
+                    </Text>
+                    <Text
+                      style={[
+                        styles.featureDescription,
+                        { color: theme.colors.onSurfaceVariant },
+                      ]}
+                    >
+                      Complete yearly financial summary
+                    </Text>
+                  </View>
+                  <Button mode="contained" compact style={styles.featureButton}>
+                    View Report
+                  </Button>
                 </View>
               </Card.Content>
             </Card>
           </Section>
         </View>
       </ScrollView>
+
+      {/* PDF Export Modal */}
+      <PDFReportModal
+        visible={pdfModalVisible}
+        onDismiss={() => setPdfModalVisible(false)}
+        reportData={pdfReportData}
+      />
     </Container>
   );
 }
@@ -464,26 +657,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
-  futureCard: {
+  featuresCard: {
     borderRadius: 16,
-    backgroundColor: "rgba(22, 163, 74, 0.05)",
   },
-  futureContent: {
+  featuresContent: {
+    paddingVertical: 8,
+  },
+  featureItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
   },
-  futureText: {
+  featureText: {
     flex: 1,
     marginLeft: 12,
   },
-  futureTitle: {
+  featureTitle: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 2,
   },
-  futureDescription: {
+  featureDescription: {
     fontSize: 14,
     lineHeight: 18,
+  },
+  featureButton: {
+    marginLeft: 12,
+  },
+  featureDivider: {
+    marginVertical: 0,
   },
 });
