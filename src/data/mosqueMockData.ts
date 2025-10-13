@@ -6,7 +6,7 @@ export const mosqueData = {
   description: "A vibrant community mosque serving Muslims in the area with daily prayers, educational programs, and community events. We strive to be a center for spiritual growth, education, and community service.",
   
   // Mosque Main Photo for Header
-  mainPhoto: "https://images.unsplash.com/photo-1560983074-8c6f2c8ec93f?w=800&h=400&fit=crop",
+  mainPhoto: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/front_part_qkusao.jpg",
   
   // Mosque History Data
   history: {
@@ -31,19 +31,19 @@ The mosque has served as the spiritual and social hub for the Muslim community i
         id: "1",
         title: "Original Tin-shed Mosque (1972)",
         caption: "The humble beginning of our mosque",
-        url: "https://images.unsplash.com/photo-1631452180519-c014fe762e20?w=400&h=300&fit=crop"
+        url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/front_part_qkusao.jpg"
       },
       {
         id: "2",
         title: "First Concrete Building (1985)", 
         caption: "First major expansion project",
-        url: "https://images.unsplash.com/photo-1604874558040-94329397a639?w=400&h=300&fit=crop"
+        url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part_hyjl5g.jpg"
       },
       {
         id: "3",
         title: "Current Mosque Building (2010)",
         caption: "Modern facility with enhanced amenities", 
-        url: "https://images.unsplash.com/photo-1560983074-8c6f2c8ec93f?w=400&h=300&fit=crop"
+        url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part2_ucnv4q.jpg"
       }
     ]
   },
@@ -53,31 +53,31 @@ The mosque has served as the spiritual and social hub for the Muslim community i
     {
       id: "1",
       title: "Main Entrance",
-      url: "https://images.unsplash.com/photo-1560983074-8c6f2c8ec93f?w=400&h=300&fit=crop",
+      url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/front_part_qkusao.jpg",
       description: "Beautiful architectural design of main entrance"
     },
     {
       id: "2",
       title: "Prayer Hall", 
-      url: "https://images.unsplash.com/photo-1631452180519-c014fe762e20?w=400&h=300&fit=crop",
+      url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part_hyjl5g.jpg",
       description: "Spacious main prayer hall with modern facilities"
     },
     {
       id: "3", 
       title: "Minaret View",
-      url: "https://images.unsplash.com/photo-1604874558040-94329397a639?w=400&h=300&fit=crop",
+      url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part2_ucnv4q.jpg",
       description: "Tall minaret overlooking the community"
     },
     {
       id: "4",
       title: "Garden Area",
-      url: "https://images.unsplash.com/photo-1587059327119-8df53ab8b8c4?w=400&h=300&fit=crop",
+      url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part2_ucnv4q.jpg",
       description: "Well-maintained garden for community gatherings"
     },
     {
       id: "5",
       title: "Night View",
-      url: "https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=400&h=300&fit=crop",
+      url: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/back_part2_ucnv4q.jpg",
       description: "Mosque illuminated at night"
     }
   ],
@@ -92,7 +92,7 @@ The mosque has served as the spiritual and social hub for the Muslim community i
       email: "president@khiarparamosque.org",
       bio: "Senior community leader with 20+ years of service",
       joinDate: "2015",
-      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg"
     },
     {
       id: "2", 
@@ -102,17 +102,17 @@ The mosque has served as the spiritual and social hub for the Muslim community i
       email: "secretary@khiarparamosque.org",
       bio: "Civil engineer overseeing mosque development projects",
       joinDate: "2018",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/shajedul_drwm7x.jpg"
     },
     {
       id: "3",
-      name: "Alhaj Ayesha Begum",
+      name: "Shajedul Islam",
       designation: "Treasurer", 
       phone: "01711223366",
       email: "treasurer@khiarparamosque.org",
       bio: "Financial expert managing mosque funds",
       joinDate: "2016",
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313939/shajedul_drwm7x.jpg"
     },
     {
       id: "4",
@@ -122,7 +122,7 @@ The mosque has served as the spiritual and social hub for the Muslim community i
       email: "imam@khiarparamosque.org", 
       bio: "Graduate of Islamic University of Madinah",
       joinDate: "2012",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313938/photo_2023-09-07_19-35-42_s2livt.png"
     },
     {
       id: "5",
@@ -132,17 +132,17 @@ The mosque has served as the spiritual and social hub for the Muslim community i
       email: "legal@khiarparamosque.org", 
       bio: "Legal expert providing guidance on religious matters",
       joinDate: "2019",
-      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg"
     },
     {
       id: "6",
-      name: "Mrs. Fatema Khan", 
-      designation: "Women's Wing Coordinator",
+      name: "Milon Mia", 
+      designation: "Vice President",
       phone: "01711223388",
-      email: "womenswing@khiarparamosque.org",
-      bio: "Dedicated to women's religious education and activities", 
+      email: "milon.mia@khiarparamosque.org",
+      bio: "Dedicated to women's religious education and activities",
       joinDate: "2017",
-      photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+      photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg"
     }
   ],
 
@@ -155,6 +155,7 @@ The mosque has served as the spiritual and social hub for the Muslim community i
     phone: "01767313871",
     bio: "Graduate of Islamic University of Madinah with 15 years of experience in community leadership and Islamic education.",
     email: "milon.s2k21@gmail.com",
+    photo: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313938/photo_2023-09-07_19-35-42_s2livt.png"
   },
   services: [
     "Daily Five Prayers",

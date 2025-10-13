@@ -1,4 +1,4 @@
-// src/components/mosque/CommitteeGrid.tsx
+// src/components/mosque/CommitteeGrid.tsx - Fixed with Image
 import React, { useState } from "react";
 import {
   View,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Clipboard,
   Alert,
+  Image, // ✅ Image import যোগ করুন
 } from "react-native";
 import { useTheme, Text, Card, Menu, Divider } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -107,10 +108,14 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
               <View style={styles.memberHeader}>
                 <View style={styles.photoContainer}>
                   {member.photo ? (
-                    <View style={styles.photo}>
-                      <Text style={styles.photoText}>Photo</Text>
-                    </View>
+                    // ✅ Cloudinary URL দিয়ে Real Image দেখানো হচ্ছে
+                    <Image
+                      source={{ uri: member.photo }}
+                      style={styles.memberPhoto}
+                      resizeMode="cover"
+                    />
                   ) : (
+                    // ✅ Photo না থাকলে Avatar দেখাবে
                     <View
                       style={[
                         styles.avatar,
@@ -323,18 +328,13 @@ const styles = StyleSheet.create({
   photoContainer: {
     marginRight: 12,
   },
-  photo: {
+  // ✅ Real Member Photo Style
+  memberPhoto: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#e5e7eb",
-    justifyContent: "center",
-    alignItems: "center",
   },
-  photoText: {
-    fontSize: 10,
-    color: "#6b7280",
-  },
+  // ❌ পুরনো placeholder styles remove করেছি
   avatar: {
     width: 50,
     height: 50,

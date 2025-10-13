@@ -7,6 +7,7 @@ import {
   Linking,
   StatusBar,
   RefreshControl,
+  Image,
 } from "react-native";
 import {
   useTheme,
@@ -138,11 +139,19 @@ export default function MosqueInfoScreen() {
             <Card style={styles.mosqueHeaderCard}>
               <Card.Content>
                 <View style={styles.mosqueImageContainer}>
-                  <View style={styles.mosqueImagePlaceholder}>
-                    <Text style={styles.mosqueImageText}>
-                      Mosque Main Photo
-                    </Text>
-                  </View>
+                  {mosqueData.mainPhoto ? (
+                    <Image
+                      source={{ uri: mosqueData.mainPhoto }} // ✅ Cloudinary URL ব্যবহার করা হচ্ছে
+                      style={styles.mosqueImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.mosqueImagePlaceholder}>
+                      <Text style={styles.mosqueImageText}>
+                        Mosque Main Photo
+                      </Text>
+                    </View>
+                  )}
                 </View>
 
                 <View style={styles.mosqueHeader}>
@@ -323,19 +332,27 @@ export default function MosqueInfoScreen() {
             <Card style={styles.imamCard}>
               <Card.Content>
                 <View style={styles.imamHeader}>
-                  <View
-                    style={[
-                      styles.imamAvatar,
-                      { backgroundColor: theme.colors.primary },
-                    ]}
-                  >
-                    <Text style={styles.imamInitial}>
-                      {mosqueData.imam.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </Text>
-                  </View>
+                  {mosqueData.imam.photo ? ( // ✅ Imam এর photo আছে কিনা check
+                    <Image
+                      source={{ uri: mosqueData.imam.photo }} // ✅ Cloudinary URL
+                      style={styles.imamPhoto}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.imamAvatar,
+                        { backgroundColor: theme.colors.primary },
+                      ]}
+                    >
+                      <Text style={styles.imamInitial}>
+                        {mosqueData.imam.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </Text>
+                    </View>
+                  )}
                   <View style={styles.imamInfo}>
                     <Text
                       style={[
@@ -558,6 +575,20 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginVertical: 0,
+  },
+  // ✅ Mosque Main Image style
+  mosqueImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+  },
+
+  // ✅ Imam Photo style
+  imamPhoto: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginRight: 16,
   },
   imamCard: {
     borderRadius: 16,
