@@ -1,4 +1,4 @@
-// src/components/mosque/CommitteeGrid.tsx - Fixed with Image
+// src/components/mosque/CommitteeGrid.tsx - Completely Fixed Version
 import React, { useState } from "react";
 import {
   View,
@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Clipboard,
   Alert,
-  Image, // ✅ Image import যোগ করুন
+  Image,
 } from "react-native";
-import { useTheme, Text, Card, Menu, Divider } from "react-native-paper";
+import { useTheme, Text, Card, Menu, Divider, List } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Linking } from "react-native";
 
@@ -30,9 +30,19 @@ interface CommitteeGridProps {
 export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
   const theme = useTheme();
   const [menuVisible, setMenuVisible] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const openMenu = (memberId: string) => setMenuVisible(memberId);
-  const closeMenu = () => setMenuVisible(null);
+  const openMenu = (memberId: string) => {
+    setMenuVisible(memberId);
+  };
+
+  const closeMenu = () => {
+    setMenuVisible(null);
+  };
+
+  const handleAccordionPress = (memberId: string) => {
+    setExpandedId(expandedId === memberId ? null : memberId);
+  };
 
   const handleCall = (phone: string) => {
     Linking.openURL(`tel:${phone}`);
@@ -77,7 +87,7 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
 
   return (
     <Card style={styles.card}>
-      <Card.Content>
+      <Card.Content style={styles.cardContent}>
         {/* Section Header */}
         <View style={styles.header}>
           <View style={styles.titleContainer}>
@@ -100,173 +110,235 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
           </Text>
         </View>
 
-        {/* Members Grid */}
-        <View style={styles.grid}>
+        {/* Accordion List */}
+        <View style={styles.accordionList}>
           {members.map((member) => (
-            <View key={member.id} style={styles.memberCard}>
-              {/* Member Photo and Info */}
-              <View style={styles.memberHeader}>
-                <View style={styles.photoContainer}>
-                  {member.photo ? (
-                    // ✅ Cloudinary URL দিয়ে Real Image দেখানো হচ্ছে
-                    <Image
-                      source={{ uri: member.photo }}
-                      style={styles.memberPhoto}
-                      resizeMode="cover"
+            <View key={member.id} style={styles.accordionWrapper}>
+              <List.Accordion
+                title={
+                  <View style={styles.accordionHeader}>
+                    <View style={styles.memberBasicInfo}>
+                      <View style={styles.photoContainer}>
+                        {member.photo ? (
+                          <Image
+                            source={{ uri: member.photo }}
+                            style={styles.memberPhoto}
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View
+                            style={[
+                              styles.avatar,
+                              { backgroundColor: theme.colors.primary },
+                            ]}
+                          >
+                            <Text style={styles.avatarText}>
+                              {member.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <View style={styles.basicInfo}>
+                        <Text
+                          style={[
+                            styles.memberName,
+                            { color: theme.colors.onSurface },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {member.name}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.memberDesignation,
+                            { color: theme.colors.primary },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {member.designation}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                }
+                expanded={expandedId === member.id}
+                onPress={() => handleAccordionPress(member.id)}
+                style={[
+                  styles.accordion,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderWidth: 1,
+                    borderColor: theme.colors.outline,
+                  },
+                ]}
+                titleStyle={styles.accordionTitle}
+                left={(props) => (
+                  <List.Icon
+                    {...props}
+                    icon={
+                      expandedId === member.id
+                        ? "chevron-down"
+                        : "chevron-right"
+                    }
+                    color={theme.colors.primary}
+                  />
+                )}
+              >
+                {/* Expanded Content */}
+                <View style={styles.expandedContent}>
+                  {/* Join Date */}
+                  <View style={styles.detailRow}>
+                    <MaterialCommunityIcons
+                      name="calendar"
+                      size={16}
+                      color={theme.colors.onSurfaceVariant}
                     />
-                  ) : (
-                    // ✅ Photo না থাকলে Avatar দেখাবে
-                    <View
+                    <Text
                       style={[
-                        styles.avatar,
-                        { backgroundColor: theme.colors.primary },
+                        styles.detailText,
+                        { color: theme.colors.onSurfaceVariant },
                       ]}
                     >
-                      <Text style={styles.avatarText}>
-                        {member.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                      Member since {member.joinDate}
+                    </Text>
+                  </View>
+
+                  {/* Bio */}
+                  {member.bio ? (
+                    <View style={styles.bioContainer}>
+                      <Text
+                        style={[
+                          styles.memberBio,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        {member.bio}
                       </Text>
                     </View>
-                  )}
-                </View>
+                  ) : null}
 
-                <View style={styles.memberInfo}>
-                  <Text
-                    style={[
-                      styles.memberName,
-                      { color: theme.colors.onSurface },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {member.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.memberDesignation,
-                      { color: theme.colors.primary },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {member.designation}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.memberJoinDate,
-                      { color: theme.colors.onSurfaceVariant },
-                    ]}
-                  >
-                    Since {member.joinDate}
-                  </Text>
-                </View>
+                  {/* Contact Info */}
+                  <View style={styles.contactInfo}>
+                    <View style={styles.contactRow}>
+                      <MaterialCommunityIcons
+                        name="phone"
+                        size={16}
+                        color={theme.colors.primary}
+                      />
+                      <Text
+                        style={[
+                          styles.contactText,
+                          { color: theme.colors.onSurface },
+                        ]}
+                      >
+                        {member.phone}
+                      </Text>
+                    </View>
+                    <View style={styles.contactRow}>
+                      <MaterialCommunityIcons
+                        name="email"
+                        size={16}
+                        color={theme.colors.primary}
+                      />
+                      <Text
+                        style={[
+                          styles.contactText,
+                          { color: theme.colors.onSurface },
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {member.email}
+                      </Text>
+                    </View>
+                  </View>
 
-                {/* Menu Button */}
-                <Menu
-                  visible={menuVisible === member.id}
-                  onDismiss={closeMenu}
-                  anchor={
+                  {/* Action Buttons - Same as Imam section */}
+                  <View style={styles.actionButtons}>
                     <TouchableOpacity
-                      style={styles.menuButton}
-                      onPress={() => openMenu(member.id)}
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: theme.colors.primary,
+                        },
+                      ]}
+                      onPress={() => handleCall(member.phone)}
                     >
                       <MaterialCommunityIcons
-                        name="dots-vertical"
-                        size={20}
-                        color={theme.colors.onSurfaceVariant}
+                        name="phone"
+                        size={16}
+                        color="white"
                       />
+                      <Text style={styles.actionButtonText}>Call</Text>
                     </TouchableOpacity>
-                  }
-                  contentStyle={[
-                    styles.menuContent,
-                    { backgroundColor: theme.colors.surface },
-                  ]}
-                >
-                  <Menu.Item
-                    leadingIcon="phone"
-                    onPress={() => handleCall(member.phone)}
-                    title="Call"
-                    titleStyle={{ color: theme.colors.onSurface }}
-                  />
-                  <Menu.Item
-                    leadingIcon="email"
-                    onPress={() => handleEmail(member.email)}
-                    title="Email"
-                    titleStyle={{ color: theme.colors.onSurface }}
-                  />
-                  <Divider />
-                  <Menu.Item
-                    leadingIcon="content-copy"
-                    onPress={() => handleCopyPhone(member.phone)}
-                    title="Copy Phone"
-                    titleStyle={{ color: theme.colors.onSurface }}
-                  />
-                  <Menu.Item
-                    leadingIcon="content-copy"
-                    onPress={() => handleCopyEmail(member.email)}
-                    title="Copy Email"
-                    titleStyle={{ color: theme.colors.onSurface }}
-                  />
-                </Menu>
-              </View>
 
-              {/* Member Bio */}
-              <Text
-                style={[
-                  styles.memberBio,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-                numberOfLines={2}
-              >
-                {member.bio}
-              </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: theme.colors.primary,
+                        },
+                      ]}
+                      onPress={() => handleEmail(member.email)}
+                    >
+                      <MaterialCommunityIcons
+                        name="email"
+                        size={16}
+                        color="white"
+                      />
+                      <Text style={styles.actionButtonText}>Email</Text>
+                    </TouchableOpacity>
 
-              {/* Contact Quick Actions */}
-              <View style={styles.contactActions}>
-                <TouchableOpacity
-                  style={[
-                    styles.contactButton,
-                    { backgroundColor: theme.colors.primaryContainer },
-                  ]}
-                  onPress={() => handleCall(member.phone)}
-                >
-                  <MaterialCommunityIcons
-                    name="phone"
-                    size={14}
-                    color={theme.colors.onPrimaryContainer}
-                  />
-                  <Text
-                    style={[
-                      styles.contactButtonText,
-                      { color: theme.colors.onPrimaryContainer },
-                    ]}
-                  >
-                    Call
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.contactButton,
-                    { backgroundColor: theme.colors.secondaryContainer },
-                  ]}
-                  onPress={() => handleEmail(member.email)}
-                >
-                  <MaterialCommunityIcons
-                    name="email"
-                    size={14}
-                    color={theme.colors.onSecondaryContainer}
-                  />
-                  <Text
-                    style={[
-                      styles.contactButtonText,
-                      { color: theme.colors.onSecondaryContainer },
-                    ]}
-                  >
-                    Email
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                    {/* Menu for More Options - Fixed */}
+                    <View style={styles.menuContainer}>
+                      <Menu
+                        visible={menuVisible === member.id}
+                        onDismiss={closeMenu}
+                        anchor={
+                          <TouchableOpacity
+                            style={[
+                              styles.menuButton,
+                              {
+                                backgroundColor: theme.colors.surfaceVariant,
+                              },
+                            ]}
+                            onPress={() => openMenu(member.id)}
+                          >
+                            <MaterialCommunityIcons
+                              name="dots-vertical"
+                              size={20}
+                              color={theme.colors.onSurfaceVariant}
+                            />
+                          </TouchableOpacity>
+                        }
+                        contentStyle={[
+                          styles.menuContent,
+                          {
+                            backgroundColor: theme.colors.surface,
+                          },
+                        ]}
+                        style={styles.menuStyle}
+                      >
+                        <Menu.Item
+                          leadingIcon="content-copy"
+                          onPress={() => handleCopyPhone(member.phone)}
+                          title="Copy Phone"
+                          titleStyle={{ color: theme.colors.onSurface }}
+                        />
+                        <Divider />
+                        <Menu.Item
+                          leadingIcon="content-copy"
+                          onPress={() => handleCopyEmail(member.email)}
+                          title="Copy Email"
+                          titleStyle={{ color: theme.colors.onSurface }}
+                        />
+                      </Menu>
+                    </View>
+                  </View>
+                </View>
+              </List.Accordion>
             </View>
           ))}
         </View>
@@ -277,8 +349,16 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    marginHorizontal: 16,
     marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  cardContent: {
+    padding: 0,
   },
   emptyContent: {
     alignItems: "center",
@@ -292,7 +372,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    padding: 16,
+    paddingBottom: 12,
   },
   titleContainer: {
     flexDirection: "row",
@@ -307,89 +388,135 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
+  accordionList: {
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
-  memberCard: {
-    width: "100%",
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(22, 163, 74, 0.03)",
-    borderWidth: 1,
-    borderColor: "rgba(22, 163, 74, 0.1)",
+  accordionWrapper: {
+    marginBottom: 8,
   },
-  memberHeader: {
+  accordion: {
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  accordionTitle: {
+    padding: 0,
+    margin: 0,
+    height: "auto",
+  },
+  accordionHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 12,
+    alignItems: "center",
+    flex: 1,
+    paddingRight: 8,
+  },
+  memberBasicInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   photoContainer: {
     marginRight: 12,
   },
-  // ✅ Real Member Photo Style
   memberPhoto: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
-  // ❌ পুরনো placeholder styles remove করেছি
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
-  memberInfo: {
+  basicInfo: {
     flex: 1,
   },
   memberName: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   memberDesignation: {
     fontSize: 14,
+    fontWeight: "500",
+  },
+  expandedContent: {
+    padding: 16,
+    paddingTop: 12,
+    backgroundColor: "transparent",
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 8,
+  },
+  detailText: {
+    fontSize: 14,
+  },
+  bioContainer: {
+    marginBottom: 16,
+  },
+  memberBio: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  contactInfo: {
+    marginBottom: 16,
+    gap: 8,
+  },
+  contactRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  contactText: {
+    fontSize: 14,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 6,
+    flex: 1,
+    justifyContent: "center",
+  },
+  actionButtonText: {
+    color: "white",
+    fontSize: 14,
     fontWeight: "600",
-    marginBottom: 2,
   },
-  memberJoinDate: {
-    fontSize: 12,
+  menuContainer: {
+    position: "relative",
   },
-  menuButton: {
-    padding: 4,
+  menuStyle: {
+    marginTop: 8,
+    borderRadius: 8,
   },
   menuContent: {
     borderRadius: 8,
+    elevation: 4,
   },
-  memberBio: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 12,
-  },
-  contactActions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  contactButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
+  menuButton: {
+    padding: 8,
+    borderRadius: 6,
+    width: 40,
+    height: 40,
     justifyContent: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    gap: 4,
-  },
-  contactButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
+    alignItems: "center",
   },
 });

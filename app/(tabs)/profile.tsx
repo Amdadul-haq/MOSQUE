@@ -1,6 +1,13 @@
 // app/(tabs)/profile.tsx
 import React, { useState } from "react";
-import { ScrollView, View, StyleSheet, Alert, StatusBar } from "react-native";
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  Alert,
+  StatusBar,
+  Image,
+} from "react-native";
 import {
   useTheme,
   Text,
@@ -101,9 +108,6 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "achievements" | "settings"
-  >("overview");
   const [editing, setEditing] = useState(false);
 
   const userStats = [
@@ -148,10 +152,8 @@ export default function ProfileScreen() {
     Alert.alert("Edit Profile", "Profile editing would open here");
   };
 
-  const handleLogout = async() => {
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Warning
-        );
+  const handleLogout = async () => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -191,10 +193,7 @@ export default function ProfileScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
-        title="Profile"
-        subtitle="Manage your account and preferences"
-      />
+      <Header title="Profile" subtitle="Manage your account and preferences" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -210,17 +209,12 @@ export default function ProfileScreen() {
               <Card.Content style={styles.profileContent}>
                 <View style={styles.avatarSection}>
                   <View style={styles.avatarContainer}>
-                    <Avatar.Text
-                      size={80}
-                      label={profile.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                      style={[
-                        styles.avatar,
-                        { backgroundColor: theme.colors.primary },
-                      ]}
-                      labelStyle={styles.avatarText}
+                    {/* Cloudinary Image ব্যবহার করা হয়েছে */}
+                    <Image
+                      source={{
+                        uri: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg",
+                      }}
+                      style={styles.avatarImage}
                     />
                     <View
                       style={[
@@ -282,433 +276,353 @@ export default function ProfileScreen() {
             </Card>
           </Section>
 
-          {/* Navigation Tabs */}
-          <Section title="">
-            <Card style={styles.tabsCard}>
-              <Card.Content style={styles.tabsContent}>
-                <ToggleButton.Row
-                  value={activeTab}
-                  onValueChange={(value) => setActiveTab(value as any)}
-                  style={styles.tabsContainer}
-                >
-                  <ToggleButton
-                    icon="chart-box"
-                    value="overview"
+          {/* Activity Stats */}
+          <Section title="Your Activity">
+            <StatsGrid stats={userStats} />
+          </Section>
+
+          {/* Today's Prayer Progress */}
+          <Section
+            title="Today's Prayers"
+            subtitle={`${completedPrayers}/${prayerProgress.length} completed`}
+          >
+            <Card style={styles.prayerCard}>
+              <Card.Content>
+                <View style={styles.progressHeader}>
+                  <Text
                     style={[
-                      styles.tabButton,
-                      activeTab === "overview" && {
-                        backgroundColor: theme.colors.primary,
-                      },
+                      styles.progressTitle,
+                      { color: theme.colors.onSurface },
                     ]}
-                    iconColor={
-                      activeTab === "overview"
-                        ? "white"
-                        : theme.colors.onSurface
-                    }
-                  />
-                  <ToggleButton
-                    icon="trophy"
-                    value="achievements"
+                  >
+                    Prayer Progress
+                  </Text>
+                  <Text
                     style={[
-                      styles.tabButton,
-                      activeTab === "achievements" && {
-                        backgroundColor: theme.colors.primary,
-                      },
+                      styles.progressPercentage,
+                      { color: theme.colors.primary },
                     ]}
-                    iconColor={
-                      activeTab === "achievements"
-                        ? "white"
-                        : theme.colors.onSurface
-                    }
-                  />
-                  <ToggleButton
-                    icon="cog"
-                    value="settings"
-                    style={[
-                      styles.tabButton,
-                      activeTab === "settings" && {
-                        backgroundColor: theme.colors.primary,
-                      },
-                    ]}
-                    iconColor={
-                      activeTab === "settings"
-                        ? "white"
-                        : theme.colors.onSurface
-                    }
-                  />
-                </ToggleButton.Row>
+                  >
+                    {Math.round(progressPercentage * 100)}%
+                  </Text>
+                </View>
+                <ProgressBar
+                  progress={progressPercentage}
+                  color={theme.colors.primary}
+                  style={styles.progressBar}
+                />
+                <View style={styles.prayerList}>
+                  {prayerProgress.map((prayer, index) => (
+                    <View key={prayer.name} style={styles.prayerItem}>
+                      <View style={styles.prayerInfo}>
+                        <View
+                          style={[
+                            styles.prayerStatus,
+                            {
+                              backgroundColor: prayer.completed
+                                ? theme.colors.primary
+                                : theme.colors.surfaceVariant,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.prayerStatusText,
+                              {
+                                color: prayer.completed
+                                  ? "white"
+                                  : theme.colors.onSurfaceVariant,
+                              },
+                            ]}
+                          >
+                            {prayer.completed ? "✓" : "○"}
+                          </Text>
+                        </View>
+                        <Text
+                          style={[
+                            styles.prayerName,
+                            {
+                              color: prayer.completed
+                                ? theme.colors.onSurface
+                                : theme.colors.onSurfaceVariant,
+                              fontWeight: prayer.completed ? "600" : "400",
+                            },
+                          ]}
+                        >
+                          {prayer.name}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.prayerTime,
+                          { color: theme.colors.onSurfaceVariant },
+                        ]}
+                      >
+                        {prayer.time}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </Card.Content>
             </Card>
           </Section>
 
-          {activeTab === "overview" && (
-            <>
-              {/* Activity Stats */}
-              <Section title="Your Activity">
-                <StatsGrid stats={userStats} />
-              </Section>
-
-              {/* Today's Prayer Progress */}
-              <Section
-                title="Today's Prayers"
-                subtitle={`${completedPrayers}/${prayerProgress.length} completed`}
-              >
-                <Card style={styles.prayerCard}>
-                  <Card.Content>
-                    <View style={styles.progressHeader}>
-                      <Text
-                        style={[
-                          styles.progressTitle,
-                          { color: theme.colors.onSurface },
-                        ]}
-                      >
-                        Prayer Progress
-                      </Text>
-                      <Text
-                        style={[
-                          styles.progressPercentage,
-                          { color: theme.colors.primary },
-                        ]}
-                      >
-                        {Math.round(progressPercentage * 100)}%
-                      </Text>
-                    </View>
-                    <ProgressBar
-                      progress={progressPercentage}
-                      color={theme.colors.primary}
-                      style={styles.progressBar}
-                    />
-                    <View style={styles.prayerList}>
-                      {prayerProgress.map((prayer, index) => (
-                        <View key={prayer.name} style={styles.prayerItem}>
-                          <View style={styles.prayerInfo}>
-                            <View
-                              style={[
-                                styles.prayerStatus,
-                                {
-                                  backgroundColor: prayer.completed
-                                    ? theme.colors.primary
-                                    : theme.colors.surfaceVariant,
-                                },
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.prayerStatusText,
-                                  {
-                                    color: prayer.completed
-                                      ? "white"
-                                      : theme.colors.onSurfaceVariant,
-                                  },
-                                ]}
-                              >
-                                {prayer.completed ? "✓" : "○"}
-                              </Text>
-                            </View>
-                            <Text
-                              style={[
-                                styles.prayerName,
-                                {
-                                  color: prayer.completed
-                                    ? theme.colors.onSurface
-                                    : theme.colors.onSurfaceVariant,
-                                  fontWeight: prayer.completed ? "600" : "400",
-                                },
-                              ]}
-                            >
-                              {prayer.name}
-                            </Text>
-                          </View>
+          {/* Achievements Section */}
+          <Section title="Achievements">
+            <Card style={styles.achievementsCard}>
+              <Card.Content>
+                <View style={styles.achievementsGrid}>
+                  {achievements.map((achievement) => (
+                    <Card
+                      key={achievement.id}
+                      style={[
+                        styles.achievementCard,
+                        achievement.unlocked && {
+                          backgroundColor: theme.colors.primaryContainer,
+                        },
+                      ]}
+                      mode="elevated"
+                    >
+                      <Card.Content style={styles.achievementContent}>
+                        <Text style={styles.achievementIcon}>
+                          {achievement.icon}
+                        </Text>
+                        <View style={styles.achievementInfo}>
                           <Text
                             style={[
-                              styles.prayerTime,
+                              styles.achievementTitle,
+                              { color: theme.colors.onSurface },
+                            ]}
+                          >
+                            {achievement.title}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.achievementDescription,
                               { color: theme.colors.onSurfaceVariant },
                             ]}
                           >
-                            {prayer.time}
+                            {achievement.description}
                           </Text>
+                          {!achievement.unlocked && (
+                            <View style={styles.progressContainer}>
+                              <ProgressBar
+                                progress={
+                                  achievement.progress / achievement.total
+                                }
+                                color={theme.colors.primary}
+                                style={styles.achievementProgress}
+                              />
+                              <Text
+                                style={[
+                                  styles.progressText,
+                                  { color: theme.colors.onSurfaceVariant },
+                                ]}
+                              >
+                                {achievement.progress}/{achievement.total}
+                              </Text>
+                            </View>
+                          )}
+                          {achievement.unlocked && (
+                            <View style={styles.unlockedBadge}>
+                              <Text style={styles.unlockedText}>Unlocked</Text>
+                            </View>
+                          )}
                         </View>
-                      ))}
-                    </View>
-                  </Card.Content>
-                </Card>
-              </Section>
-            </>
-          )}
+                      </Card.Content>
+                    </Card>
+                  ))}
+                </View>
+              </Card.Content>
+            </Card>
+          </Section>
 
-          {activeTab === "achievements" && (
-            <Section title="Achievements">
-              <Card style={styles.achievementsCard}>
-                <Card.Content>
-                  <View style={styles.achievementsGrid}>
-                    {achievements.map((achievement) => (
-                      <Card
-                        key={achievement.id}
-                        style={[
-                          styles.achievementCard,
-                          achievement.unlocked && {
-                            backgroundColor: theme.colors.primaryContainer,
-                          },
-                        ]}
-                        mode="elevated"
-                      >
-                        <Card.Content style={styles.achievementContent}>
-                          <Text style={styles.achievementIcon}>
-                            {achievement.icon}
-                          </Text>
-                          <View style={styles.achievementInfo}>
-                            <Text
-                              style={[
-                                styles.achievementTitle,
-                                { color: theme.colors.onSurface },
-                              ]}
-                            >
-                              {achievement.title}
-                            </Text>
-                            <Text
-                              style={[
-                                styles.achievementDescription,
-                                { color: theme.colors.onSurfaceVariant },
-                              ]}
-                            >
-                              {achievement.description}
-                            </Text>
-                            {!achievement.unlocked && (
-                              <View style={styles.progressContainer}>
-                                <ProgressBar
-                                  progress={
-                                    achievement.progress / achievement.total
-                                  }
-                                  color={theme.colors.primary}
-                                  style={styles.achievementProgress}
-                                />
-                                <Text
-                                  style={[
-                                    styles.progressText,
-                                    { color: theme.colors.onSurfaceVariant },
-                                  ]}
-                                >
-                                  {achievement.progress}/{achievement.total}
-                                </Text>
-                              </View>
-                            )}
-                            {achievement.unlocked && (
-                              <View style={styles.unlockedBadge}>
-                                <Text style={styles.unlockedText}>
-                                  Unlocked
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                        </Card.Content>
-                      </Card>
-                    ))}
-                  </View>
-                </Card.Content>
-              </Card>
-            </Section>
-          )}
+          {/* Profile Information */}
+          <Section title="Profile Information">
+            <Card style={styles.infoCard}>
+              <Card.Content>
+                <List.Item
+                  title="Email"
+                  description={profile.email}
+                  left={(props) => <List.Icon {...props} icon="email" />}
+                  right={(props) => (
+                    <List.Icon {...props} icon="content-copy" />
+                  )}
+                  onPress={() =>
+                    Alert.alert("Email", `Copied: ${profile.email}`)
+                  }
+                />
+                <Divider />
+                <List.Item
+                  title="Phone"
+                  description={profile.phone}
+                  left={(props) => <List.Icon {...props} icon="phone" />}
+                  right={(props) => (
+                    <List.Icon {...props} icon="content-copy" />
+                  )}
+                  onPress={() =>
+                    Alert.alert("Phone", `Copied: ${profile.phone}`)
+                  }
+                />
+                <Divider />
+                <List.Item
+                  title="Member ID"
+                  description={profile.id}
+                  left={(props) => <List.Icon {...props} icon="identifier" />}
+                  right={(props) => (
+                    <List.Icon {...props} icon="content-copy" />
+                  )}
+                  onPress={() =>
+                    Alert.alert("Member ID", `Copied: ${profile.id}`)
+                  }
+                />
+              </Card.Content>
+            </Card>
+          </Section>
 
-          {activeTab === "settings" && (
-            <>
-              {/* Profile Information */}
-              <Section title="Profile Information">
-                <Card style={styles.infoCard}>
-                  <Card.Content>
-                    <List.Item
-                      title="Email"
-                      description={profile.email}
-                      left={(props) => <List.Icon {...props} icon="email" />}
-                      right={(props) => (
-                        <List.Icon {...props} icon="content-copy" />
-                      )}
-                      onPress={() =>
-                        Alert.alert("Email", `Copied: ${profile.email}`)
+          {/* Preferences */}
+          <Section title="Preferences">
+            <Card style={styles.preferencesCard}>
+              <Card.Content>
+                <List.Item
+                  title="Push Notifications"
+                  description="Receive important updates and reminders"
+                  left={(props) => <List.Icon {...props} icon="bell" />}
+                  right={(props) => (
+                    <Switch
+                      value={profile.preferences.notifications}
+                      onValueChange={(value) =>
+                        handlePreferenceChange("notifications", value)
                       }
                     />
-                    <Divider />
-                    <List.Item
-                      title="Phone"
-                      description={profile.phone}
-                      left={(props) => <List.Icon {...props} icon="phone" />}
-                      right={(props) => (
-                        <List.Icon {...props} icon="content-copy" />
-                      )}
-                      onPress={() =>
-                        Alert.alert("Phone", `Copied: ${profile.phone}`)
+                  )}
+                />
+                <Divider />
+                <List.Item
+                  title="Prayer Reminders"
+                  description="Get notified for prayer times"
+                  left={(props) => <List.Icon {...props} icon="clock" />}
+                  right={(props) => (
+                    <Switch
+                      value={profile.preferences.prayerReminders}
+                      onValueChange={(value) =>
+                        handlePreferenceChange("prayerReminders", value)
                       }
                     />
-                    <Divider />
-                    <List.Item
-                      title="Member ID"
-                      description={profile.id}
-                      left={(props) => (
-                        <List.Icon {...props} icon="identifier" />
-                      )}
-                      right={(props) => (
-                        <List.Icon {...props} icon="content-copy" />
-                      )}
-                      onPress={() =>
-                        Alert.alert("Member ID", `Copied: ${profile.id}`)
+                  )}
+                />
+                <Divider />
+                <List.Item
+                  title="Qibla Direction"
+                  description="Show qibla compass in prayer screen"
+                  left={(props) => <List.Icon {...props} icon="compass" />}
+                  right={(props) => (
+                    <Switch
+                      value={profile.preferences.qiblaDirection}
+                      onValueChange={(value) =>
+                        handlePreferenceChange("qiblaDirection", value)
                       }
                     />
-                  </Card.Content>
-                </Card>
-              </Section>
+                  )}
+                />
+                <Divider />
+                <List.Item
+                  title="Haptic Feedback"
+                  description="Vibration for notifications"
+                  left={(props) => <List.Icon {...props} icon="vibrate" />}
+                  right={(props) => (
+                    <Switch
+                      value={profile.preferences.vibration}
+                      onValueChange={(value) =>
+                        handlePreferenceChange("vibration", value)
+                      }
+                    />
+                  )}
+                />
+                <Divider />
+                <List.Item
+                  title="Language"
+                  description="English"
+                  left={(props) => <List.Icon {...props} icon="translate" />}
+                  right={(props) => (
+                    <List.Icon {...props} icon="chevron-right" />
+                  )}
+                  onPress={() =>
+                    Alert.alert("Language", "Language settings would open here")
+                  }
+                />
+                <Divider />
+                <List.Item
+                  title="Theme"
+                  description="Automatic"
+                  left={(props) => (
+                    <List.Icon {...props} icon="theme-light-dark" />
+                  )}
+                  right={(props) => (
+                    <List.Icon {...props} icon="chevron-right" />
+                  )}
+                  onPress={() =>
+                    Alert.alert("Theme", "Theme settings would open here")
+                  }
+                />
+              </Card.Content>
+            </Card>
+          </Section>
 
-              {/* Preferences */}
-              <Section title="Preferences">
-                <Card style={styles.preferencesCard}>
-                  <Card.Content>
-                    <List.Item
-                      title="Push Notifications"
-                      description="Receive important updates and reminders"
-                      left={(props) => <List.Icon {...props} icon="bell" />}
-                      right={(props) => (
-                        <Switch
-                          value={profile.preferences.notifications}
-                          onValueChange={(value) =>
-                            handlePreferenceChange("notifications", value)
-                          }
-                        />
-                      )}
-                    />
-                    <Divider />
-                    <List.Item
-                      title="Prayer Reminders"
-                      description="Get notified for prayer times"
-                      left={(props) => <List.Icon {...props} icon="clock" />}
-                      right={(props) => (
-                        <Switch
-                          value={profile.preferences.prayerReminders}
-                          onValueChange={(value) =>
-                            handlePreferenceChange("prayerReminders", value)
-                          }
-                        />
-                      )}
-                    />
-                    <Divider />
-                    <List.Item
-                      title="Qibla Direction"
-                      description="Show qibla compass in prayer screen"
-                      left={(props) => <List.Icon {...props} icon="compass" />}
-                      right={(props) => (
-                        <Switch
-                          value={profile.preferences.qiblaDirection}
-                          onValueChange={(value) =>
-                            handlePreferenceChange("qiblaDirection", value)
-                          }
-                        />
-                      )}
-                    />
-                    <Divider />
-                    <List.Item
-                      title="Haptic Feedback"
-                      description="Vibration for notifications"
-                      left={(props) => <List.Icon {...props} icon="vibrate" />}
-                      right={(props) => (
-                        <Switch
-                          value={profile.preferences.vibration}
-                          onValueChange={(value) =>
-                            handlePreferenceChange("vibration", value)
-                          }
-                        />
-                      )}
-                    />
-                    <Divider />
-                    <List.Item
-                      title="Language"
-                      description="English"
-                      left={(props) => (
-                        <List.Icon {...props} icon="translate" />
-                      )}
-                      right={(props) => (
-                        <List.Icon {...props} icon="chevron-right" />
-                      )}
-                      onPress={() =>
-                        Alert.alert(
-                          "Language",
-                          "Language settings would open here"
-                        )
-                      }
-                    />
-                    <Divider />
-                    <List.Item
-                      title="Theme"
-                      description="Automatic"
-                      left={(props) => (
-                        <List.Icon {...props} icon="theme-light-dark" />
-                      )}
-                      right={(props) => (
-                        <List.Icon {...props} icon="chevron-right" />
-                      )}
-                      onPress={() =>
-                        Alert.alert("Theme", "Theme settings would open here")
-                      }
-                    />
-                  </Card.Content>
-                </Card>
-              </Section>
-
-              {/* Quick Actions */}
-              <Section title="Quick Actions">
-                <Card style={styles.actionsCard}>
-                  <Card.Content>
-                    <Button
-                      mode="outlined"
-                      icon="help-circle"
-                      onPress={() =>
-                        Alert.alert("Help & Support", "Contacting support...")
-                      }
-                      style={styles.actionButton}
-                      contentStyle={styles.actionButtonContent}
-                    >
-                      Help & Support
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      icon="information"
-                      onPress={() =>
-                        Alert.alert(
-                          "About",
-                          "Mosque Management System v2.0\n\nA modern app for mosque community management."
-                        )
-                      }
-                      style={styles.actionButton}
-                      contentStyle={styles.actionButtonContent}
-                    >
-                      About App
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      icon="shield-account"
-                      onPress={() =>
-                        Alert.alert(
-                          "Privacy",
-                          "Privacy settings would open here"
-                        )
-                      }
-                      style={styles.actionButton}
-                      contentStyle={styles.actionButtonContent}
-                    >
-                      Privacy & Security
-                    </Button>
-                    <Button
-                      mode="outlined"
-                      icon="export"
-                      onPress={() =>
-                        Alert.alert("Export Data", "Exporting your data...")
-                      }
-                      style={styles.actionButton}
-                      contentStyle={styles.actionButtonContent}
-                    >
-                      Export Data
-                    </Button>
-                  </Card.Content>
-                </Card>
-              </Section>
-            </>
-          )}
+          {/* Quick Actions */}
+          <Section title="Quick Actions">
+            <Card style={styles.actionsCard}>
+              <Card.Content>
+                <Button
+                  mode="outlined"
+                  icon="help-circle"
+                  onPress={() =>
+                    Alert.alert("Help & Support", "Contacting support...")
+                  }
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  Help & Support
+                </Button>
+                <Button
+                  mode="outlined"
+                  icon="information"
+                  onPress={() =>
+                    Alert.alert(
+                      "About",
+                      "Mosque Management System v2.0\n\nA modern app for mosque community management."
+                    )
+                  }
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  About App
+                </Button>
+                <Button
+                  mode="outlined"
+                  icon="shield-account"
+                  onPress={() =>
+                    Alert.alert("Privacy", "Privacy settings would open here")
+                  }
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  Privacy & Security
+                </Button>
+                <Button
+                  mode="outlined"
+                  icon="export"
+                  onPress={() =>
+                    Alert.alert("Export Data", "Exporting your data...")
+                  }
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  Export Data
+                </Button>
+              </Card.Content>
+            </Card>
+          </Section>
 
           {/* Logout Button */}
           <Button
@@ -726,7 +640,7 @@ export default function ProfileScreen() {
       <FAB
         icon="pencil"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/donation/type")} // Changed this line
+        onPress={() => router.push("/donation/type")}
         color="white"
         label="Edit"
       />
@@ -753,6 +667,13 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: "relative",
+    marginRight: 16,
+  },
+  // Avatar.Text এর পরিবর্তে Image ব্যবহার করা হয়েছে
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     marginRight: 16,
   },
   avatar: {

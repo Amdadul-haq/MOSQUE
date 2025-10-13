@@ -86,9 +86,9 @@ The mosque has served as the spiritual and social hub for the Muslim community i
   committeeMembers: [
     {
       id: "1",
-      name: "Dr. Mohammad Rahman",
+      name: "Md. Amdadul Haque",
       designation: "President",
-      phone: "01711223344",
+      phone: "01575494393",
       email: "president@khiarparamosque.org",
       bio: "Senior community leader with 20+ years of service",
       joinDate: "2015",
