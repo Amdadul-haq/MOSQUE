@@ -18,7 +18,7 @@ import {
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
-import { Header } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { MosqueInfo } from "../../src/types";
@@ -88,9 +88,9 @@ export default function MosqueInfoScreen() {
           translucent
           backgroundColor="transparent"
         />
-        <Header
+        <SimpleHeader
           title="Mosque Information"
-          subtitle="Learn about our community"
+          
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -114,7 +114,7 @@ export default function MosqueInfoScreen() {
         backgroundColor="transparent"
       />
 
-      <Header title="Mosque Information" subtitle="Learn about our community" />
+      <SimpleHeader title="Mosque Information"/>
 
       <ScrollView
         showsVerticalScrollIndicator={false}

@@ -12,6 +12,7 @@
       "distribution": "internal"
     },
     "production": {
+        "developmentClient": false,
       "android": {
         "buildType": "apk"       // APK বানাতে চাইলে, অথবা "app-bundle" (AAB) Google Play এর জন্য
       },

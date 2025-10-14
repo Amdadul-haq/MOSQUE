@@ -16,15 +16,15 @@ import {
   FAB,
   SegmentedButtons,
   Chip,
-  ActivityIndicator, // ✅ ADDED
+  ActivityIndicator,
 } from "react-native-paper";
-import { Header } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { StatsGrid } from "../../src/components/StatsGrid";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
 import { useRouter } from "expo-router";
-import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
+import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 
 import {
   formatCurrency,
@@ -41,7 +41,7 @@ export default function DonationsScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  // ✅ REPLACED: Using tab navigation hook instead of local state
+
   const { isLoading, handleRefresh } = useTabNavigation("donations");
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -153,12 +153,10 @@ export default function DonationsScreen() {
     },
   ];
 
-  // ✅ UPDATED: Using handleRefresh from useTabNavigation
   const onRefresh = () => {
     handleRefresh();
   };
 
-  // ✅ ADDED: Loading State UI
   if (isLoading) {
     return (
       <Container padding={false}>
@@ -167,7 +165,7 @@ export default function DonationsScreen() {
           translucent
           backgroundColor="transparent"
         />
-        <Header title="Donations" subtitle="Support your mosque community" />
+        <SimpleHeader title="Donations"/>
         <View style={styles.loadingContainer}>
           <ActivityIndicator
             size="large"
@@ -190,7 +188,8 @@ export default function DonationsScreen() {
         backgroundColor="transparent"
       />
 
-      <Header title="Donations" subtitle="Support your mosque community" />
+      <SimpleHeader title="Donations"
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -198,7 +197,7 @@ export default function DonationsScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 80 },
         ]}
-        // ✅ UPDATED: Refresh control with theme colors
+       
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
@@ -553,7 +552,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 16,
   },
-  // ✅ ADDED: Loading styles
   loadingContainer: {
     flex: 1,
     justifyContent: "center",

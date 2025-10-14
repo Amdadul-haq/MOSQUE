@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface SectionProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   children: React.ReactNode;
   action?: React.ReactNode;

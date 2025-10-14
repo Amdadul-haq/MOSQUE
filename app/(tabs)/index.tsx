@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { useTheme, Card, Button, ActivityIndicator } from "react-native-paper";
-import { Header, HomeHeader } from "../../src/components/Header";
+import { HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { PrayerTimes } from "../../src/components/PrayerTimes";

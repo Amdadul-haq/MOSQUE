@@ -26,7 +26,7 @@ import {
   Dialog,
   Portal,
 } from "react-native-paper";
-import { Header } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { UserProfile, ThemeMode, Language } from "../../src/types";
@@ -178,9 +178,9 @@ export default function ProfileScreen() {
           translucent
           backgroundColor="transparent"
         />
-        <Header
-          title="Profile"
-          subtitle="Manage your account and preferences"
+        <SimpleHeader 
+        title="Profile" 
+          
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -204,7 +204,7 @@ export default function ProfileScreen() {
         backgroundColor="transparent"
       />
 
-      <Header title="Profile" subtitle="Manage your account and preferences" />
+      <SimpleHeader title="Profile" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
