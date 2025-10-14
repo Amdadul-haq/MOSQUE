@@ -1,5 +1,5 @@
 // app/notifications/index.tsx
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -13,31 +13,57 @@ import { useTheme, Card, ActivityIndicator } from "react-native-paper";
 import { Container } from "../../src/components/common/Container";
 import { SimpleHeader } from "../../src/components/Header";
 import { useNotifications } from "../../src/contexts/NotificationContext";
+import { useVisitedScreens } from "../../src/contexts/VisitedScreensContext";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Notification } from "../../src/types";
+import { useLoading } from "../../src/hooks/useLoading";
 
 export default function NotificationsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { notificationState, markAsRead, markAllAsRead } = useNotifications();
-  const [refreshing, setRefreshing] = useState(false);
+
+  // ✅ FIXED: Use persistent visited screens context
+  const { hasVisitedScreen, markScreenAsVisited } = useVisitedScreens();
+  const hasVisited = hasVisitedScreen("notifications");
+
+  // ✅ Use loading hook - only load if not visited before
+  const { isLoading, startLoading, stopLoading } = useLoading(!hasVisited);
+
+  // ✅ Handle initial loading only on first visit
+  useEffect(() => {
+    if (!hasVisited) {
+      // Mark as visited immediately but show loading for a bit
+      markScreenAsVisited("notifications");
+
+      // Simulate initial data loading
+      const timer = setTimeout(() => {
+        stopLoading();
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    } else {
+      // If already visited, ensure loading is stopped
+      if (isLoading) {
+        stopLoading();
+      }
+    }
+  }, [hasVisited, markScreenAsVisited, stopLoading, isLoading]);
 
   const onRefresh = () => {
-    setRefreshing(true);
+    startLoading();
     // Simulate API refresh
     setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
+      stopLoading();
+    }, 5000);
   };
 
   const handleNotificationPress = (notification: Notification) => {
-    // Mark as read when pressed
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
 
-    // Navigate to notification details
     router.push({
       pathname: "/notifications/[id]",
       params: { id: notification.id },
@@ -72,6 +98,34 @@ export default function NotificationsScreen() {
 
     return "Today";
   };
+
+  // ✅ Loading State UI - Only shows on first visit
+  if (isLoading && !hasVisited) {
+    return (
+      <Container padding={false}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <SimpleHeader
+          title="Notifications"
+          showBackButton={true}
+          onBackPress={() => router.back()}
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary}
+            style={styles.loadingSpinner}
+          />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+            Loading Notifications...
+          </Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container padding={false}>
@@ -114,7 +168,7 @@ export default function NotificationsScreen() {
           contentContainerStyle={styles.scrollContent}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
+              refreshing={isLoading}
               onRefresh={onRefresh}
               colors={[theme.colors.primary]}
               tintColor={theme.colors.primary}
@@ -257,6 +311,20 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   emptyContainer: {
     flex: 1,

@@ -1,4 +1,4 @@
-// app/_layout.tsx - UPDATE WITH PROPER ROUTING
+// app/_layout.tsx
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -10,18 +10,20 @@ import SplashScreen from "./splash";
 import { TabLoadingProvider } from "../src/contexts/TabLoadingContext";
 import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
 import { AuthProvider } from "../src/contexts/AuthContext";
-import { NotificationProvider } from "../src/contexts/NotificationContext"; // ✅ IMPORT
+import { NotificationProvider } from "../src/contexts/NotificationContext";
+import { VisitedScreensProvider } from "../src/contexts/VisitedScreensContext";
+
 
 // Create a wrapper component to use the theme mode
 function ThemedApp() {
   const { isDark } = useThemeMode();
   const theme = isDark ? DarkTheme : LightTheme;
 
-  return (
-    <PaperProvider theme={theme}>
-      <AuthProvider>
-        <NotificationProvider>
-          {/* ✅ ADD PROVIDER */}
+return (
+  <PaperProvider theme={theme}>
+    <AuthProvider>
+      <NotificationProvider>
+        <VisitedScreensProvider>
           <TabLoadingProvider>
             <StatusBar style={isDark ? "light" : "dark"} />
             <Stack screenOptions={{ headerShown: false }}>
@@ -38,13 +40,13 @@ function ThemedApp() {
                 name="notifications"
                 options={{ headerShown: false }}
               />
-              {/* ✅ ADD SCREEN */}
             </Stack>
           </TabLoadingProvider>
-        </NotificationProvider>
-      </AuthProvider>
-    </PaperProvider>
-  );
+        </VisitedScreensProvider>
+      </NotificationProvider>
+    </AuthProvider>
+  </PaperProvider>
+);
 }
 
 export default function RootLayout() {

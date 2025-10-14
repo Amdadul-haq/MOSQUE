@@ -20,14 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 import { useNotifications } from "../../src/contexts/NotificationContext";
-
-import {
-  PrayerTime,
-  StatItem,
-  QuickAction,
-  Event,
-  Announcement,
-} from "../../src/types";
+import {Event} from "../../src/types";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -44,6 +37,7 @@ export default function HomeScreen() {
 
     const { notificationState } = useNotifications();
 
+
   // Loading state management for home tab
   const { isLoading, handleRefresh } = useTabNavigation("home");
 
@@ -52,8 +46,7 @@ export default function HomeScreen() {
   };
 
   const handleNotificationPress = () => {
-    // ✅ UPDATED: Navigate to notifications screen
-    router.push("/notifications");
+      router.push("/notifications");
   };
 
   const handleViewFinancials = () => {

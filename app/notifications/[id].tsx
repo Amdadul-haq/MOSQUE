@@ -150,50 +150,6 @@ export default function NotificationDetailsScreen() {
               </Text>
             </View>
 
-            {/* Status */}
-            <View style={styles.statusContainer}>
-              <Text
-                style={[
-                  styles.statusLabel,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                Status
-              </Text>
-              <View style={styles.statusRow}>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    {
-                      backgroundColor: notification.isRead
-                        ? theme.colors.primary + "20"
-                        : "#f59e0b20",
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.statusText,
-                      {
-                        color: notification.isRead
-                          ? theme.colors.primary
-                          : "#f59e0b",
-                      },
-                    ]}
-                  >
-                    {notification.isRead ? "READ" : "UNREAD"}
-                  </Text>
-                </View>
-                <Text
-                  style={[
-                    styles.statusTime,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  {notification.isRead ? "Read" : "Unread"}
-                </Text>
-              </View>
-            </View>
           </Card.Content>
         </Card>
       </ScrollView>
