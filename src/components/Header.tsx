@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
                       size={22}
                       color="white"
                     />
-                    {notificationCount > 0 && (
+                    {notificationCount > 0 && ( // ✅ This will now show the real count
                       <View style={styles.notificationBadge}>
                         <Text style={styles.badgeText}>
                           {notificationCount > 9 ? "9+" : notificationCount}
@@ -233,7 +233,7 @@ export const HomeHeader: React.FC<{
   onProfilePress?: () => void;
   onNotificationPress?: () => void;
   notificationCount?: number;
-}> = ({ onProfilePress, onNotificationPress, notificationCount = 0 }) => {
+}> = ({ onProfilePress, onNotificationPress, notificationCount = 3 }) => {
   return (
     <Header
       title="Khiarpara Jame Mosque"

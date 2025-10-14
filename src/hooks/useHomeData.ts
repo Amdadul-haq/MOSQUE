@@ -116,9 +116,6 @@ export const useHomeData = () => {
       case 'profile':
         router.push("/profile");
         break;
-      case 'notifications':
-        // Navigate to notifications screen
-        break;
       default:
         break;
     }

@@ -18,7 +18,8 @@ import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
+import { useTabNavigation } from "../../src/hooks/useTabNavigation";
+import { useNotifications } from "../../src/contexts/NotificationContext";
 
 import {
   PrayerTime,
@@ -41,7 +42,9 @@ export default function HomeScreen() {
     announcements,
   } = useHomeData();
 
-  // ✅ NEW: Loading state management for home tab
+    const { notificationState } = useNotifications();
+
+  // Loading state management for home tab
   const { isLoading, handleRefresh } = useTabNavigation("home");
 
   const handleProfilePress = () => {
@@ -49,7 +52,8 @@ export default function HomeScreen() {
   };
 
   const handleNotificationPress = () => {
-    handleQuickAction("notifications");
+    // ✅ UPDATED: Navigate to notifications screen
+    router.push("/notifications");
   };
 
   const handleViewFinancials = () => {
@@ -74,6 +78,7 @@ export default function HomeScreen() {
           <HomeHeader
             onProfilePress={handleProfilePress}
             onNotificationPress={handleNotificationPress}
+            notificationCount={notificationState.unreadCount}
           />
           <View style={styles.loadingContainer}>
             <ActivityIndicator
@@ -104,6 +109,7 @@ export default function HomeScreen() {
         <HomeHeader
           onProfilePress={handleProfilePress}
           onNotificationPress={handleNotificationPress}
+          notificationCount={notificationState.unreadCount}
         />
 
         <ScrollView

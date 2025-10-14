@@ -74,6 +74,25 @@ export interface UserProfile {
   };
 }
 
+// src/types/index.ts - ADD THESE NOTIFICATION TYPES
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'urgent' | 'donation' | 'prayer' | 'event';
+  date: string;
+  time: string;
+  isRead: boolean;
+  action?: {
+    screen: string;
+    params?: any;
+  };
+}
+
+export interface NotificationState {
+  notifications: Notification[];
+  unreadCount: number;
+}
 
 export interface StatItem {
   label: string;

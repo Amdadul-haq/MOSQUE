@@ -9,16 +9,20 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "./splash";
 import { TabLoadingProvider } from "../src/contexts/TabLoadingContext";
 import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
-import { AuthProvider } from "../src/contexts/AuthContext"; // ✅ NEW IMPORT
+import { AuthProvider } from "../src/contexts/AuthContext"; 
+import { NotificationProvider } from "../src/contexts/NotificationContext"; 
 
 // Create a wrapper component to use the theme mode
 function ThemedApp() {
   const { isDark } = useThemeMode();
   const theme = isDark ? DarkTheme : LightTheme;
 
-  return (
-    <PaperProvider theme={theme}>
-      <AuthProvider>
+return (
+  <PaperProvider theme={theme}>
+    <AuthProvider>
+      <NotificationProvider>
+        {" "}
+        {/* ✅ NEW PROVIDER */}
         <TabLoadingProvider>
           <StatusBar style={isDark ? "light" : "dark"} />
           <Stack screenOptions={{ headerShown: false }}>
@@ -28,11 +32,17 @@ function ThemedApp() {
               name="mosque/mosque-history"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="notifications"
+              options={{ headerShown: false }}
+            />{" "}
+            {/* ✅ ADD SCREEN */}
           </Stack>
         </TabLoadingProvider>
-      </AuthProvider>
-    </PaperProvider>
-  );
+      </NotificationProvider>
+    </AuthProvider>
+  </PaperProvider>
+);
 }
 
 export default function RootLayout() {
