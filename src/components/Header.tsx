@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   headerContainer: {},
   gradientHeader: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 5,
     paddingBottom: 20,
     elevation: 8,
     shadowColor: "#000",
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    minHeight: 56,
+    minHeight: 60,
   },
   leftSection: {
     flexDirection: "row",

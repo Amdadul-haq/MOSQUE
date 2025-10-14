@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button, Divider } from "react-native-paper";
 import { useRouter } from "expo-router";
-import { Header } from "../../src/components/Header";
+import { Header, SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -173,7 +173,7 @@ export default function FinancialsScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
+      <SimpleHeader
         title="Mosque Financials"
         showBackButton={true}
         onBackPress={handleBack}
