@@ -118,7 +118,13 @@ export const Header: React.FC<HeaderProps> = ({
         </View>
 
         {/* Bottom Curve Decoration */}
-        <View style={styles.headerCurve} />
+        {/* <View style={styles.headerCurve} /> */}
+        <View
+          style={[
+            styles.headerCurve,
+            { backgroundColor: theme.colors.background }, // ✅ Use theme color instead of white
+          ]}
+        />
       </LinearGradient>
     </View>
   );
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 30,
-    backgroundColor: "white",
+    // backgroundColor: "white",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
