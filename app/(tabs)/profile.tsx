@@ -7,6 +7,7 @@ import {
   Alert,
   StatusBar,
   Image,
+  RefreshControl, // ✅ ADDED
 } from "react-native";
 import {
   useTheme,
@@ -18,19 +19,18 @@ import {
   Divider,
   Avatar,
   Chip,
-  ProgressBar,
   ToggleButton,
   FAB,
+  ActivityIndicator, // ✅ ADDED
 } from "react-native-paper";
 import { Header } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
-import { StatsGrid } from "../../src/components/StatsGrid";
-import { UserProfile, PrayerProgress, Achievement } from "../../src/types";
+import { UserProfile } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
 
 const initialProfile: UserProfile = {
   id: "1",
@@ -53,86 +53,15 @@ const initialProfile: UserProfile = {
   },
 };
 
-const prayerProgress: PrayerProgress[] = [
-  { name: "Fajr", completed: true, time: "5:30 AM" },
-  { name: "Dhuhr", completed: true, time: "12:30 PM" },
-  { name: "Asr", completed: false, time: "4:15 PM" },
-  { name: "Maghrib", completed: false, time: "6:45 PM" },
-  { name: "Isha", completed: false, time: "8:00 PM" },
-];
-
-const achievements: Achievement[] = [
-  {
-    id: "1",
-    title: "Prayer Warrior",
-    description: "Complete 100 prayers",
-    icon: "🕌",
-    progress: 100,
-    total: 100,
-    unlocked: true,
-    date: "2024-01-10",
-  },
-  {
-    id: "2",
-    title: "Regular Donor",
-    description: "Donate for 3 consecutive months",
-    icon: "💰",
-    progress: 2,
-    total: 3,
-    unlocked: false,
-    date: "",
-  },
-  {
-    id: "3",
-    title: "Quran Reader",
-    description: "Read Quran for 30 days straight",
-    icon: "📖",
-    progress: 15,
-    total: 30,
-    unlocked: false,
-    date: "",
-  },
-  {
-    id: "4",
-    title: "Community Helper",
-    description: "Attend 10 community events",
-    icon: "👥",
-    progress: 7,
-    total: 10,
-    unlocked: false,
-    date: "",
-  },
-];
-
 export default function ProfileScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+
+  // ✅ ADDED: Using tab navigation hook for loading state
+  const { isLoading, handleRefresh } = useTabNavigation("profile");
+
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [editing, setEditing] = useState(false);
-
-  const userStats = [
-    {
-      label: "Prayer Streak",
-      value: profile.prayerStreak?.toString() || "0",
-      icon: "🔥",
-      color: theme.colors.primary,
-      subtitle: "days",
-    },
-    {
-      label: "Total Prayers",
-      value: profile.totalPrayers?.toString() || "0",
-      icon: "🕌",
-      color: theme.colors.secondary,
-      subtitle: "prayers",
-    },
-    {
-      label: "Donations",
-      value: "8",
-      icon: "💰",
-      color: "#8b5cf6",
-      subtitle: "this month",
-    },
-  ];
 
   const handlePreferenceChange = (
     key: keyof UserProfile["preferences"],
@@ -182,8 +111,37 @@ export default function ProfileScreen() {
     }
   };
 
-  const completedPrayers = prayerProgress.filter((p) => p.completed).length;
-  const progressPercentage = completedPrayers / prayerProgress.length;
+  // ✅ ADDED: Refresh handler
+  const onRefresh = () => {
+    handleRefresh();
+  };
+
+  // ✅ ADDED: Loading State UI
+  if (isLoading) {
+    return (
+      <Container padding={false}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <Header
+          title="Profile"
+          subtitle="Manage your account and preferences"
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary}
+            style={styles.loadingSpinner}
+          />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+            Loading Profile...
+          </Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container padding={false}>
@@ -201,6 +159,15 @@ export default function ProfileScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 20 },
         ]}
+        // ✅ ADDED: Refresh control with theme colors
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
+        }
       >
         <View style={styles.content}>
           {/* Profile Header */}
@@ -271,167 +238,6 @@ export default function ProfileScreen() {
                       Member since {profile.joinDate}
                     </Text>
                   </View>
-                </View>
-              </Card.Content>
-            </Card>
-          </Section>
-
-          {/* Activity Stats */}
-          <Section title="Your Activity">
-            <StatsGrid stats={userStats} />
-          </Section>
-
-          {/* Today's Prayer Progress */}
-          <Section
-            title="Today's Prayers"
-            subtitle={`${completedPrayers}/${prayerProgress.length} completed`}
-          >
-            <Card style={styles.prayerCard}>
-              <Card.Content>
-                <View style={styles.progressHeader}>
-                  <Text
-                    style={[
-                      styles.progressTitle,
-                      { color: theme.colors.onSurface },
-                    ]}
-                  >
-                    Prayer Progress
-                  </Text>
-                  <Text
-                    style={[
-                      styles.progressPercentage,
-                      { color: theme.colors.primary },
-                    ]}
-                  >
-                    {Math.round(progressPercentage * 100)}%
-                  </Text>
-                </View>
-                <ProgressBar
-                  progress={progressPercentage}
-                  color={theme.colors.primary}
-                  style={styles.progressBar}
-                />
-                <View style={styles.prayerList}>
-                  {prayerProgress.map((prayer, index) => (
-                    <View key={prayer.name} style={styles.prayerItem}>
-                      <View style={styles.prayerInfo}>
-                        <View
-                          style={[
-                            styles.prayerStatus,
-                            {
-                              backgroundColor: prayer.completed
-                                ? theme.colors.primary
-                                : theme.colors.surfaceVariant,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.prayerStatusText,
-                              {
-                                color: prayer.completed
-                                  ? "white"
-                                  : theme.colors.onSurfaceVariant,
-                              },
-                            ]}
-                          >
-                            {prayer.completed ? "✓" : "○"}
-                          </Text>
-                        </View>
-                        <Text
-                          style={[
-                            styles.prayerName,
-                            {
-                              color: prayer.completed
-                                ? theme.colors.onSurface
-                                : theme.colors.onSurfaceVariant,
-                              fontWeight: prayer.completed ? "600" : "400",
-                            },
-                          ]}
-                        >
-                          {prayer.name}
-                        </Text>
-                      </View>
-                      <Text
-                        style={[
-                          styles.prayerTime,
-                          { color: theme.colors.onSurfaceVariant },
-                        ]}
-                      >
-                        {prayer.time}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </Card.Content>
-            </Card>
-          </Section>
-
-          {/* Achievements Section */}
-          <Section title="Achievements">
-            <Card style={styles.achievementsCard}>
-              <Card.Content>
-                <View style={styles.achievementsGrid}>
-                  {achievements.map((achievement) => (
-                    <Card
-                      key={achievement.id}
-                      style={[
-                        styles.achievementCard,
-                        achievement.unlocked && {
-                          backgroundColor: theme.colors.primaryContainer,
-                        },
-                      ]}
-                      mode="elevated"
-                    >
-                      <Card.Content style={styles.achievementContent}>
-                        <Text style={styles.achievementIcon}>
-                          {achievement.icon}
-                        </Text>
-                        <View style={styles.achievementInfo}>
-                          <Text
-                            style={[
-                              styles.achievementTitle,
-                              { color: theme.colors.onSurface },
-                            ]}
-                          >
-                            {achievement.title}
-                          </Text>
-                          <Text
-                            style={[
-                              styles.achievementDescription,
-                              { color: theme.colors.onSurfaceVariant },
-                            ]}
-                          >
-                            {achievement.description}
-                          </Text>
-                          {!achievement.unlocked && (
-                            <View style={styles.progressContainer}>
-                              <ProgressBar
-                                progress={
-                                  achievement.progress / achievement.total
-                                }
-                                color={theme.colors.primary}
-                                style={styles.achievementProgress}
-                              />
-                              <Text
-                                style={[
-                                  styles.progressText,
-                                  { color: theme.colors.onSurfaceVariant },
-                                ]}
-                              >
-                                {achievement.progress}/{achievement.total}
-                              </Text>
-                            </View>
-                          )}
-                          {achievement.unlocked && (
-                            <View style={styles.unlockedBadge}>
-                              <Text style={styles.unlockedText}>Unlocked</Text>
-                            </View>
-                          )}
-                        </View>
-                      </Card.Content>
-                    </Card>
-                  ))}
                 </View>
               </Card.Content>
             </Card>
@@ -655,6 +461,21 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  // ✅ ADDED: Loading styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   profileCard: {
     borderRadius: 20,
   },
@@ -669,7 +490,6 @@ const styles = StyleSheet.create({
     position: "relative",
     marginRight: 16,
   },
-  // Avatar.Text এর পরিবর্তে Image ব্যবহার করা হয়েছে
   avatarImage: {
     width: 80,
     height: 80,
@@ -738,126 +558,6 @@ const styles = StyleSheet.create({
   },
   editButton: {
     borderRadius: 8,
-  },
-  tabsCard: {
-    borderRadius: 16,
-  },
-  tabsContent: {
-    paddingVertical: 8,
-  },
-  tabsContainer: {
-    justifyContent: "center",
-  },
-  tabButton: {
-    flex: 1,
-    borderRadius: 12,
-    marginHorizontal: 2,
-  },
-  prayerCard: {
-    borderRadius: 16,
-  },
-  progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  progressTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  progressPercentage: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  progressBar: {
-    height: 6,
-    borderRadius: 3,
-    marginBottom: 16,
-  },
-  prayerList: {
-    gap: 12,
-  },
-  prayerItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  prayerInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  prayerStatus: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  prayerStatusText: {
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  prayerName: {
-    fontSize: 16,
-    flex: 1,
-  },
-  prayerTime: {
-    fontSize: 14,
-  },
-  achievementsCard: {
-    borderRadius: 16,
-  },
-  achievementsGrid: {
-    gap: 12,
-  },
-  achievementCard: {
-    borderRadius: 12,
-  },
-  achievementContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-  },
-  achievementIcon: {
-    fontSize: 32,
-    marginRight: 16,
-  },
-  achievementInfo: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  achievementDescription: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  progressContainer: {
-    gap: 4,
-  },
-  achievementProgress: {
-    height: 4,
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: 10,
-  },
-  unlockedBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#16a34a",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  unlockedText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
   },
   infoCard: {
     borderRadius: 16,

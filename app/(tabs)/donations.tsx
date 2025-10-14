@@ -16,6 +16,7 @@ import {
   FAB,
   SegmentedButtons,
   Chip,
+  ActivityIndicator, // ✅ ADDED
 } from "react-native-paper";
 import { Header } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
@@ -23,6 +24,7 @@ import { Section } from "../../src/components/common/Section";
 import { StatsGrid } from "../../src/components/StatsGrid";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
 import { useRouter } from "expo-router";
+import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
 
 import {
   formatCurrency,
@@ -35,11 +37,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type TimeFilter = "all" | "month" | "week" | "today";
 
 export default function DonationsScreen() {
-    const router = useRouter();
-
+  const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const [refreshing, setRefreshing] = useState(false);
+
+  // ✅ REPLACED: Using tab navigation hook instead of local state
+  const { isLoading, handleRefresh } = useTabNavigation("donations");
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -149,10 +153,34 @@ export default function DonationsScreen() {
     },
   ];
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
+  // ✅ UPDATED: Using handleRefresh from useTabNavigation
+  const onRefresh = () => {
+    handleRefresh();
+  };
+
+  // ✅ ADDED: Loading State UI
+  if (isLoading) {
+    return (
+      <Container padding={false}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <Header title="Donations" subtitle="Support your mosque community" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary}
+            style={styles.loadingSpinner}
+          />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+            Loading Donations...
+          </Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container padding={false}>
@@ -162,24 +190,7 @@ export default function DonationsScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
-        title="Donations"
-        subtitle="Support your mosque community"
-        // rightComponent={
-        //   <Button
-        //     mode="contained"
-        //     onPress={() => router.push("/donation/type")} // Changed this line
-        //     icon="plus"
-        //     compact
-        //     style={styles.addButton}
-        //   >
-        //     Add
-        //   </Button>
-        // }
-    
-      />
-
-      
+      <Header title="Donations" subtitle="Support your mosque community" />
 
       <ScrollView
         style={styles.scrollView}
@@ -187,8 +198,14 @@ export default function DonationsScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 80 },
         ]}
+        // ✅ UPDATED: Refresh control with theme colors
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -325,7 +342,7 @@ export default function DonationsScreen() {
                   </Text>
                   <Button
                     mode="outlined"
-                    onPress={() => router.push("/donation/type")} // Changed this line
+                    onPress={() => router.push("/donation/type")}
                     style={styles.emptyButton}
                   >
                     Make First Donation
@@ -411,7 +428,7 @@ export default function DonationsScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/donation/type")} // Changed this line
+        onPress={() => router.push("/donation/type")}
         color="white"
         label="Add Donation"
       />
@@ -535,5 +552,20 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: 16,
+  },
+  // ✅ ADDED: Loading styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

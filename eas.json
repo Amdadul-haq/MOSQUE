@@ -12,7 +12,11 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "android": {
+        "buildType": "apk"       // APK বানাতে চাইলে, অথবা "app-bundle" (AAB) Google Play এর জন্য
+      },
+      "autoIncrement": true,
+      "distribution": "internal" // Play Store ছাড়া ফোনে install করতে
     }
   },
   "submit": {

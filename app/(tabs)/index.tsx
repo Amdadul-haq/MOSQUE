@@ -1,7 +1,14 @@
 // app/(tabs)/index.tsx
 import React from "react";
-import { ScrollView, View, Text, StyleSheet, StatusBar } from "react-native";
-import { useTheme, Card, Button } from "react-native-paper";
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  StatusBar,
+  RefreshControl,
+} from "react-native";
+import { useTheme, Card, Button, ActivityIndicator } from "react-native-paper";
 import { Header, HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
@@ -11,6 +18,7 @@ import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
 
 import {
   PrayerTime,
@@ -33,6 +41,9 @@ export default function HomeScreen() {
     announcements,
   } = useHomeData();
 
+  // ✅ NEW: Loading state management for home tab
+  const { isLoading, handleRefresh } = useTabNavigation("home");
+
   const handleProfilePress = () => {
     handleQuickAction("profile");
   };
@@ -44,6 +55,42 @@ export default function HomeScreen() {
   const handleViewFinancials = () => {
     router.push("/financials/financials");
   };
+
+  // ✅ NEW: Pull-to-refresh handler
+  const onRefresh = () => {
+    handleRefresh();
+  };
+
+  // ✅ Loading State UI
+  if (isLoading) {
+    return (
+      <Container padding={false}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <View style={styles.container}>
+          <HomeHeader
+            onProfilePress={handleProfilePress}
+            onNotificationPress={handleNotificationPress}
+          />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={theme.colors.primary}
+              style={styles.loadingSpinner}
+            />
+            <Text
+              style={[styles.loadingText, { color: theme.colors.onSurface }]}
+            >
+              Loading Home Data...
+            </Text>
+          </View>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container padding={false}>
@@ -66,6 +113,15 @@ export default function HomeScreen() {
             { paddingBottom: insets.bottom + 20 },
           ]}
           style={styles.scrollView}
+          // ✅ NEW: Pull-to-refresh functionality
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
+            />
+          }
         >
           <View style={styles.content}>
             {/* Welcome Card with Announcements */}
@@ -317,6 +373,21 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingTop: 8,
+  },
+  // ✅ NEW: Loading styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   welcomeCard: {
     marginBottom: 24,

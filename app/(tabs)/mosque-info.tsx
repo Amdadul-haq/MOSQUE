@@ -27,16 +27,17 @@ import { mosqueData } from "../../src/data/mosqueMockData";
 import { HistorySection } from "../../src/components/mosque/HistorySection";
 import { MosqueGallery } from "../../src/components/mosque/MosqueGallery";
 import { CommitteeGrid } from "../../src/components/mosque/CommitteeGrid";
+import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
 
 export default function MosqueInfoScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  // ✅ REPLACED: Using tab navigation hook instead of local states
+  const { isLoading, handleRefresh } = useTabNavigation("mosqueInfo");
 
   // Simulate API call with loading state
   const fetchMosqueData = useCallback(async () => {
-    setLoading(true);
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -45,16 +46,13 @@ export default function MosqueInfoScreen() {
       // setMosqueData(response.data);
     } catch (error) {
       console.error("Error fetching mosque data:", error);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
+  // ✅ UPDATED: Using handleRefresh from useTabNavigation
   const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchMosqueData();
-    setRefreshing(false);
-  }, [fetchMosqueData]);
+    handleRefresh();
+  }, [handleRefresh]);
 
   const handleContact = async (
     type: "call" | "email" | "maps",
@@ -81,7 +79,8 @@ export default function MosqueInfoScreen() {
     }
   };
 
-  if (loading) {
+  // ✅ ADDED: Loading State UI
+  if (isLoading) {
     return (
       <Container padding={false}>
         <StatusBar
@@ -94,14 +93,13 @@ export default function MosqueInfoScreen() {
           subtitle="Learn about our community"
         />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text
-            style={[
-              styles.loadingText,
-              { color: theme.colors.onSurfaceVariant },
-            ]}
-          >
-            Loading mosque information...
+          <ActivityIndicator
+            size="large"
+            color={theme.colors.primary}
+            style={styles.loadingSpinner}
+          />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>
+            Loading Mosque Information...
           </Text>
         </View>
       </Container>
@@ -124,9 +122,10 @@ export default function MosqueInfoScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 20 },
         ]}
+        // ✅ UPDATED: Refresh control with theme colors
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
+            refreshing={isLoading}
             onRefresh={onRefresh}
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
@@ -483,9 +482,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 40,
   },
+  loadingSpinner: {
+    marginBottom: 16,
+  },
   loadingText: {
-    marginTop: 16,
     fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   mosqueHeaderCard: {
     borderRadius: 20,
