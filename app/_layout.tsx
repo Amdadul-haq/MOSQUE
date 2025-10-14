@@ -1,4 +1,4 @@
-// app/_layout.tsx - FINAL VERSION
+// app/_layout.tsx - UPDATE WITH PROPER ROUTING
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -9,40 +9,42 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "./splash";
 import { TabLoadingProvider } from "../src/contexts/TabLoadingContext";
 import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
-import { AuthProvider } from "../src/contexts/AuthContext"; 
-import { NotificationProvider } from "../src/contexts/NotificationContext"; 
+import { AuthProvider } from "../src/contexts/AuthContext";
+import { NotificationProvider } from "../src/contexts/NotificationContext"; // ✅ IMPORT
 
 // Create a wrapper component to use the theme mode
 function ThemedApp() {
   const { isDark } = useThemeMode();
   const theme = isDark ? DarkTheme : LightTheme;
 
-return (
-  <PaperProvider theme={theme}>
-    <AuthProvider>
-      <NotificationProvider>
-        {" "}
-        {/* ✅ NEW PROVIDER */}
-        <TabLoadingProvider>
-          <StatusBar style={isDark ? "light" : "dark"} />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="financials" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="mosque/mosque-history"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="notifications"
-              options={{ headerShown: false }}
-            />{" "}
-            {/* ✅ ADD SCREEN */}
-          </Stack>
-        </TabLoadingProvider>
-      </NotificationProvider>
-    </AuthProvider>
-  </PaperProvider>
-);
+  return (
+    <PaperProvider theme={theme}>
+      <AuthProvider>
+        <NotificationProvider>
+          {/* ✅ ADD PROVIDER */}
+          <TabLoadingProvider>
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="financials"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="mosque/mosque-history"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="notifications"
+                options={{ headerShown: false }}
+              />
+              {/* ✅ ADD SCREEN */}
+            </Stack>
+          </TabLoadingProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </PaperProvider>
+  );
 }
 
 export default function RootLayout() {
