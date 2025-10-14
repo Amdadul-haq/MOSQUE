@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header } from "../../src/components/Header";
+import { Header, SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
@@ -168,7 +168,7 @@ export default function DonationSuccessScreen() {
         backgroundColor="transparent"
       />
 
-      <Header title="Donation Complete" showBackButton={false} />
+      <SimpleHeader title="Donation Complete" showBackButton={false} />
 
       <ScrollView
         style={styles.scrollView}

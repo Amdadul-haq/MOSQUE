@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header } from "../../src/components/Header";
+import { Header, SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -146,11 +146,11 @@ export default function DonationReviewScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
-        title="Review Donation"
-        showBackButton={true}
-        onBackPress={() => router.back()}
-      />
+       <SimpleHeader
+         title="Review Donation"
+         showBackButton={true}
+         onBackPress={() => router.back()}
+       />
 
       <ScrollView
         style={styles.scrollView}
@@ -279,28 +279,6 @@ export default function DonationReviewScreen() {
             </Card.Content>
           </Card>
 
-          {/* Instructions */}
-          <Card style={styles.instructionsCard}>
-            <Card.Content>
-              <Text
-                style={[
-                  styles.instructionsTitle,
-                  { color: theme.colors.onSurface },
-                ]}
-              >
-                🎯 Tap & Hold to Confirm
-              </Text>
-              <Text
-                style={[
-                  styles.instructionsText,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                Press and hold the button below for 3 seconds to complete your
-                donation
-              </Text>
-            </Card.Content>
-          </Card>
         </View>
       </ScrollView>
 

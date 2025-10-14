@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header } from "../../src/components/Header";
+import { Header, SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, PaymentMethod } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -98,11 +98,11 @@ export default function DonationPaymentScreen() {
         backgroundColor="transparent"
       />
 
-      <Header
-        title="Payment Method"
-        showBackButton={true}
-        onBackPress={() => router.back()}
-      />
+         <SimpleHeader
+           title="Payment Method"
+           showBackButton={true}
+           onBackPress={() => router.back()}
+         />
 
       <ScrollView
         style={styles.scrollView}
