@@ -53,7 +53,7 @@ export default function HomeScreen() {
   };
 
   const handleViewFinancials = () => {
-    router.push("/financials/financials");
+    router.push("/financials/see-all");
   };
 
   // ✅ NEW: Pull-to-refresh handler

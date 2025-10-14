@@ -114,7 +114,7 @@ export const useHomeData = () => {
         router.push("/donation/type");
         break;
       case 'profile':
-        // Navigate to profile screen
+        router.push("/profile");
         break;
       case 'notifications':
         // Navigate to notifications screen
