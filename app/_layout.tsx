@@ -1,4 +1,4 @@
-// app/_layout.tsx - UPDATE KORTE HOBE
+// app/_layout.tsx - FINAL VERSION
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -7,11 +7,36 @@ import { PaperProvider } from "react-native-paper";
 import { LightTheme, DarkTheme } from "../src/theme/paper-theme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "./splash";
-import { TabLoadingProvider } from "../src/contexts/TabLoadingContext"; // ✅ NEW IMPORT
+import { TabLoadingProvider } from "../src/contexts/TabLoadingContext";
+import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
+import { AuthProvider } from "../src/contexts/AuthContext"; // ✅ NEW IMPORT
+
+// Create a wrapper component to use the theme mode
+function ThemedApp() {
+  const { isDark } = useThemeMode();
+  const theme = isDark ? DarkTheme : LightTheme;
+
+  return (
+    <PaperProvider theme={theme}>
+      <AuthProvider>
+        <TabLoadingProvider>
+          <StatusBar style={isDark ? "light" : "dark"} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="financials" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="mosque/mosque-history"
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </TabLoadingProvider>
+      </AuthProvider>
+    </PaperProvider>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const theme = colorScheme === "dark" ? DarkTheme : LightTheme;
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
@@ -31,7 +56,7 @@ export default function RootLayout() {
   if (!appIsReady) {
     return (
       <SafeAreaProvider>
-        <PaperProvider theme={theme}>
+        <PaperProvider theme={colorScheme === "dark" ? DarkTheme : LightTheme}>
           <SplashScreen />
         </PaperProvider>
       </SafeAreaProvider>
@@ -40,20 +65,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <PaperProvider theme={theme}>
-        {/* ✅ WRAP WITH TAB LOADING PROVIDER */}
-        <TabLoadingProvider>
-          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="financials" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="mosque/mosque-history"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-        </TabLoadingProvider>
-      </PaperProvider>
+      <ThemeProvider>
+        <ThemedApp />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

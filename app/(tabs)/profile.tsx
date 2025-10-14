@@ -1,4 +1,4 @@
-// app/(tabs)/profile.tsx
+// app/(tabs)/profile.tsx - SIMPLIFIED VERSION (remove all type casting)
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -7,7 +7,7 @@ import {
   Alert,
   StatusBar,
   Image,
-  RefreshControl, // ✅ ADDED
+  RefreshControl,
 } from "react-native";
 import {
   useTheme,
@@ -21,17 +21,23 @@ import {
   Chip,
   ToggleButton,
   FAB,
-  ActivityIndicator, // ✅ ADDED
+  ActivityIndicator,
+  Menu,
+  Dialog,
+  Portal,
 } from "react-native-paper";
 import { Header } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
-import { UserProfile } from "../../src/types";
+import { UserProfile, ThemeMode, Language } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
+import { useTabNavigation } from "../../src/hooks/useTabNavigation";
+import { useThemeMode } from "../../src/contexts/ThemeContext";
+import { useAuth } from "../../src/contexts/AuthContext";
 
+// ✅ SIMPLIFIED: No type casting needed now
 const initialProfile: UserProfile = {
   id: "1",
   name: "Md.Amdadul Haq Milon",
@@ -46,8 +52,8 @@ const initialProfile: UserProfile = {
     notifications: true,
     prayerReminders: true,
     darkMode: false,
-    language: "en",
-    theme: "auto",
+    language: "en", // ✅ No casting needed
+    theme: "auto", // ✅ No casting needed
     qiblaDirection: true,
     vibration: true,
   },
@@ -57,11 +63,25 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  // ✅ ADDED: Using tab navigation hook for loading state
+  const { themeMode, setThemeMode, isDark } = useThemeMode();
+  const { logout, isLoading: authLoading } = useAuth();
   const { isLoading, handleRefresh } = useTabNavigation("profile");
 
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [editing, setEditing] = useState(false);
+  const [themeMenuVisible, setThemeMenuVisible] = useState(false);
+  const [languageMenuVisible, setLanguageMenuVisible] = useState(false);
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+
+  React.useEffect(() => {
+    setProfile((prev) => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        theme: themeMode,
+      },
+    }));
+  }, [themeMode]);
 
   const handlePreferenceChange = (
     key: keyof UserProfile["preferences"],
@@ -74,6 +94,10 @@ export default function ProfileScreen() {
         [key]: value,
       },
     }));
+
+    if (key === "theme") {
+      setThemeMode(value); // ✅ No casting needed
+    }
   };
 
   const handleEditProfile = () => {
@@ -83,19 +107,24 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
+    setLogoutDialogVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutDialogVisible(false);
+    await logout();
+    Alert.alert("Logged Out", "You have been successfully logged out", [
       {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          await Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Warning
-          );
-          Alert.alert("Logged Out", "You have been successfully logged out");
+        text: "OK",
+        onPress: () => {
+          console.log("Navigate to login screen");
         },
       },
     ]);
+  };
+
+  const cancelLogout = () => {
+    setLogoutDialogVisible(false);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -111,17 +140,41 @@ export default function ProfileScreen() {
     }
   };
 
-  // ✅ ADDED: Refresh handler
+  const getThemeDisplayName = (theme: ThemeMode) => {
+    switch (theme) {
+      case "light":
+        return "Light";
+      case "dark":
+        return "Dark";
+      case "auto":
+        return "Auto (System)";
+      default:
+        return "Auto";
+    }
+  };
+
+  const getLanguageDisplayName = (language: Language) => {
+    switch (language) {
+      case "en":
+        return "English";
+      case "bn":
+        return "বাংলা";
+      case "ar":
+        return "العربية";
+      default:
+        return "English";
+    }
+  };
+
   const onRefresh = () => {
     handleRefresh();
   };
 
-  // ✅ ADDED: Loading State UI
   if (isLoading) {
     return (
       <Container padding={false}>
         <StatusBar
-          barStyle="dark-content"
+          barStyle={isDark ? "light-content" : "dark-content"}
           translucent
           backgroundColor="transparent"
         />
@@ -146,7 +199,7 @@ export default function ProfileScreen() {
   return (
     <Container padding={false}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle={isDark ? "light-content" : "dark-content"}
         translucent
         backgroundColor="transparent"
       />
@@ -159,7 +212,6 @@ export default function ProfileScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 20 },
         ]}
-        // ✅ ADDED: Refresh control with theme colors
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
@@ -176,7 +228,6 @@ export default function ProfileScreen() {
               <Card.Content style={styles.profileContent}>
                 <View style={styles.avatarSection}>
                   <View style={styles.avatarContainer}>
-                    {/* Cloudinary Image ব্যবহার করা হয়েছে */}
                     <Image
                       source={{
                         uri: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg",
@@ -346,31 +397,91 @@ export default function ProfileScreen() {
                   )}
                 />
                 <Divider />
-                <List.Item
-                  title="Language"
-                  description="English"
-                  left={(props) => <List.Icon {...props} icon="translate" />}
-                  right={(props) => (
-                    <List.Icon {...props} icon="chevron-right" />
-                  )}
-                  onPress={() =>
-                    Alert.alert("Language", "Language settings would open here")
+                {/* Language Menu */}
+                <Menu
+                  visible={languageMenuVisible}
+                  onDismiss={() => setLanguageMenuVisible(false)}
+                  anchor={
+                    <List.Item
+                      title="Language"
+                      description={getLanguageDisplayName(
+                        profile.preferences.language
+                      )}
+                      left={(props) => (
+                        <List.Icon {...props} icon="translate" />
+                      )}
+                      right={(props) => (
+                        <List.Icon {...props} icon="chevron-down" />
+                      )}
+                      onPress={() => setLanguageMenuVisible(true)}
+                    />
                   }
-                />
+                >
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("language", "en"); // ✅ No casting
+                      setLanguageMenuVisible(false);
+                    }}
+                    title="English"
+                  />
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("language", "bn"); // ✅ No casting
+                      setLanguageMenuVisible(false);
+                    }}
+                    title="বাংলা"
+                  />
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("language", "ar"); // ✅ No casting
+                      setLanguageMenuVisible(false);
+                    }}
+                    title="العربية"
+                  />
+                </Menu>
                 <Divider />
-                <List.Item
-                  title="Theme"
-                  description="Automatic"
-                  left={(props) => (
-                    <List.Icon {...props} icon="theme-light-dark" />
-                  )}
-                  right={(props) => (
-                    <List.Icon {...props} icon="chevron-right" />
-                  )}
-                  onPress={() =>
-                    Alert.alert("Theme", "Theme settings would open here")
+                {/* Theme Menu */}
+                <Menu
+                  visible={themeMenuVisible}
+                  onDismiss={() => setThemeMenuVisible(false)}
+                  anchor={
+                    <List.Item
+                      title="Theme"
+                      description={getThemeDisplayName(
+                        profile.preferences.theme
+                      )}
+                      left={(props) => (
+                        <List.Icon {...props} icon="theme-light-dark" />
+                      )}
+                      right={(props) => (
+                        <List.Icon {...props} icon="chevron-down" />
+                      )}
+                      onPress={() => setThemeMenuVisible(true)}
+                    />
                   }
-                />
+                >
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("theme", "light"); // ✅ No casting
+                      setThemeMenuVisible(false);
+                    }}
+                    title="Light"
+                  />
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("theme", "dark"); // ✅ No casting
+                      setThemeMenuVisible(false);
+                    }}
+                    title="Dark"
+                  />
+                  <Menu.Item
+                    onPress={() => {
+                      handlePreferenceChange("theme", "auto"); // ✅ No casting
+                      setThemeMenuVisible(false);
+                    }}
+                    title="Auto (System)"
+                  />
+                </Menu>
               </Card.Content>
             </Card>
           </Section>
@@ -435,18 +546,44 @@ export default function ProfileScreen() {
             mode="contained"
             buttonColor={theme.colors.error}
             onPress={handleLogout}
-            icon="logout"
+            icon={authLoading ? "loading" : "logout"}
             style={styles.logoutButton}
             contentStyle={styles.logoutButtonContent}
+            disabled={authLoading}
           >
-            Logout
+            {authLoading ? "Logging Out..." : "Logout"}
           </Button>
         </View>
       </ScrollView>
+
+      {/* Logout Confirmation Dialog */}
+      <Portal>
+        <Dialog visible={logoutDialogVisible} onDismiss={cancelLogout}>
+          <Dialog.Icon icon="alert" size={40} />
+          <Dialog.Title style={styles.dialogTitle}>Confirm Logout</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              Are you sure you want to logout? You'll need to login again to
+              access your account.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={cancelLogout}>Cancel</Button>
+            <Button
+              onPress={confirmLogout}
+              mode="contained"
+              buttonColor={theme.colors.error}
+            >
+              Logout
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
       <FAB
         icon="pencil"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/donation/type")}
+        onPress={handleEditProfile}
         color="white"
         label="Edit"
       />
@@ -454,14 +591,15 @@ export default function ProfileScreen() {
   );
 }
 
+// Keep the same styles object...
 const styles = StyleSheet.create({
+  // ... (keep all the same styles from previous version)
   scrollContent: {
     flexGrow: 1,
   },
   content: {
     padding: 16,
   },
-  // ✅ ADDED: Loading styles
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -495,13 +633,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginRight: 16,
-  },
-  avatar: {
-    marginRight: 16,
-  },
-  avatarText: {
-    fontSize: 24,
-    fontWeight: "700",
   },
   statusBadge: {
     position: "absolute",
@@ -556,9 +687,6 @@ const styles = StyleSheet.create({
   joinDate: {
     fontSize: 14,
   },
-  editButton: {
-    borderRadius: 8,
-  },
   infoCard: {
     borderRadius: 16,
   },
@@ -588,5 +716,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: 16,
+  },
+  dialogTitle: {
+    textAlign: "center",
+    marginTop: 8,
   },
 });

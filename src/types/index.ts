@@ -1,4 +1,4 @@
-// src/types/index.ts
+// src/types/index.ts - UPDATED VERSION
 export interface PrayerTime {
   name: string;
   time: string;
@@ -9,17 +9,6 @@ export interface PrayerProgress {
   name: string;
   completed: boolean;
   time: string;
-}
-
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  progress: number;
-  total: number;
-  unlocked: boolean;
-  date: string;
 }
 
 export interface Donation {
@@ -45,17 +34,8 @@ export interface MosqueInfo {
     bio: string;
     email: string;
   };
-  prayerTimes: {
-    fajr: string;
-    dhuhr: string;
-    asr: string;
-    maghrib: string;
-    isha: string;
-    jumuah: string;
-  };
   services: string[];
   facilities?: string[];
-  upcomingEvents?: Event[];
 }
 
 export interface Event {
@@ -68,6 +48,10 @@ export interface Event {
   description?: string;
   location?: string;
 }
+
+// ✅ FIXED: Updated UserProfile to use ThemeMode and Language types
+export type ThemeMode = 'light' | 'dark' | 'auto';
+export type Language = 'en' | 'bn' | 'ar';
 
 export interface UserProfile {
   id: string;
@@ -83,12 +67,13 @@ export interface UserProfile {
     notifications: boolean;
     prayerReminders: boolean;
     darkMode: boolean;
-    language: string;
-    theme: string;
+    language: Language; // ✅ CHANGED: from string to Language
+    theme: ThemeMode;   // ✅ CHANGED: from string to ThemeMode
     qiblaDirection: boolean;
     vibration: boolean;
   };
 }
+
 
 export interface StatItem {
   label: string;
