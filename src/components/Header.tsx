@@ -118,7 +118,6 @@ export const Header: React.FC<HeaderProps> = ({
         </View>
 
         {/* Bottom Curve Decoration */}
-        {/* <View style={styles.headerCurve} /> */}
         <View
           style={[
             styles.headerCurve,

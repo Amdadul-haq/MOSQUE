@@ -440,48 +440,27 @@ export default function ProfileScreen() {
                   />
                 </Menu>
                 <Divider />
-                {/* Theme Menu */}
-                <Menu
-                  visible={themeMenuVisible}
-                  onDismiss={() => setThemeMenuVisible(false)}
-                  anchor={
-                    <List.Item
-                      title="Theme"
-                      description={getThemeDisplayName(
-                        profile.preferences.theme
-                      )}
-                      left={(props) => (
-                        <List.Icon {...props} icon="theme-light-dark" />
-                      )}
-                      right={(props) => (
-                        <List.Icon {...props} icon="chevron-down" />
-                      )}
-                      onPress={() => setThemeMenuVisible(true)}
+                {/* Theme Toggle */}
+                <List.Item
+                  title="Dark Mode"
+                  description="Toggle between light and dark themes"
+                  left={(props) => (
+                    <List.Icon {...props} icon="theme-light-dark" />
+                  )}
+                  right={(props) => (
+                    <Switch
+                      value={themeMode === "dark"}
+                      onValueChange={(isDarkMode) =>{
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        handlePreferenceChange(
+                          "theme",
+                          isDarkMode ? "dark" : "light"
+                        );
+
+                      }}
                     />
-                  }
-                >
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("theme", "light"); // ✅ No casting
-                      setThemeMenuVisible(false);
-                    }}
-                    title="Light"
-                  />
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("theme", "dark"); // ✅ No casting
-                      setThemeMenuVisible(false);
-                    }}
-                    title="Dark"
-                  />
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("theme", "auto"); // ✅ No casting
-                      setThemeMenuVisible(false);
-                    }}
-                    title="Auto (System)"
-                  />
-                </Menu>
+                  )}
+                />
               </Card.Content>
             </Card>
           </Section>
