@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -34,10 +33,22 @@ export const Header: React.FC<HeaderProps> = ({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
+  // ✅ Detect dark mode from theme
+  const isDark = theme.dark;
+
+  // ✅ Gradient colors depend on mode
+  const gradientColors = isDark
+    ? ["#0b4e1f", "#0d6b2a", "#0f7a30"] // 🌙 Darker green tones
+    : ["#16a34a", "#0d8a3a", "#0a722e"]; // ☀️ Light mode tones
+
   return (
     <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
       <LinearGradient
-        colors={["#16a34a", "#0d8a3a", "#0a722e"]}
+        colors={
+          isDark
+            ? (["#0d4420", "#0b3a1b", "#092e15"] as const)
+            : (["#16a34a", "#0d8a3a", "#0a722e"] as const)
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradientHeader}
@@ -121,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
         <View
           style={[
             styles.headerCurve,
-            { backgroundColor: theme.colors.background }, // ✅ Use theme color instead of white
+            { backgroundColor: theme.colors.background }, // ✅ Matches theme
           ]}
         />
       </LinearGradient>
@@ -130,23 +141,14 @@ export const Header: React.FC<HeaderProps> = ({
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    // This container handles the safe area
-  },
+  headerContainer: {},
   gradientHeader: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 20,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    // Shadow for Android
     elevation: 8,
-    // Shadow for iOS
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -180,14 +182,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "white",
     letterSpacing: 0.3,
-    includeFontPadding: false,
   },
   subtitle: {
     fontSize: 14,
     color: "rgba(255, 255, 255, 0.9)",
     marginTop: 2,
     fontWeight: "500",
-    includeFontPadding: false,
   },
   rightSection: {
     flexDirection: "row",
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 10,
     fontWeight: "bold",
-    includeFontPadding: false,
   },
   headerCurve: {
     position: "absolute",
@@ -225,13 +224,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 30,
-    // backgroundColor: "white",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
 });
 
-// Export the same components as before
 export const HomeHeader: React.FC<{
   onProfilePress?: () => void;
   onNotificationPress?: () => void;
