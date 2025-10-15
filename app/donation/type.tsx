@@ -1,4 +1,3 @@
-// app/donation/type.tsx
 import React, { useState } from "react";
 import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
 import {
@@ -145,23 +144,41 @@ export default function DonationTypeScreen() {
                     mode="elevated"
                   >
                     <Card.Content style={styles.typeContent}>
-                      <Text style={styles.typeIcon}>{type.icon}</Text>
-                      <Text
-                        style={[
-                          styles.typeName,
-                          { color: theme.colors.onSurface },
-                        ]}
-                      >
-                        {type.name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.typeDescription,
-                          { color: theme.colors.onSurfaceVariant },
-                        ]}
-                      >
-                        {type.description}
-                      </Text>
+                      <View style={styles.typeHeader}>
+                        <View style={styles.typeLeft}>
+                          <Text style={styles.typeIcon}>{type.icon}</Text>
+                          <View style={styles.typeTextContainer}>
+                            <Text
+                              style={[
+                                styles.typeName,
+                                { color: theme.colors.onSurface },
+                              ]}
+                            >
+                              {type.name}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.typeDescription,
+                                { color: theme.colors.onSurfaceVariant },
+                              ]}
+                            >
+                              {type.description}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Tick Mark - Only show when selected */}
+                        {selectedType === type.id && (
+                          <View
+                            style={[
+                              styles.tickContainer,
+                              { backgroundColor: type.color },
+                            ]}
+                          >
+                            <Text style={styles.tickMark}>✓</Text>
+                          </View>
+                        )}
+                      </View>
                     </Card.Content>
                   </Card>
                 ))}
@@ -263,21 +280,47 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   typeContent: {
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingHorizontal: 16,
+  },
+  typeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  typeLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   typeIcon: {
     fontSize: 24,
-    marginBottom: 8,
+    marginRight: 12,
+  },
+  typeTextContainer: {
+    flex: 1,
   },
   typeName: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   typeDescription: {
     fontSize: 12,
     lineHeight: 16,
+  },
+  tickContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+  tickMark: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
   },
   monthButton: {
     borderRadius: 12,

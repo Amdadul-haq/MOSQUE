@@ -23,6 +23,5 @@ export interface PaymentMethod {
   name: string;
   description?: string;
   icon?: string;
-  accountNumber?: string;
-  instructions?: string;
+  color: string; // Changed from 'color' to 'colors' to support gradient
 }

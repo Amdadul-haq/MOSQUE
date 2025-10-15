@@ -1,9 +1,8 @@
-// app/donation/payment.tsx
 import React, { useState } from "react";
 import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header, SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, PaymentMethod } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,34 +13,28 @@ const paymentMethods: PaymentMethod[] = [
     name: "bKash",
     description: "Send money to our bKash account",
     icon: "📱",
-    accountNumber: "017XXXXXXXX",
-    instructions:
-      "Send money to this number and include donation ID in reference",
+    color: "#e2136e",
   },
   {
     id: "nagad",
     name: "Nagad",
     description: "Send money to our Nagad account",
     icon: "📲",
-    accountNumber: "017XXXXXXXX",
-    instructions:
-      "Send money to this number and include donation ID in reference",
+    color: "#f8a61c",
   },
   {
     id: "rocket",
     name: "Rocket",
     description: "Send money to our Rocket account",
     icon: "💳",
-    accountNumber: "017XXXXXXXX",
-    instructions:
-      "Send money to this number and include donation ID in reference",
+    color: "#7848b5",
   },
   {
     id: "cash",
     name: "Cash",
     description: "Pay directly at mosque office",
     icon: "💵",
-    instructions: "Visit mosque office during working hours",
+    color: "#16a34a",
   },
 ];
 
@@ -98,11 +91,11 @@ export default function DonationPaymentScreen() {
         backgroundColor="transparent"
       />
 
-         <SimpleHeader
-           title="Payment Method"
-           showBackButton={true}
-           onBackPress={() => router.back()}
-         />
+      <SimpleHeader
+        title="Payment Method"
+        showBackButton={true}
+        onBackPress={() => router.back()}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -181,8 +174,8 @@ export default function DonationPaymentScreen() {
                     style={[
                       styles.paymentMethodCard,
                       selectedPayment === method.id && {
-                        borderColor: theme.colors.primary,
-                        backgroundColor: `${theme.colors.primary}10`,
+                        borderColor: method.color,
+                        backgroundColor: `${method.color}10`,
                       },
                     ]}
                     onPress={() => setSelectedPayment(method.id)}
@@ -190,58 +183,42 @@ export default function DonationPaymentScreen() {
                   >
                     <Card.Content style={styles.paymentMethodContent}>
                       <View style={styles.paymentMethodHeader}>
-                        <Text style={styles.paymentMethodIcon}>
-                          {method.icon}
-                        </Text>
-                        <View style={styles.paymentMethodInfo}>
-                          <Text
-                            style={[
-                              styles.paymentMethodName,
-                              { color: theme.colors.onSurface },
-                            ]}
-                          >
-                            {method.name}
+                        <View style={styles.paymentMethodLeft}>
+                          <Text style={styles.paymentMethodIcon}>
+                            {method.icon}
                           </Text>
-                          <Text
-                            style={[
-                              styles.paymentMethodDescription,
-                              { color: theme.colors.onSurfaceVariant },
-                            ]}
-                          >
-                            {method.description}
-                          </Text>
+                          <View style={styles.paymentMethodInfo}>
+                            <Text
+                              style={[
+                                styles.paymentMethodName,
+                                { color: theme.colors.onSurface },
+                              ]}
+                            >
+                              {method.name}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.paymentMethodDescription,
+                                { color: theme.colors.onSurfaceVariant },
+                              ]}
+                            >
+                              {method.description}
+                            </Text>
+                          </View>
                         </View>
+
+                        {/* Tick Mark - Only show when selected */}
+                        {selectedPayment === method.id && (
+                          <View
+                            style={[
+                              styles.tickContainer,
+                              { backgroundColor: method.color },
+                            ]}
+                          >
+                            <Text style={styles.tickMark}>✓</Text>
+                          </View>
+                        )}
                       </View>
-
-                      {method.accountNumber && (
-                        <View style={styles.accountInfo}>
-                          <Text
-                            style={[
-                              styles.accountLabel,
-                              { color: theme.colors.onSurfaceVariant },
-                            ]}
-                          >
-                            Send to:
-                          </Text>
-                          <Text
-                            style={[
-                              styles.accountNumber,
-                              { color: theme.colors.primary },
-                            ]}
-                          >
-                            {method.accountNumber}
-                          </Text>
-                        </View>
-                      )}
-
-                      <Text
-                        style={[
-                          styles.instructions,
-                          { color: theme.colors.onSurfaceVariant },
-                        ]}
-                      >
-                        {method.instructions}
-                      </Text>
                     </Card.Content>
                   </Card>
                 ))}
@@ -336,7 +313,12 @@ const styles = StyleSheet.create({
   paymentMethodHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    justifyContent: "space-between",
+  },
+  paymentMethodLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   paymentMethodIcon: {
     fontSize: 24,
@@ -352,28 +334,20 @@ const styles = StyleSheet.create({
   },
   paymentMethodDescription: {
     fontSize: 12,
+    lineHeight: 16,
   },
-  accountInfo: {
-    flexDirection: "row",
+  tickContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 8,
-    padding: 8,
-    backgroundColor: "rgba(0,0,0,0.03)",
-    borderRadius: 6,
+    justifyContent: "center",
+    marginLeft: 8,
   },
-  accountLabel: {
-    fontSize: 12,
-    fontWeight: "500",
-    marginRight: 4,
-  },
-  accountNumber: {
+  tickMark: {
+    color: "white",
     fontSize: 14,
-    fontWeight: "700",
-  },
-  instructions: {
-    fontSize: 11,
-    fontStyle: "italic",
-    lineHeight: 14,
+    fontWeight: "bold",
   },
   footer: {
     paddingHorizontal: 16,
