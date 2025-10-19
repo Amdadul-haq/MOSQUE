@@ -44,6 +44,11 @@ export default function HomeScreen() {
   const handleProfilePress = () => {
     handleQuickAction("profile");
   };
+const handleLogoPress = () => {
+  // Home screen refresh korbe
+  handleRefresh(); // pull-to-refresh function call
+  console.log("Logo clicked - refreshing home!");
+};
 
   const handleNotificationPress = () => {
       router.push("/notifications");
@@ -71,6 +76,7 @@ export default function HomeScreen() {
           <HomeHeader
             onProfilePress={handleProfilePress}
             onNotificationPress={handleNotificationPress}
+            onLogoPress={handleLogoPress}
             notificationCount={notificationState.unreadCount}
           />
           <View style={styles.loadingContainer}>
@@ -102,6 +108,7 @@ export default function HomeScreen() {
         <HomeHeader
           onProfilePress={handleProfilePress}
           onNotificationPress={handleNotificationPress}
+          onLogoPress={handleLogoPress}
           notificationCount={notificationState.unreadCount}
         />
 

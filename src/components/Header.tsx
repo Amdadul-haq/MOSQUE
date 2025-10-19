@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useTheme } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -16,6 +16,8 @@ interface HeaderProps {
   showNotifications?: boolean;
   notificationCount?: number;
   onNotificationPress?: () => void;
+  showLogo?: boolean;
+  onLogoPress?: () => void; 
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,20 +28,15 @@ export const Header: React.FC<HeaderProps> = ({
   onBackPress,
   showProfile = true,
   onProfilePress,
+  onLogoPress ,
   showNotifications = true,
   notificationCount = 0,
   onNotificationPress,
+  showLogo = false,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-
-  // ✅ Detect dark mode from theme
   const isDark = theme.dark;
-
-  // ✅ Gradient colors depend on mode
-  const gradientColors = isDark
-    ? ["#0b4e1f", "#0d6b2a", "#0f7a30"] // 🌙 Darker green tones
-    : ["#16a34a", "#0d8a3a", "#0a722e"]; // ☀️ Light mode tones
 
   return (
     <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
@@ -71,7 +68,28 @@ export const Header: React.FC<HeaderProps> = ({
               </TouchableOpacity>
             ) : (
               <View style={styles.logoContainer}>
-                <MaterialCommunityIcons name="mosque" size={28} color="white" />
+                {showLogo ? (
+                  // ✅ FIXED: Logo with proper background
+                  <View style={styles.logoBackground}>
+                    <TouchableOpacity
+                      onPress={onLogoPress}
+                    >
+                      <Image
+                        source={{
+                          uri: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760904953/Untitled_pmrd5h.png",
+                        }}
+                        style={styles.logoImage}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <MaterialCommunityIcons
+                    name="mosque"
+                    size={28}
+                    color="white"
+                  />
+                )}
               </View>
             )}
 
@@ -99,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
                       size={22}
                       color="white"
                     />
-                    {notificationCount > 0 && ( // ✅ This will now show the real count
+                    {notificationCount > 0 && (
                       <View style={styles.notificationBadge}>
                         <Text style={styles.badgeText}>
                           {notificationCount > 9 ? "9+" : notificationCount}
@@ -132,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({
         <View
           style={[
             styles.headerCurve,
-            { backgroundColor: theme.colors.background }, // ✅ Matches theme
+            { backgroundColor: theme.colors.background },
           ]}
         />
       </LinearGradient>
@@ -167,12 +185,22 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  // ✅ NEW: Logo background to match header gradient
+  logoBackground: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  logoImage: {
+    width: 60, // Adjusted size for better fit
+    height: 60,
   },
   titleContainer: {
     flex: 1,
@@ -180,12 +208,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "white",
+    color: "white", // ✅ Text remains white
     letterSpacing: 0.3,
   },
   subtitle: {
     fontSize: 14,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.9)", // ✅ Subtitle remains white with opacity
     marginTop: 2,
     fontWeight: "500",
   },
@@ -233,7 +261,8 @@ export const HomeHeader: React.FC<{
   onProfilePress?: () => void;
   onNotificationPress?: () => void;
   notificationCount?: number;
-}> = ({ onProfilePress, onNotificationPress, notificationCount = 3 }) => {
+  onLogoPress?: () => void;
+}> = ({ onProfilePress, onNotificationPress, notificationCount = 3, onLogoPress }) => {
   return (
     <Header
       title="Khiarpara Jame Mosque"
@@ -243,6 +272,8 @@ export const HomeHeader: React.FC<{
       onProfilePress={onProfilePress}
       onNotificationPress={onNotificationPress}
       notificationCount={notificationCount}
+      showLogo={true} // ✅ Enable logo for HomeHeader
+      onLogoPress={onLogoPress}
     />
   );
 };
@@ -259,6 +290,7 @@ export const SimpleHeader: React.FC<{
       onBackPress={onBackPress}
       showProfile={false}
       showNotifications={false}
+      showLogo={false}
     />
   );
 };
