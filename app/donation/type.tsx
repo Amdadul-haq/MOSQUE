@@ -9,7 +9,7 @@ import {
   Divider,
 } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, DonationType } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -88,6 +88,9 @@ export default function DonationTypeScreen() {
       },
     });
   };
+  const handleBackPress = () => {
+    router.back();
+  };
 
   return (
     <Container padding={false}>
@@ -100,7 +103,7 @@ export default function DonationTypeScreen() {
       <SimpleHeader
         title="Make Donation"
         showBackButton={true}
-        onBackPress={() => router.back()}
+        onBackPress={handleBackPress}
       />
 
       <ScrollView

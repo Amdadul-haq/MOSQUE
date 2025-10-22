@@ -1,4 +1,4 @@
-// app/(tabs)/mosque-info.tsx - Updated version
+// app/(tabs)/mosque-info.tsx
 import React, { useState, useCallback } from "react";
 import {
   ScrollView,
@@ -18,7 +18,7 @@ import {
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { MosqueInfo } from "../../src/types";
@@ -28,8 +28,9 @@ import { HistorySection } from "../../src/components/mosque/HistorySection";
 import { MosqueGallery } from "../../src/components/mosque/MosqueGallery";
 import { CommitteeGrid } from "../../src/components/mosque/CommitteeGrid";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation"; // ✅ NEW IMPORT
-
+import { useRouter } from "expo-router";
 export default function MosqueInfoScreen() {
+  const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -79,6 +80,10 @@ export default function MosqueInfoScreen() {
     }
   };
 
+  const handleBackPress = () => {
+    router.back();
+  }
+
   // ✅ ADDED: Loading State UI
   if (isLoading) {
     return (
@@ -90,7 +95,8 @@ export default function MosqueInfoScreen() {
         />
         <SimpleHeader
           title="Mosque Information"
-          
+          showBackButton={true}
+          onBackPress={handleBackPress}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -114,7 +120,11 @@ export default function MosqueInfoScreen() {
         backgroundColor="transparent"
       />
 
-      <SimpleHeader title="Mosque Information"/>
+      <SimpleHeader
+        title="Mosque Information"
+        showBackButton={true}
+        onBackPress={handleBackPress}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

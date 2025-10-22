@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header, SimpleHeader } from "../../src/components/Header";
+import {SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -138,6 +138,10 @@ export default function DonationReviewScreen() {
     outputRange: ["0%", "100%"],
   });
 
+  const handleBackPress = () => {
+    router.back();
+  };
+
   return (
     <Container padding={false}>
       <StatusBar
@@ -149,7 +153,7 @@ export default function DonationReviewScreen() {
        <SimpleHeader
          title="Review Donation"
          showBackButton={true}
-         onBackPress={() => router.back()}
+         onBackPress={handleBackPress}
        />
 
       <ScrollView

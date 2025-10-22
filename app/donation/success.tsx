@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Header, SimpleHeader } from "../../src/components/Header";
+import {SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";

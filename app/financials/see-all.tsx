@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button, Divider } from "react-native-paper";
 import { useRouter } from "expo-router";
-import { Header, SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -140,9 +140,9 @@ export default function FinancialsScreen() {
     notes: "Generated automatically from Mosque Management System",
   };
 
-  const handleBack = () => {
-    router.back();
-  };
+const handleBackPress = () => {
+  router.back();
+};
 
   const handleExportPDF = () => {
     setPdfModalVisible(true);
@@ -176,7 +176,7 @@ export default function FinancialsScreen() {
       <SimpleHeader
         title="Mosque Financials"
         showBackButton={true}
-        onBackPress={handleBack}
+        onBackPress={handleBackPress}
       />
 
       <ScrollView

@@ -18,7 +18,7 @@ import {
   Chip,
   ActivityIndicator,
 } from "react-native-paper";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { StatsGrid } from "../../src/components/StatsGrid";
@@ -157,6 +157,10 @@ export default function DonationsScreen() {
     handleRefresh();
   };
 
+const handleBackPress = () => {
+  router.back();
+};
+
   if (isLoading) {
     return (
       <Container padding={false}>
@@ -165,7 +169,11 @@ export default function DonationsScreen() {
           translucent
           backgroundColor="transparent"
         />
-        <SimpleHeader title="Donations"/>
+        <SimpleHeader
+          title="Donations"
+          showBackButton={true}
+          onBackPress={handleBackPress}
+        />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
             size="large"
@@ -188,7 +196,10 @@ export default function DonationsScreen() {
         backgroundColor="transparent"
       />
 
-      <SimpleHeader title="Donations"
+      <SimpleHeader
+        title="Donations"
+        showBackButton={true}
+        onBackPress={handleBackPress}
       />
 
       <ScrollView
@@ -197,7 +208,6 @@ export default function DonationsScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 80 },
         ]}
-       
         refreshControl={
           <RefreshControl
             refreshing={isLoading}

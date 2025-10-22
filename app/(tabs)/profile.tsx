@@ -26,12 +26,12 @@ import {
   Dialog,
   Portal,
 } from "react-native-paper";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { UserProfile, ThemeMode, Language } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 import { useThemeMode } from "../../src/contexts/ThemeContext";
@@ -60,6 +60,7 @@ const initialProfile: UserProfile = {
 };
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -170,6 +171,10 @@ export default function ProfileScreen() {
     handleRefresh();
   };
 
+  const handleBackPress = () => {
+    router.back();
+  };
+
   if (isLoading) {
     return (
       <Container padding={false}>
@@ -179,12 +184,13 @@ export default function ProfileScreen() {
           backgroundColor="transparent"
         />
         <SimpleHeader 
-        title="Profile" 
-          
-        />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
+        title="Profile"
+        showBackButton={true}
+        onBackPress={handleBackPress}
+      />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator
+          size="large"
             color={theme.colors.primary}
             style={styles.loadingSpinner}
           />
@@ -204,7 +210,11 @@ export default function ProfileScreen() {
         backgroundColor="transparent"
       />
 
-      <SimpleHeader title="Profile" />
+      <SimpleHeader
+        title="Profile"
+        showBackButton={true}
+        onBackPress={handleBackPress}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -450,13 +460,12 @@ export default function ProfileScreen() {
                   right={(props) => (
                     <Switch
                       value={themeMode === "dark"}
-                      onValueChange={(isDarkMode) =>{
+                      onValueChange={(isDarkMode) => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         handlePreferenceChange(
                           "theme",
                           isDarkMode ? "dark" : "light"
                         );
-
                       }}
                     />
                   )}

@@ -11,7 +11,7 @@ import {
   Chip,
 } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {SimpleHeader } from "../../src/components/Header";
+import {SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -56,6 +56,10 @@ export default function DonationAmountScreen() {
     setAmount(quickAmount.toString());
   };
 
+  const handleBackPress = () => {
+    router.back();
+  }
+
   const getTypeColor = () => {
     const typeColors: { [key: string]: string } = {
       zakat: "#16a34a",
@@ -77,7 +81,7 @@ export default function DonationAmountScreen() {
       <SimpleHeader
         title="Donation Amount"
         showBackButton={true}
-        onBackPress={() => router.back()}
+        onBackPress={handleBackPress}
       />
 
       <ScrollView
@@ -153,7 +157,6 @@ export default function DonationAmountScreen() {
               <View style={styles.amountInputContainer}>
                 <TextInput
                   mode="outlined"
-                  placeholder="0"
                   value={amount}
                   onChangeText={setAmount}
                   keyboardType="numeric"

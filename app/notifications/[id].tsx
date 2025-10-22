@@ -3,7 +3,7 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, StatusBar } from "react-native";
 import { useTheme, Card } from "react-native-paper";
 import { Container } from "../../src/components/common/Container";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { useNotifications } from "../../src/contexts/NotificationContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -23,6 +23,10 @@ export default function NotificationDetailsScreen() {
     }
   }, [notification, markAsRead]);
 
+const handleBackPress = () => {
+  router.back();
+};
+
   if (!notification) {
     return (
       <Container padding={false}>
@@ -34,7 +38,7 @@ export default function NotificationDetailsScreen() {
         <SimpleHeader
           title="Notification Not Found"
           showBackButton={true}
-          onBackPress={() => router.back()}
+          onBackPress={handleBackPress}
         />
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>
@@ -87,7 +91,7 @@ export default function NotificationDetailsScreen() {
       <SimpleHeader
         title="Notification Details"
         showBackButton={true}
-        onBackPress={() => router.back()}
+        onBackPress={handleBackPress}
       />
 
       <ScrollView

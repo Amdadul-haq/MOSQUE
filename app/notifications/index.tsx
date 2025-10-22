@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useTheme, Card, ActivityIndicator } from "react-native-paper";
 import { Container } from "../../src/components/common/Container";
-import { SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { useNotifications } from "../../src/contexts/NotificationContext";
 import { useVisitedScreens } from "../../src/contexts/VisitedScreensContext";
 import { useRouter } from "expo-router";
@@ -99,6 +99,10 @@ export default function NotificationsScreen() {
     return "Today";
   };
 
+const handleBackPress = () => {
+  router.back();
+}
+
   // ✅ Loading State UI - Only shows on first visit
   if (isLoading && !hasVisited) {
     return (
@@ -111,7 +115,7 @@ export default function NotificationsScreen() {
         <SimpleHeader
           title="Notifications"
           showBackButton={true}
-          onBackPress={() => router.back()}
+          onBackPress={handleBackPress}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -138,7 +142,7 @@ export default function NotificationsScreen() {
       <SimpleHeader
         title="Notifications"
         showBackButton={true}
-        onBackPress={() => router.back()}
+        onBackPress={handleBackPress}
       />
 
       <View style={styles.container}>

@@ -2,7 +2,7 @@
 import React from "react";
 import { ScrollView, View, StyleSheet, Image, StatusBar } from "react-native";
 import { useTheme, Text, Card, Chip } from "react-native-paper";
-import { Header, SimpleHeader } from "../../src/components/Header";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
