@@ -278,19 +278,3 @@ export const HomeHeader: React.FC<{
   );
 };
 
-export const SimpleHeader: React.FC<{
-  title: string;
-  showBackButton?: boolean;
-  onBackPress?: () => void;
-}> = ({ title, showBackButton, onBackPress }) => {
-  return (
-    <Header
-      title={title}
-      showBackButton={showBackButton}
-      onBackPress={onBackPress}
-      showProfile={false}
-      showNotifications={false}
-      showLogo={false}
-    />
-  );
-};
