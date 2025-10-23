@@ -84,22 +84,22 @@ export default function ProfileScreen() {
     }));
   }, [themeMode]);
 
-  const handlePreferenceChange = (
-    key: keyof UserProfile["preferences"],
-    value: any
-  ) => {
-    setProfile((prev) => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [key]: value,
-      },
-    }));
+const handlePreferenceChange = (
+  key: keyof UserProfile["preferences"],
+  value: any
+) => {
+  setProfile((prev) => ({
+    ...prev,
+    preferences: {
+      ...prev.preferences,
+      [key]: value,
+    },
+  }));
 
-    if (key === "theme") {
-      setThemeMode(value); // ✅ No casting needed
-    }
-  };
+  if (key === "theme") {
+    setThemeMode(value);
+  }
+};
 
   const handleEditProfile = () => {
     setEditing(true);
@@ -208,9 +208,7 @@ export default function ProfileScreen() {
         backgroundColor="transparent"
       />
 
-      <SimpleHeader
-        title="Profile"
-      />
+      <SimpleHeader title="Profile" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -455,13 +453,11 @@ export default function ProfileScreen() {
                   )}
                   right={(props) => (
                     <Switch
-                      value={themeMode === "dark"}
+                      value={isDark} // ✅ Use isDark from theme context
                       onValueChange={(isDarkMode) => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        handlePreferenceChange(
-                          "theme",
-                          isDarkMode ? "dark" : "light"
-                        );
+                        // ✅ Simplified: Directly set theme mode
+                        setThemeMode(isDarkMode ? "dark" : "light");
                       }}
                     />
                   )}

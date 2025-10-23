@@ -1,4 +1,4 @@
-// app/_layout.tsx
+// ✅ UPDATED: app/_layout.tsx - FIXED THEME SYSTEM
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -12,16 +12,17 @@ import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
 import { AuthProvider } from "../src/contexts/AuthContext";
 import { NotificationProvider } from "../src/contexts/NotificationContext";
 
-
-// Create a wrapper component to use the theme mode
+// ✅ UPDATED: ThemedApp component that uses single theme source
 function ThemedApp() {
-  const { isDark } = useThemeMode();
+  const { themeMode, isDark } = useThemeMode();
+
+  // ✅ SINGLE SOURCE OF TRUTH: Use theme from ThemeContext
   const theme = isDark ? DarkTheme : LightTheme;
 
-return (
-  <PaperProvider theme={theme}>
-    <AuthProvider>
-      <NotificationProvider>
+  return (
+    <PaperProvider theme={theme}>
+      <AuthProvider>
+        <NotificationProvider>
           <TabLoadingProvider>
             <StatusBar style={isDark ? "light" : "dark"} />
             <Stack screenOptions={{ headerShown: false }}>
@@ -40,10 +41,10 @@ return (
               />
             </Stack>
           </TabLoadingProvider>
-      </NotificationProvider>
-    </AuthProvider>
-  </PaperProvider>
-);
+        </NotificationProvider>
+      </AuthProvider>
+    </PaperProvider>
+  );
 }
 
 export default function RootLayout() {
@@ -67,15 +68,21 @@ export default function RootLayout() {
   if (!appIsReady) {
     return (
       <SafeAreaProvider>
-        <PaperProvider theme={colorScheme === "dark" ? DarkTheme : LightTheme}>
-          <SplashScreen />
-        </PaperProvider>
+        {/* ✅ Splash screen with proper theme */}
+        <ThemeProvider>
+          <PaperProvider
+            theme={colorScheme === "dark" ? DarkTheme : LightTheme}
+          >
+            <SplashScreen />
+          </PaperProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     );
   }
 
   return (
     <SafeAreaProvider>
+      {/* ✅ Main app with proper theme */}
       <ThemeProvider>
         <ThemedApp />
       </ThemeProvider>

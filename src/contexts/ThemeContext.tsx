@@ -1,4 +1,4 @@
-// src/contexts/ThemeContext.tsx
+// ✅ UPDATED: src/contexts/ThemeContext.tsx
 import React, {
   createContext,
   useContext,
@@ -13,6 +13,7 @@ interface ThemeContextType {
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
   isDark: boolean;
+  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -29,11 +30,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     themeMode === "dark" ||
     (themeMode === "auto" && systemColorScheme === "dark");
 
+  // ✅ ADDED: Theme toggle function
+  const toggleTheme = () => {
+    setThemeMode((current) => {
+      if (current === "auto") return "dark";
+      if (current === "dark") return "light";
+      return "auto";
+    });
+  };
+
   // Load saved theme preference
   useEffect(() => {
-    // In a real app, you would load this from AsyncStorage
     const loadThemePreference = async () => {
       try {
+        // In real app, load from AsyncStorage
         // const savedTheme = await AsyncStorage.getItem('themeMode');
         // if (savedTheme) {
         //   setThemeMode(savedTheme as ThemeMode);
@@ -63,6 +73,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     themeMode,
     setThemeMode,
     isDark,
+    toggleTheme, // ✅ ADDED
   };
 
   return (
