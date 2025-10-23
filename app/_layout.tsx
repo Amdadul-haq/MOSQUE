@@ -11,7 +11,6 @@ import { TabLoadingProvider } from "../src/contexts/TabLoadingContext";
 import { ThemeProvider, useThemeMode } from "../src/contexts/ThemeContext";
 import { AuthProvider } from "../src/contexts/AuthContext";
 import { NotificationProvider } from "../src/contexts/NotificationContext";
-import { VisitedScreensProvider } from "../src/contexts/VisitedScreensContext";
 
 
 // Create a wrapper component to use the theme mode
@@ -23,7 +22,6 @@ return (
   <PaperProvider theme={theme}>
     <AuthProvider>
       <NotificationProvider>
-        <VisitedScreensProvider>
           <TabLoadingProvider>
             <StatusBar style={isDark ? "light" : "dark"} />
             <Stack screenOptions={{ headerShown: false }}>
@@ -42,7 +40,6 @@ return (
               />
             </Stack>
           </TabLoadingProvider>
-        </VisitedScreensProvider>
       </NotificationProvider>
     </AuthProvider>
   </PaperProvider>

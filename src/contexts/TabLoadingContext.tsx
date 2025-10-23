@@ -1,4 +1,4 @@
-//src/contexts/TabLoadingContext.tsx
+// ✅ UPDATED: src/contexts/TabLoadingContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface TabLoadingState {
@@ -15,11 +15,27 @@ interface TabVisitedState {
   profile: boolean;
 }
 
+// ✅ ADDED: General screen tracking interface
+interface VisitedScreensState {
+  [screenName: string]: boolean;
+}
+
 interface TabLoadingContextType {
+  // Tab specific states
   loadingStates: TabLoadingState;
   visitedStates: TabVisitedState;
+
+  // ✅ ADDED: General screen visited states (replaces VisitedScreensContext)
+  visitedScreens: VisitedScreensState;
+
+  // Tab specific actions
   setTabLoading: (tabName: keyof TabLoadingState, loading: boolean) => void;
   setTabVisited: (tabName: keyof TabVisitedState) => void;
+
+  // ✅ ADDED: General screen actions (replaces VisitedScreensContext)
+  markScreenAsVisited: (screenName: string) => void;
+  hasVisitedScreen: (screenName: string) => boolean;
+
   refreshTab: (tabName: keyof TabLoadingState) => void;
 }
 
@@ -48,6 +64,9 @@ export const TabLoadingProvider: React.FC<TabLoadingProviderProps> = ({
     profile: false,
   });
 
+  // ✅ ADDED: General visited screens state
+  const [visitedScreens, setVisitedScreens] = useState<VisitedScreensState>({});
+
   const setTabLoading = (tabName: keyof TabLoadingState, loading: boolean) => {
     setLoadingStates((prev) => ({
       ...prev,
@@ -62,9 +81,20 @@ export const TabLoadingProvider: React.FC<TabLoadingProviderProps> = ({
     }));
   };
 
+  // ✅ ADDED: General screen visited functions
+  const markScreenAsVisited = (screenName: string) => {
+    setVisitedScreens((prev) => ({
+      ...prev,
+      [screenName]: true,
+    }));
+  };
+
+  const hasVisitedScreen = (screenName: string): boolean => {
+    return visitedScreens[screenName] === true;
+  };
+
   const refreshTab = (tabName: keyof TabLoadingState) => {
     setTabLoading(tabName, true);
-    // Simulate API call - will be replaced with actual data fetching
     setTimeout(() => {
       setTabLoading(tabName, false);
     }, 1500);
@@ -73,8 +103,11 @@ export const TabLoadingProvider: React.FC<TabLoadingProviderProps> = ({
   const value: TabLoadingContextType = {
     loadingStates,
     visitedStates,
+    visitedScreens, // ✅ ADDED
     setTabLoading,
     setTabVisited,
+    markScreenAsVisited, // ✅ ADDED
+    hasVisitedScreen, // ✅ ADDED
     refreshTab,
   };
 

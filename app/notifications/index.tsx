@@ -1,4 +1,4 @@
-// app/notifications/index.tsx
+// ✅ UPDATED: app/notifications/index.tsx
 import React, { useEffect } from "react";
 import {
   ScrollView,
@@ -13,7 +13,7 @@ import { useTheme, Card, ActivityIndicator } from "react-native-paper";
 import { Container } from "../../src/components/common/Container";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { useNotifications } from "../../src/contexts/NotificationContext";
-import { useVisitedScreens } from "../../src/contexts/VisitedScreensContext";
+import { useTabLoading } from "../../src/contexts/TabLoadingContext"; // ✅ CHANGED: Use TabLoadingContext instead
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Notification } from "../../src/types";
@@ -24,8 +24,8 @@ export default function NotificationsScreen() {
   const theme = useTheme();
   const { notificationState, markAsRead, markAllAsRead } = useNotifications();
 
-  // ✅ FIXED: Use persistent visited screens context
-  const { hasVisitedScreen, markScreenAsVisited } = useVisitedScreens();
+  // ✅ FIXED: Use TabLoadingContext instead of VisitedScreensContext
+  const { hasVisitedScreen, markScreenAsVisited } = useTabLoading();
   const hasVisited = hasVisitedScreen("notifications");
 
   // ✅ Use loading hook - only load if not visited before
@@ -56,7 +56,7 @@ export default function NotificationsScreen() {
     // Simulate API refresh
     setTimeout(() => {
       stopLoading();
-    }, 5000);
+    }, 1500); // ✅ CHANGED: Reduced from 5000ms to 1500ms for consistency
   };
 
   const handleNotificationPress = (notification: Notification) => {
@@ -64,6 +64,7 @@ export default function NotificationsScreen() {
       markAsRead(notification.id);
     }
 
+    // ✅ FIXED: Use proper navigation
     router.push({
       pathname: "/notifications/[id]",
       params: { id: notification.id },
@@ -99,9 +100,9 @@ export default function NotificationsScreen() {
     return "Today";
   };
 
-const handleBackPress = () => {
-  router.back();
-}
+  const handleBackPress = () => {
+    router.back();
+  };
 
   // ✅ Loading State UI - Only shows on first visit
   if (isLoading && !hasVisited) {
@@ -285,6 +286,7 @@ const handleBackPress = () => {
   );
 }
 
+// Keep the same styles...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
