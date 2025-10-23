@@ -85,7 +85,7 @@ export default function FinancialChart({ data }: FinancialChartProps) {
                   y={CHART_HEIGHT - 40 - expenseHeight}
                   width={BAR_WIDTH}
                   height={expenseHeight}
-                  fill="#ef4444"
+                  fill={theme.colors.error} // ✅ Theme error color
                   rx={2}
                 />
 
@@ -114,6 +114,7 @@ export default function FinancialChart({ data }: FinancialChartProps) {
               { backgroundColor: theme.colors.primary },
             ]}
           />
+
           <Text
             style={[
               styles.legendText,

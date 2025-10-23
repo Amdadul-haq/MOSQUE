@@ -25,9 +25,9 @@ export default function CategoryBreakdown({
   // Calculate total for percentage
   const total = filteredCategories.reduce((sum, cat) => sum + cat.amount, 0);
 
-  const getTypeColor = () => {
-    return type === "donation" ? theme.colors.primary : "#ef4444";
-  };
+const getTypeColor = () => {
+  return type === "donation" ? theme.colors.primary : theme.colors.error; // ✅ Theme colors
+};
 
   const getTypeIcon = (iconName: string) => {
     return (

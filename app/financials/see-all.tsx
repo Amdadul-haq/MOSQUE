@@ -41,6 +41,7 @@ export default function FinancialsScreen() {
   }, []);
 
   // Current month summary
+  // ✅ FIXED: In FinancialsScreen - Use theme colors
   const currentMonthSummary: FinancialSummaryItem[] = [
     {
       label: "Total Donations",
@@ -49,7 +50,7 @@ export default function FinancialsScreen() {
       type: "donation",
       trend: "+12%",
       icon: "💰",
-      color: theme.colors.primary,
+      color: theme.colors.primary, // ✅ Theme primary
     },
     {
       label: "Total Expenses",
@@ -58,7 +59,7 @@ export default function FinancialsScreen() {
       type: "expense",
       trend: "+8%",
       icon: "💸",
-      color: "#ef4444",
+      color: theme.colors.error, // ✅ Theme error
     },
     {
       label: "Remaining Balance",
@@ -67,7 +68,7 @@ export default function FinancialsScreen() {
       type: "balance",
       trend: "+15%",
       icon: "📊",
-      color: "#16a34a",
+      color: theme.colors.primary, // ✅ Theme primary
     },
   ];
 
@@ -140,29 +141,30 @@ export default function FinancialsScreen() {
     notes: "Generated automatically from Mosque Management System",
   };
 
-const handleBackPress = () => {
-  router.back();
-};
+  const handleBackPress = () => {
+    router.back();
+  };
 
   const handleExportPDF = () => {
     setPdfModalVisible(true);
   };
 
+  // ✅ FIXED: In FinancialsScreen - Consistent color functions
   const getIconColor = (type: "donation" | "expense" | "balance") => {
     switch (type) {
       case "donation":
         return theme.colors.primary;
       case "expense":
-        return "#ef4444";
+        return theme.colors.error; // ✅ Theme error
       case "balance":
-        return "#16a34a";
+        return theme.colors.primary; // ✅ Theme primary
       default:
         return theme.colors.onSurface;
     }
   };
 
   const getTrendColor = (trend: string) => {
-    return trend?.startsWith("+") ? "#16a34a" : "#ef4444";
+    return trend?.startsWith("+") ? theme.colors.primary : theme.colors.error; // ✅ Theme colors
   };
 
   return (
@@ -386,7 +388,7 @@ const handleBackPress = () => {
                     <MaterialCommunityIcons
                       name="chart-bar"
                       size={16}
-                      color="#ef4444"
+                      color={theme.colors.error} // ✅ Theme error
                     />
                     <Text
                       style={[
@@ -397,7 +399,10 @@ const handleBackPress = () => {
                       Avg. Monthly Expenses
                     </Text>
                     <Text
-                      style={[styles.additionalStatValue, { color: "#ef4444" }]}
+                      style={[
+                        styles.additionalStatValue,
+                        { color: theme.colors.error },
+                      ]}
                     >
                       {formatCurrency(lifetime.averageMonthlyExpenses)}
                     </Text>

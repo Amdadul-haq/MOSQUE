@@ -152,7 +152,7 @@ export default function LineChart({ data }: LineChartProps) {
           >
             Lowest
           </Text>
-          <Text style={[styles.statValue, { color: "#ef4444" }]}>
+          <Text style={[styles.statValue, { color: theme.colors.error }]}>
             {formatCurrency(minBalance)}
           </Text>
         </View>
@@ -162,7 +162,7 @@ export default function LineChart({ data }: LineChartProps) {
           >
             Current
           </Text>
-          <Text style={[styles.statValue, { color: "#16a34a" }]}>
+          <Text style={[styles.statValue, { color: theme.colors.primary }]}>
             {formatCurrency(data[data.length - 1].balance)}
           </Text>
         </View>

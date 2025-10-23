@@ -39,17 +39,6 @@ export default function PDFReportModal({
     boolean | null
   >(null);
 
-  // Check permissions when modal opens
-  // useEffect(() => {
-  //   if (visible) {
-  //     checkPermissions();
-  //   }
-  // }, [visible]);
-
-  // const checkPermissions = async () => {
-  //   const hasPerm = await PDFService.checkGalleryPermissions();
-  //   setHasGalleryPermission(hasPerm);
-  // };
 
 const handleGenerateReport = async () => {
   setIsGenerating(true);

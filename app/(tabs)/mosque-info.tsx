@@ -80,9 +80,6 @@ export default function MosqueInfoScreen() {
     }
   };
 
-  const handleBackPress = () => {
-    router.back();
-  }
 
   // ✅ ADDED: Loading State UI
   if (isLoading) {

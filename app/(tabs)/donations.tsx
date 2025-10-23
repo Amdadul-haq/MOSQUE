@@ -424,7 +424,7 @@ export default function DonationsScreen() {
                           {
                             donations.filter((d) => d.type === typeInfo.type)
                               .length
-                          }{" "}
+                          }
                           donations
                         </Text>
                       </View>
