@@ -1,4 +1,4 @@
-// src/types/index.ts - UPDATED VERSION
+// ✅ FIXED: src/types/index.ts - UPDATED VERSION
 export interface PrayerTime {
   name: string;
   time: string;
@@ -50,9 +50,10 @@ export interface Event {
 }
 
 // ✅ FIXED: Updated UserProfile to use ThemeMode and Language types
-export type ThemeMode = 'light' | 'dark' | 'auto';
-export type Language = 'en' | 'bn' | 'ar';
+export type ThemeMode = "light" | "dark" | "auto";
+export type Language = "en" | "bn" | "ar";
 
+// ✅ FIXED: Remove legacy darkMode property
 export interface UserProfile {
   id: string;
   name: string;
@@ -66,20 +67,18 @@ export interface UserProfile {
   preferences: {
     notifications: boolean;
     prayerReminders: boolean;
-    darkMode: boolean;
-    language: Language; // ✅ CHANGED: from string to Language
-    theme: ThemeMode;   // ✅ CHANGED: from string to ThemeMode
+    language: Language;
+    theme: ThemeMode;
     qiblaDirection: boolean;
     vibration: boolean;
   };
 }
 
-// src/types/index.ts - ADD THESE NOTIFICATION TYPES
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'urgent' | 'donation' | 'prayer' | 'event';
+  type: "info" | "warning" | "urgent" | "donation" | "prayer" | "event";
   date: string;
   time: string;
   isRead: boolean;
@@ -116,7 +115,7 @@ export interface Announcement {
   title: string;
   message: string;
   date: string;
-  type: 'info' | 'warning' | 'urgent';
+  type: "info" | "warning" | "urgent";
 }
 
 export interface FinancialData {
@@ -149,7 +148,7 @@ export interface LifetimeFinancials {
 export interface FinancialCategory {
   name: string;
   amount: number;
-  type: 'donation' | 'expense';
+  type: "donation" | "expense";
   percentage: number;
   icon: string;
   color: string;
@@ -166,8 +165,37 @@ export interface FinancialSummaryItem {
   label: string;
   value: string;
   amount: number;
-  type: 'donation' | 'expense' | 'balance';
+  type: "donation" | "expense" | "balance";
   trend?: string;
   icon: string;
+  color: string;
+}
+
+// ✅ FIXED: Consistent property name
+export interface DonationData {
+  type: string;
+  amount: number;
+  month: string;
+  isAnonymous: boolean;
+  message?: string;
+  paymentMethod: string;
+  donorName?: string;
+  donorEmail?: string;
+}
+
+export interface DonationType {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
+// ✅ FIXED: Clear property name (removed confusing comment)
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
   color: string;
 }

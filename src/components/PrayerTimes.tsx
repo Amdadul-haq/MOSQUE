@@ -16,12 +16,23 @@ export const PrayerTimes: React.FC<PrayerTimesProps> = ({ times }) => {
   const theme = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          borderColor: theme.colors.outline, // ✅ Theme border color
+          backgroundColor: theme.colors.surface, // ✅ Theme background
+        },
+      ]}
+    >
       {times.map((prayer, index) => (
         <View
           key={prayer.name}
           style={[
             styles.prayerRow,
+            {
+              borderBottomColor: theme.colors.outline, // ✅ Theme border color
+            },
             prayer.isCurrent && {
               backgroundColor: theme.colors.primaryContainer,
             },

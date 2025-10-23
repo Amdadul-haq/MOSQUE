@@ -1,4 +1,4 @@
-// src/components/QuickActions.tsx
+// ✅ FIXED: src/components/QuickActions.tsx
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -10,6 +10,7 @@ export interface QuickActionItem {
   icon: string;
   description: string;
   screen?: string;
+  color?: string; // ✅ ADDED: Custom color support
 }
 
 interface QuickActionsProps {
@@ -23,51 +24,76 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
 }) => {
   const theme = useTheme();
 
+  // ✅ ADDED: Get icon color based on action type
+  const getIconColor = (action: QuickActionItem) => {
+    if (action.color) return action.color;
+
+    switch (action.id) {
+      case "donation":
+        return theme.colors.secondary; // Amber for donations
+      case "prayer":
+        return theme.colors.primary; // Green for prayers
+      case "events":
+        return theme.colors.tertiary; // Emerald for events
+      case "quran":
+        return theme.colors.secondary; // Amber for quran
+      default:
+        return theme.colors.primary;
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {actions.map((action, index) => (
-        <TouchableOpacity
-          key={action.id}
-          style={[
-            styles.actionCard,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.outline,
-            },
-            index % 2 === 0 ? styles.leftItem : styles.rightItem,
-          ]}
-          onPress={() => onAction(action.id)}
-          activeOpacity={0.7}
-        >
-          <View
+      {actions.map((action, index) => {
+        const iconColor = getIconColor(action);
+
+        return (
+          <TouchableOpacity
+            key={action.id}
             style={[
-              styles.iconContainer,
-              { backgroundColor: theme.colors.primaryContainer },
+              styles.actionCard,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.outline,
+              },
+              index % 2 === 0 ? styles.leftItem : styles.rightItem,
             ]}
+            onPress={() => onAction(action.id)}
+            activeOpacity={0.7}
           >
-            <MaterialCommunityIcons
-              name={action.icon as any}
-              size={24}
-              color={theme.colors.primary}
-            />
-          </View>
-          <Text style={[styles.actionTitle, { color: theme.colors.onSurface }]}>
-            {action.title}
-          </Text>
-          <Text
-            style={[
-              styles.actionDescription,
-              { color: theme.colors.onSurfaceVariant },
-            ]}
-          >
-            {action.description}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <View
+              style={[
+                styles.iconContainer,
+                { backgroundColor: `${iconColor}20` }, // ✅ Dynamic background with opacity
+              ]}
+            >
+              <MaterialCommunityIcons
+                name={action.icon as any}
+                size={24}
+                color={iconColor} // ✅ Dynamic icon color
+              />
+            </View>
+            <Text
+              style={[styles.actionTitle, { color: theme.colors.onSurface }]}
+            >
+              {action.title}
+            </Text>
+            <Text
+              style={[
+                styles.actionDescription,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
+              {action.description}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
 
+// ... keep same styles
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",

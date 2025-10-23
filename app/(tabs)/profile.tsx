@@ -51,7 +51,6 @@ const initialProfile: UserProfile = {
   preferences: {
     notifications: true,
     prayerReminders: true,
-    darkMode: false,
     language: "en", // ✅ No casting needed
     theme: "auto", // ✅ No casting needed
     qiblaDirection: true,
@@ -84,22 +83,22 @@ export default function ProfileScreen() {
     }));
   }, [themeMode]);
 
-const handlePreferenceChange = (
-  key: keyof UserProfile["preferences"],
-  value: any
-) => {
-  setProfile((prev) => ({
-    ...prev,
-    preferences: {
-      ...prev.preferences,
-      [key]: value,
-    },
-  }));
+  const handlePreferenceChange = (
+    key: keyof UserProfile["preferences"],
+    value: any
+  ) => {
+    setProfile((prev) => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        [key]: value,
+      },
+    }));
 
-  if (key === "theme") {
-    setThemeMode(value);
-  }
-};
+    if (key === "theme") {
+      setThemeMode(value);
+    }
+  };
 
   const handleEditProfile = () => {
     setEditing(true);
@@ -128,31 +127,20 @@ const handlePreferenceChange = (
     setLogoutDialogVisible(false);
   };
 
+  // ✅ FIXED: Use theme colors for role badges
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "admin":
-        return "#ef4444";
+        return theme.colors.error; // ✅ Red - for admin/errors
       case "volunteer":
-        return "#f59e0b";
+        return theme.colors.secondary; // ✅ Amber - for volunteers
       case "premium":
-        return "#8b5cf6";
+        return "#10b981"; // ✅ Emerald - for premium members
       default:
-        return "#16a34a";
+        return theme.colors.primary; // ✅ Green - for regular members
     }
   };
 
-  const getThemeDisplayName = (theme: ThemeMode) => {
-    switch (theme) {
-      case "light":
-        return "Light";
-      case "dark":
-        return "Dark";
-      case "auto":
-        return "Auto (System)";
-      default:
-        return "Auto";
-    }
-  };
 
   const getLanguageDisplayName = (language: Language) => {
     switch (language) {
@@ -171,10 +159,6 @@ const handlePreferenceChange = (
     handleRefresh();
   };
 
-  const handleBackPress = () => {
-    router.back();
-  };
-
   if (isLoading) {
     return (
       <Container padding={false}>
@@ -183,12 +167,10 @@ const handlePreferenceChange = (
           translucent
           backgroundColor="transparent"
         />
-        <SimpleHeader 
-        title="Profile"
-      />
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator
-          size="large"
+        <SimpleHeader title="Profile" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
             color={theme.colors.primary}
             style={styles.loadingSpinner}
           />

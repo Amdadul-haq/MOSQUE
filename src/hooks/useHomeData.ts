@@ -25,36 +25,40 @@ export const useHomeData = () => {
     },
   ]);
 
-  const [quickActions, setQuickActions] = useState<QuickAction[]>([
-    {
-      id: "donation",
-      title: "Donate",
-      icon: "heart",
-      color: "#f59e0b", // ✅ Secondary - Amber (CHANGED from #ef4444)
-      screen: "donations",
-    },
-    {
-      id: "prayer",
-      title: "Prayer Times",
-      icon: "clock",
-      color: "#16a34a", // ✅ Primary - Green
-      screen: "mosque-info",
-    },
-    {
-      id: "events",
-      title: "Events",
-      icon: "calendar",
-      color: "#10b981", // ✅ Tertiary - Emerald (CHANGED from #8b5cf6)
-      screen: "mosque-info",
-    },
-    {
-      id: "quran",
-      title: "Quran",
-      icon: "book-open",
-      color: "#f59e0b", // ✅ Secondary - Amber
-      screen: "quran",
-    },
-  ]);
+const [quickActions, setQuickActions] = useState<QuickAction[]>([
+  {
+    id: "donation",
+    title: "Donate",
+    icon: "heart",
+    color: "#f59e0b", // ✅ Amber
+    screen: "donations",
+    description: "Make a donation to support the mosque", // ✅ ADD description
+  },
+  {
+    id: "prayer",
+    title: "Prayer Times",
+    icon: "clock",
+    color: "#16a34a", // ✅ Green
+    screen: "mosque-info",
+    description: "View today's prayer schedule",
+  },
+  {
+    id: "events",
+    title: "Events",
+    icon: "calendar",
+    color: "#10b981", // ✅ Emerald
+    screen: "mosque-info",
+    description: "Check upcoming community events",
+  },
+  {
+    id: "quran",
+    title: "Quran",
+    icon: "book-open",
+    color: "#f59e0b", // ✅ Amber
+    screen: "quran",
+    description: "Read and listen to Quran",
+  },
+]);
 
     const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([
       {

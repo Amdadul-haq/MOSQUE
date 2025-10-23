@@ -4,7 +4,6 @@ import {
   MD3DarkTheme as PaperDarkTheme,
 } from "react-native-paper";
 
-// ✅ CONSISTENT COLOR SCHEME
 export const LightTheme = {
   ...PaperDefaultTheme,
   colors: {
@@ -20,6 +19,9 @@ export const LightTheme = {
 
     // ✅ ERROR: Red (Only for errors, destructive actions)
     error: "#ef4444",
+
+    // ✅ ADDED: Outline color for borders
+    outline: "#e5e7eb", // Light gray for light mode
 
     // Background and surface colors
     background: "#f9fafb",
@@ -41,6 +43,9 @@ export const DarkTheme = {
     secondary: "#f59e0b",
     tertiary: "#10b981",
     error: "#ef4444",
+
+    // ✅ ADDED: Outline color for dark mode
+    outline: "#374151", // Dark gray for dark mode
 
     // Dark mode backgrounds
     background: "#111111",

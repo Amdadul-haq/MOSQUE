@@ -1,4 +1,4 @@
-// app/(tabs)/donations.tsx
+// app/(tabs)/donations.tsx - COMPLETE UPDATED VERSION
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -31,7 +31,6 @@ import {
   formatDate,
   capitalizeWords,
 } from "../../src/utils/formatters";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type TimeFilter = "all" | "month" | "week" | "today";
@@ -41,21 +40,16 @@ export default function DonationsScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-
   const { isLoading, handleRefresh } = useTabNavigation("donations");
 
-  const [showAddModal, setShowAddModal] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const {
     donations,
-    addDonation,
     getMonthlyTotal,
     getWeeklyTotal,
     getTodayTotal,
-    totalDonations,
-    monthlyDonationCount,
     donationStats,
   } = useDonationManager();
 
@@ -92,6 +86,7 @@ export default function DonationsScreen() {
     }
   };
 
+  // ✅ FIXED: Use theme colors
   const donationStatsData = [
     {
       label: "Total",
@@ -115,40 +110,41 @@ export default function DonationsScreen() {
           : 0
       ),
       icon: "📈",
-      color: "#f59e0b",
+      color: theme.colors.secondary,
       trend: "+8%",
     },
   ];
 
+  // ✅ FIXED: Consistent color scheme
   const donationTypes = [
     {
       type: "zakat",
       description: "Obligatory charity (2.5% of wealth)",
-      color: "#16a34a",
+      color: theme.colors.primary,
       icon: "scale-balance",
     },
     {
       type: "sadaqah",
       description: "Voluntary charity",
-      color: "#f59e0b",
+      color: theme.colors.secondary,
       icon: "heart",
     },
     {
       type: "construction",
       description: "Mosque development fund",
-      color: "#ef4444",
+      color: "#10b981",
       icon: "home",
     },
     {
       type: "education",
       description: "Educational programs",
-      color: "#8b5cf6",
+      color: "#10b981",
       icon: "school",
     },
     {
       type: "other",
       description: "Other charitable causes",
-      color: "#06b6d4",
+      color: theme.colors.secondary,
       icon: "charity",
     },
   ];
@@ -156,10 +152,6 @@ export default function DonationsScreen() {
   const onRefresh = () => {
     handleRefresh();
   };
-
-const handleBackPress = () => {
-  router.back();
-};
 
   if (isLoading) {
     return (
@@ -169,9 +161,7 @@ const handleBackPress = () => {
           translucent
           backgroundColor="transparent"
         />
-        <SimpleHeader
-          title="Donations"
-        />
+        <SimpleHeader title="Donations" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
             size="large"
@@ -194,9 +184,7 @@ const handleBackPress = () => {
         backgroundColor="transparent"
       />
 
-      <SimpleHeader
-        title="Donations"
-      />
+      <SimpleHeader title="Donations" />
 
       <ScrollView
         style={styles.scrollView}
@@ -272,7 +260,16 @@ const handleBackPress = () => {
               </Button>
             }
           >
-            <Card style={styles.tableCard}>
+            {/* ✅ FIXED: Inline border styles */}
+            <Card
+              style={[
+                styles.tableCard,
+                {
+                  borderWidth: 1,
+                  borderColor: theme.colors.surfaceVariant,
+                },
+              ]}
+            >
               <DataTable>
                 <DataTable.Header>
                   <DataTable.Title>Donor</DataTable.Title>
@@ -306,7 +303,7 @@ const handleBackPress = () => {
                               donationTypes.find(
                                 (t) => t.type === donation.type
                               )?.color
-                            }20`,
+                            }15`, // ✅ Lighter opacity
                           },
                         ]}
                       >
@@ -359,16 +356,26 @@ const handleBackPress = () => {
 
           {/* Donation Types Info */}
           <Section title="Donation Types">
-            <Card style={styles.typesCard}>
+            {/* ✅ FIXED: Inline border styles */}
+            <Card
+              style={[
+                styles.typesCard,
+                {
+                  borderWidth: 1,
+                  borderColor: theme.colors.surfaceVariant,
+                },
+              ]}
+            >
               <Card.Content style={styles.typesContent}>
                 {donationTypes.map((typeInfo, index) => (
                   <View
                     key={typeInfo.type}
                     style={[
                       styles.typeItem,
-                      index !== donationTypes.length - 1 &&
-                        styles.typeItemBorder,
-                      { borderBottomColor: theme.colors.outline },
+                      index !== donationTypes.length - 1 && {
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.colors.surfaceVariant, // ✅ Inline style
+                      },
                     ]}
                   >
                     <View style={styles.typeHeader}>
@@ -465,6 +472,7 @@ const styles = StyleSheet.create({
   chip: {
     marginRight: 8,
   },
+  // ✅ REMOVED: border styles from here
   tableCard: {
     borderRadius: 16,
     overflow: "hidden",
@@ -503,6 +511,7 @@ const styles = StyleSheet.create({
   emptyButton: {
     borderRadius: 8,
   },
+  // ✅ REMOVED: border styles from here
   typesCard: {
     borderRadius: 16,
   },
@@ -512,9 +521,7 @@ const styles = StyleSheet.create({
   typeItem: {
     paddingVertical: 12,
   },
-  typeItemBorder: {
-    borderBottomWidth: 1,
-  },
+  // typeItemBorder removed - using inline styles instead
   typeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
