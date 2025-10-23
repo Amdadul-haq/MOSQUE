@@ -171,8 +171,6 @@ const handleBackPress = () => {
         />
         <SimpleHeader
           title="Donations"
-          showBackButton={true}
-          onBackPress={handleBackPress}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -198,8 +196,6 @@ const handleBackPress = () => {
 
       <SimpleHeader
         title="Donations"
-        showBackButton={true}
-        onBackPress={handleBackPress}
       />
 
       <ScrollView

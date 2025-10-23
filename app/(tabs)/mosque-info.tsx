@@ -95,8 +95,6 @@ export default function MosqueInfoScreen() {
         />
         <SimpleHeader
           title="Mosque Information"
-          showBackButton={true}
-          onBackPress={handleBackPress}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator
@@ -122,8 +120,6 @@ export default function MosqueInfoScreen() {
 
       <SimpleHeader
         title="Mosque Information"
-        showBackButton={true}
-        onBackPress={handleBackPress}
       />
 
       <ScrollView

@@ -185,8 +185,6 @@ export default function ProfileScreen() {
         />
         <SimpleHeader 
         title="Profile"
-        showBackButton={true}
-        onBackPress={handleBackPress}
       />
       <View style={styles.loadingContainer}>
         <ActivityIndicator
@@ -212,8 +210,6 @@ export default function ProfileScreen() {
 
       <SimpleHeader
         title="Profile"
-        showBackButton={true}
-        onBackPress={handleBackPress}
       />
 
       <ScrollView
