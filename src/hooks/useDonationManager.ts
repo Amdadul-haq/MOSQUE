@@ -46,14 +46,18 @@ export const useDonationManager = () => {
     },
   ]);
 
-  const addDonation = useCallback((donationData: Omit<Donation, 'id' | 'date'>) => {
+const addDonation = useCallback(
+  (donationData: Omit<Donation, "id" | "date">) => {
     const newDonation: Donation = {
       ...donationData,
       id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
+      // donor name is already passed from donationData
     };
-    setDonations(prev => [newDonation, ...prev]);
-  }, []);
+    setDonations((prev) => [newDonation, ...prev]);
+  },
+  []
+);
 
   const getMonthlyTotal = useCallback(() => {
     const currentMonth = new Date().getMonth();
