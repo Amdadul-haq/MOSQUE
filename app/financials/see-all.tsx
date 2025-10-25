@@ -88,7 +88,7 @@ export default function FinancialsScreen() {
       amount: lifetime.totalExpenses,
       type: "expense",
       icon: "💸",
-      color: "#ef4444",
+      color: "theme.colors.error",
     },
     {
       label: "Net Balance",
@@ -96,7 +96,7 @@ export default function FinancialsScreen() {
       amount: lifetime.netBalance,
       type: "balance",
       icon: "📈",
-      color: "#16a34a",
+      color: "theme.colors.primary",
     },
   ];
 

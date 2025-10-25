@@ -90,22 +90,22 @@ export const Button: React.FC<ButtonProps> = ({
       case "secondary":
         return {
           ...baseStyle,
-          color: "#1f2937", // ✅ Dark text for light background
+          color: theme.colors.onSurface, // ✅ Dark text for light background
         };
       case "tertiary":
         return {
           ...baseStyle,
-          color: "#ffffff", // ✅ White text for colored background
+          color: theme.colors.onPrimary, // ✅ White text for colored background
         };
       case "error":
         return {
           ...baseStyle,
-          color: "#ffffff", // ✅ White text for error buttons
+          color: theme.colors.onError, // ✅ White text for error buttons
         };
       default:
         return {
           ...baseStyle,
-          color: "#ffffff", // ✅ White text for primary
+          color: theme.colors.onPrimary, // ✅ White text for primary
         };
     }
   };
