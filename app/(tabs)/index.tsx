@@ -21,7 +21,6 @@ import { HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
 import { PrayerTimes } from "../../src/components/PrayerTimes";
-import { StatsGrid } from "../../src/components/StatsGrid";
 import { QuickActions } from "../../src/components/QuickActions";
 import { useHomeData } from "../../src/hooks/useHomeData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -321,11 +320,6 @@ export default function HomeScreen() {
                   </Button>
                 </Card.Content>
               </Card>
-            </Section>
-
-            {/* Stats */}
-            <Section title="Today's Summary">
-              <StatsGrid stats={stats} />
             </Section>
 
             {/* Upcoming Events */}
