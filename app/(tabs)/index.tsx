@@ -1,14 +1,22 @@
-// app/(tabs)/index.tsx
+// app/(tabs)/index.tsx - FIXED VERSION
 import React from "react";
 import {
   ScrollView,
   View,
-  Text,
+  Text as RNText,
   StyleSheet,
   StatusBar,
   RefreshControl,
 } from "react-native";
-import { useTheme, Card, Button, ActivityIndicator } from "react-native-paper";
+import {
+  useTheme,
+  Card,
+  Button,
+  ActivityIndicator,
+  Dialog,
+  Portal,
+  Text,
+} from "react-native-paper"; // ✅ Paper Text imported
 import { HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
@@ -20,12 +28,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 import { useNotifications } from "../../src/contexts/NotificationContext";
-import {Event} from "../../src/types";
+import { useAuth } from "../../src/contexts/AuthContext";
+import { Event } from "../../src/types";
+import * as Haptics from "expo-haptics";
 
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { isAuthenticated, user } = useAuth();
   const {
     stats,
     upcomingEvents,
@@ -35,8 +46,10 @@ export default function HomeScreen() {
     announcements,
   } = useHomeData();
 
-    const { notificationState } = useNotifications();
+  const { notificationState } = useNotifications();
 
+  // ✅ ADDED: Guest donation dialog state
+  const [guestDialogVisible, setGuestDialogVisible] = React.useState(false);
 
   // Loading state management for home tab
   const { isLoading, handleRefresh } = useTabNavigation("home");
@@ -44,18 +57,49 @@ export default function HomeScreen() {
   const handleProfilePress = () => {
     handleQuickAction("profile");
   };
-const handleLogoPress = () => {
-  // Home screen refresh korbe
-  handleRefresh(); // pull-to-refresh function call
-  console.log("Logo clicked - refreshing home!");
-};
+
+  const handleLogoPress = () => {
+    handleRefresh();
+    console.log("Logo clicked - refreshing home!");
+  };
 
   const handleNotificationPress = () => {
-      router.push("/notifications");
+    router.push("/notifications");
   };
 
   const handleViewFinancials = () => {
     router.push("/financials/see-all");
+  };
+
+  // ✅ UPDATED: Donation button handler with guest check
+  const handleMakeDonation = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (!isAuthenticated) {
+      // Show custom dialog for guest users
+      setGuestDialogVisible(true);
+      return;
+    }
+
+    // User is authenticated, proceed to donation flow
+    router.push("/donation/type");
+  };
+
+  // ✅ ADDED: Handle guest donation from home screen
+  const handleGuestDonation = () => {
+    setGuestDialogVisible(false);
+    router.push("/donation/type");
+  };
+
+  // ✅ ADDED: Handle login with redirect from home screen
+  const handleLoginForDonation = () => {
+    setGuestDialogVisible(false);
+    router.push({
+      pathname: "/(auth)/login",
+      params: {
+        redirect: "/donation/type",
+      },
+    });
   };
 
   // ✅ NEW: Pull-to-refresh handler
@@ -85,11 +129,11 @@ const handleLogoPress = () => {
               color={theme.colors.primary}
               style={styles.loadingSpinner}
             />
-            <Text
+            <RNText
               style={[styles.loadingText, { color: theme.colors.onSurface }]}
             >
               Loading Home Data...
-            </Text>
+            </RNText>
           </View>
         </View>
       </Container>
@@ -119,7 +163,6 @@ const handleLogoPress = () => {
             { paddingBottom: insets.bottom + 20 },
           ]}
           style={styles.scrollView}
-          // ✅ NEW: Pull-to-refresh functionality
           refreshControl={
             <RefreshControl
               refreshing={isLoading}
@@ -135,22 +178,22 @@ const handleLogoPress = () => {
               <Card.Content>
                 <View style={styles.welcomeHeader}>
                   <View style={styles.welcomeTextContainer}>
-                    <Text
+                    <RNText
                       style={[
                         styles.welcomeTitle,
                         { color: theme.colors.primary },
                       ]}
                     >
                       Assalamu Alaikum 👋
-                    </Text>
-                    <Text
+                    </RNText>
+                    <RNText
                       style={[
                         styles.welcomeSubtitle,
                         { color: theme.colors.onSurface },
                       ]}
                     >
                       Welcome back to your mosque community
-                    </Text>
+                    </RNText>
                   </View>
                   <View
                     style={[
@@ -158,7 +201,7 @@ const handleLogoPress = () => {
                       { backgroundColor: theme.colors.primaryContainer },
                     ]}
                   >
-                    <Text
+                    <RNText
                       style={[
                         styles.dateText,
                         { color: theme.colors.onPrimaryContainer },
@@ -169,11 +212,11 @@ const handleLogoPress = () => {
                         month: "short",
                         day: "numeric",
                       })}
-                    </Text>
+                    </RNText>
                   </View>
                 </View>
 
-                <Text
+                <RNText
                   style={[
                     styles.welcomeText,
                     { color: theme.colors.onSurfaceVariant },
@@ -181,7 +224,7 @@ const handleLogoPress = () => {
                 >
                   Manage your spiritual journey, donations, and community events
                   in one place.
-                </Text>
+                </RNText>
 
                 {/* Quick Announcements */}
                 {announcements.length > 0 && (
@@ -193,29 +236,30 @@ const handleLogoPress = () => {
                     mode="contained"
                   >
                     <Card.Content>
-                      <Text
+                      <RNText
                         style={[
                           styles.announcementTitle,
                           { color: theme.colors.onSurfaceVariant },
                         ]}
                       >
                         📢 {announcements[0].title}
-                      </Text>
-                      <Text
+                      </RNText>
+                      <RNText
                         style={[
                           styles.announcementText,
                           { color: theme.colors.onSurfaceVariant },
                         ]}
                       >
                         {announcements[0].message}
-                      </Text>
+                      </RNText>
                     </Card.Content>
                   </Card>
                 )}
 
+                {/* ✅ UPDATED: Donation Button with guest handling */}
                 <Button
                   mode="contained"
-                  onPress={() => router.push("/donation/type")}
+                  onPress={handleMakeDonation} // ✅ UPDATED handler
                   style={styles.donateButton}
                   icon="heart"
                   contentStyle={styles.donateButtonContent}
@@ -249,22 +293,22 @@ const handleLogoPress = () => {
               <Card style={styles.financialsCard}>
                 <Card.Content style={styles.financialsContent}>
                   <View style={styles.financialsTextContainer}>
-                    <Text
+                    <RNText
                       style={[
                         styles.financialsTitle,
                         { color: theme.colors.onSurface },
                       ]}
                     >
                       Financial Overview
-                    </Text>
-                    <Text
+                    </RNText>
+                    <RNText
                       style={[
                         styles.financialsSubtitle,
                         { color: theme.colors.onSurfaceVariant },
                       ]}
                     >
                       View detailed financial reports and analytics
-                    </Text>
+                    </RNText>
                   </View>
                   <Button
                     mode="outlined"
@@ -309,40 +353,40 @@ const handleLogoPress = () => {
                       <View style={styles.eventHeader}>
                         <View style={styles.eventInfo}>
                           <View style={styles.eventTypeBadge}>
-                            <Text
+                            <RNText
                               style={[
                                 styles.eventType,
                                 { color: theme.colors.primary },
                               ]}
                             >
                               {event.type.toUpperCase()}
-                            </Text>
+                            </RNText>
                           </View>
-                          <Text
+                          <RNText
                             style={[
                               styles.eventTitle,
                               { color: theme.colors.onSurface },
                             ]}
                           >
                             {event.title}
-                          </Text>
-                          <Text
+                          </RNText>
+                          <RNText
                             style={[
                               styles.eventDate,
                               { color: theme.colors.onSurfaceVariant },
                             ]}
                           >
                             {event.date} • {event.time} • {event.location}
-                          </Text>
+                          </RNText>
                           {event.description && (
-                            <Text
+                            <RNText
                               style={[
                                 styles.eventDescription,
                                 { color: theme.colors.onSurfaceVariant },
                               ]}
                             >
                               {event.description}
-                            </Text>
+                            </RNText>
                           )}
                         </View>
                         <Button
@@ -361,6 +405,65 @@ const handleLogoPress = () => {
             </Section>
           </View>
         </ScrollView>
+
+        {/* ✅ ADDED: Guest Donation Dialog */}
+        <Portal>
+          <Dialog
+            visible={guestDialogVisible}
+            onDismiss={() => setGuestDialogVisible(false)}
+            style={styles.dialog}
+          >
+            <Dialog.Icon
+              icon="account-question"
+              size={40}
+              color={theme.colors.primary}
+            />
+            <Dialog.Title style={styles.dialogTitle}>
+              Continue as Guest?
+            </Dialog.Title>
+            <Dialog.Content>
+              {/* ✅ FIXED: Using react-native-paper Text component with variant */}
+              <Text variant="bodyMedium" style={styles.dialogText}>
+                📝{" "}
+                <Text style={{ fontWeight: "bold" }}>You're not logged in</Text>
+              </Text>
+              <Text variant="bodyMedium" style={styles.dialogText}>
+                • Your donation history won't be saved for future reference
+              </Text>
+              <Text variant="bodyMedium" style={styles.dialogText}>
+                • You won't be able to track your contributions
+              </Text>
+              <Text
+                variant="bodyMedium"
+                style={[styles.dialogText, styles.recommendation]}
+              >
+                💡{" "}
+                <Text style={{ fontWeight: "bold" }}>
+                  We recommend creating an account
+                </Text>{" "}
+                to keep track of your charitable activities and receive updates
+                on how your donations are making a difference.
+              </Text>
+            </Dialog.Content>
+            <Dialog.Actions style={styles.dialogActions}>
+              <Button
+                mode="outlined"
+                onPress={handleGuestDonation}
+                style={styles.guestButton}
+                textColor={theme.colors.onSurfaceVariant}
+              >
+                Donate as Guest
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleLoginForDonation}
+                style={styles.loginButton}
+              >
+                Log In to Continue
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       </View>
     </Container>
   );
@@ -527,5 +630,42 @@ const styles = StyleSheet.create({
   },
   eventButton: {
     borderRadius: 8,
+  },
+  // ✅ ADDED: Dialog styles
+  dialog: {
+    borderRadius: 20,
+    backgroundColor: "white",
+  },
+  dialogTitle: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 8,
+  },
+  dialogText: {
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  recommendation: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: "#f0f9ff",
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#0ea5e9",
+  },
+  dialogActions: {
+    flexDirection: "column",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  guestButton: {
+    width: "100%",
+    borderRadius: 12,
+  },
+  loginButton: {
+    width: "100%",
+    borderRadius: 12,
   },
 });
