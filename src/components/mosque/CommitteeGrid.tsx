@@ -151,6 +151,7 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                     </View>
                   </View>
                 }
+                // ✅ FIXED: Proper expanded state management
                 expanded={expandedId === member.id}
                 onPress={() => handleAccordionPress(member.id)}
                 style={[
@@ -162,6 +163,7 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                   },
                 ]}
                 titleStyle={styles.accordionTitle}
+                // ✅ FIXED: Remove left prop completely
                 right={(props) => (
                   <MaterialCommunityIcons
                     {...props}
@@ -175,226 +177,228 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                   />
                 )}
               >
-                {/* Expanded Content */}
-                <View style={styles.expandedContent}>
-                  {/* Join Date */}
-                  <View style={styles.detailRow}>
-                    <MaterialCommunityIcons
-                      name="calendar"
-                      size={16}
-                      color={theme.colors.onSurfaceVariant}
-                    />
-                    <Text
-                      style={[
-                        styles.detailText,
-                        { color: theme.colors.onSurfaceVariant },
-                      ]}
-                    >
-                      Member since {member.joinDate}
-                    </Text>
-                  </View>
-
-                  {/* Bio */}
-                  {member.bio ? (
-                    <View style={styles.bioContainer}>
+                {/* ✅ FIXED: Expanded content - ONLY shows when expanded */}
+                {expandedId === member.id && (
+                  <View style={styles.expandedContent}>
+                    {/* Join Date */}
+                    <View style={styles.detailRow}>
+                      <MaterialCommunityIcons
+                        name="calendar"
+                        size={16}
+                        color={theme.colors.onSurfaceVariant}
+                      />
                       <Text
                         style={[
-                          styles.memberBio,
+                          styles.detailText,
                           { color: theme.colors.onSurfaceVariant },
                         ]}
                       >
-                        {member.bio}
+                        Member since {member.joinDate}
                       </Text>
                     </View>
-                  ) : null}
 
-                  {/* Contact Info with DIRECT COPY BUTTONS */}
-                  <View style={styles.contactInfo}>
-                    {/* Phone Row */}
-                    <View style={styles.contactRow}>
-                      <MaterialCommunityIcons
-                        name="phone"
-                        size={16}
-                        color={theme.colors.primary}
-                      />
-                      <Text
-                        style={[
-                          styles.contactText,
-                          { color: theme.colors.onSurface },
-                        ]}
-                      >
-                        {member.phone}
-                      </Text>
+                    {/* Bio */}
+                    {member.bio ? (
+                      <View style={styles.bioContainer}>
+                        <Text
+                          style={[
+                            styles.memberBio,
+                            { color: theme.colors.onSurfaceVariant },
+                          ]}
+                        >
+                          {member.bio}
+                        </Text>
+                      </View>
+                    ) : null}
 
-                      {/* ✅ DIRECT COPY BUTTON FOR PHONE */}
+                    {/* Contact Info with DIRECT COPY BUTTONS */}
+                    <View style={styles.contactInfo}>
+                      {/* Phone Row */}
+                      <View style={styles.contactRow}>
+                        <MaterialCommunityIcons
+                          name="phone"
+                          size={16}
+                          color={theme.colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.contactText,
+                            { color: theme.colors.onSurface },
+                          ]}
+                        >
+                          {member.phone}
+                        </Text>
+
+                        {/* ✅ DIRECT COPY BUTTON FOR PHONE */}
+                        <TouchableOpacity
+                          style={[
+                            styles.copyButton,
+                            {
+                              backgroundColor: phoneCopied
+                                ? theme.colors.primary
+                                : theme.colors.surfaceVariant,
+                            },
+                          ]}
+                          onPress={() => handleCopyPhone(member.phone)}
+                        >
+                          {phoneCopied ? (
+                            // ✅ TICK ANIMATION STATE
+                            <View style={styles.copyFeedback}>
+                              <MaterialCommunityIcons
+                                name="check"
+                                size={14}
+                                color={theme.colors.onPrimary}
+                              />
+                              <Text
+                                style={[
+                                  styles.copyButtonText,
+                                  { color: theme.colors.onPrimary },
+                                ]}
+                              >
+                                Copied
+                              </Text>
+                            </View>
+                          ) : (
+                            // ✅ DEFAULT COPY STATE
+                            <View style={styles.copyFeedback}>
+                              <MaterialCommunityIcons
+                                name="content-copy"
+                                size={14}
+                                color={theme.colors.onSurfaceVariant}
+                              />
+                              <Text
+                                style={[
+                                  styles.copyButtonText,
+                                  { color: theme.colors.onSurfaceVariant },
+                                ]}
+                              >
+                                Copy
+                              </Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Email Row */}
+                      <View style={styles.contactRow}>
+                        <MaterialCommunityIcons
+                          name="email"
+                          size={16}
+                          color={theme.colors.primary}
+                        />
+                        <Text
+                          style={[
+                            styles.contactText,
+                            { color: theme.colors.onSurface },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {member.email}
+                        </Text>
+
+                        {/* ✅ DIRECT COPY BUTTON FOR EMAIL */}
+                        <TouchableOpacity
+                          style={[
+                            styles.copyButton,
+                            {
+                              backgroundColor: emailCopied
+                                ? theme.colors.primary
+                                : theme.colors.surfaceVariant,
+                            },
+                          ]}
+                          onPress={() => handleCopyEmail(member.email)}
+                        >
+                          {emailCopied ? (
+                            // ✅ TICK ANIMATION STATE
+                            <View style={styles.copyFeedback}>
+                              <MaterialCommunityIcons
+                                name="check"
+                                size={14}
+                                color={theme.colors.onPrimary}
+                              />
+                              <Text
+                                style={[
+                                  styles.copyButtonText,
+                                  { color: theme.colors.onPrimary },
+                                ]}
+                              >
+                                Copied
+                              </Text>
+                            </View>
+                          ) : (
+                            // ✅ DEFAULT COPY STATE
+                            <View style={styles.copyFeedback}>
+                              <MaterialCommunityIcons
+                                name="content-copy"
+                                size={14}
+                                color={theme.colors.onSurfaceVariant}
+                              />
+                              <Text
+                                style={[
+                                  styles.copyButtonText,
+                                  { color: theme.colors.onSurfaceVariant },
+                                ]}
+                              >
+                                Copy
+                              </Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Action Buttons */}
+                    <View style={styles.actionButtons}>
                       <TouchableOpacity
                         style={[
-                          styles.copyButton,
+                          styles.actionButton,
                           {
-                            backgroundColor: phoneCopied
-                              ? theme.colors.primary
-                              : theme.colors.surfaceVariant,
+                            backgroundColor: theme.colors.primary,
                           },
                         ]}
-                        onPress={() => handleCopyPhone(member.phone)}
+                        onPress={() => handleCall(member.phone)}
                       >
-                        {phoneCopied ? (
-                          // ✅ TICK ANIMATION STATE
-                          <View style={styles.copyFeedback}>
-                            <MaterialCommunityIcons
-                              name="check"
-                              size={14}
-                              color={theme.colors.onPrimary}
-                            />
-                            <Text
-                              style={[
-                                styles.copyButtonText,
-                                { color: theme.colors.onPrimary },
-                              ]}
-                            >
-                              Copied
-                            </Text>
-                          </View>
-                        ) : (
-                          // ✅ DEFAULT COPY STATE
-                          <View style={styles.copyFeedback}>
-                            <MaterialCommunityIcons
-                              name="content-copy"
-                              size={14}
-                              color={theme.colors.onSurfaceVariant}
-                            />
-                            <Text
-                              style={[
-                                styles.copyButtonText,
-                                { color: theme.colors.onSurfaceVariant },
-                              ]}
-                            >
-                              Copy
-                            </Text>
-                          </View>
-                        )}
+                        <MaterialCommunityIcons
+                          name="phone"
+                          size={16}
+                          color={theme.colors.onPrimary}
+                        />
+                        <Text
+                          style={[
+                            styles.actionButtonText,
+                            { color: theme.colors.onPrimary },
+                          ]}
+                        >
+                          Call
+                        </Text>
                       </TouchableOpacity>
-                    </View>
 
-                    {/* Email Row */}
-                    <View style={styles.contactRow}>
-                      <MaterialCommunityIcons
-                        name="email"
-                        size={16}
-                        color={theme.colors.primary}
-                      />
-                      <Text
-                        style={[
-                          styles.contactText,
-                          { color: theme.colors.onSurface },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {member.email}
-                      </Text>
-
-                      {/* ✅ DIRECT COPY BUTTON FOR EMAIL */}
                       <TouchableOpacity
                         style={[
-                          styles.copyButton,
+                          styles.actionButton,
                           {
-                            backgroundColor: emailCopied
-                              ? theme.colors.primary
-                              : theme.colors.surfaceVariant,
+                            backgroundColor: theme.colors.primary,
                           },
                         ]}
-                        onPress={() => handleCopyEmail(member.email)}
+                        onPress={() => handleEmail(member.email)}
                       >
-                        {emailCopied ? (
-                          // ✅ TICK ANIMATION STATE
-                          <View style={styles.copyFeedback}>
-                            <MaterialCommunityIcons
-                              name="check"
-                              size={14}
-                              color={theme.colors.onPrimary}
-                            />
-                            <Text
-                              style={[
-                                styles.copyButtonText,
-                                { color: theme.colors.onPrimary },
-                              ]}
-                            >
-                              Copied
-                            </Text>
-                          </View>
-                        ) : (
-                          // ✅ DEFAULT COPY STATE
-                          <View style={styles.copyFeedback}>
-                            <MaterialCommunityIcons
-                              name="content-copy"
-                              size={14}
-                              color={theme.colors.onSurfaceVariant}
-                            />
-                            <Text
-                              style={[
-                                styles.copyButtonText,
-                                { color: theme.colors.onSurfaceVariant },
-                              ]}
-                            >
-                              Copy
-                            </Text>
-                          </View>
-                        )}
+                        <MaterialCommunityIcons
+                          name="email"
+                          size={16}
+                          color={theme.colors.onPrimary}
+                        />
+                        <Text
+                          style={[
+                            styles.actionButtonText,
+                            { color: theme.colors.onPrimary },
+                          ]}
+                        >
+                          Email
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
-
-                  {/* Action Buttons */}
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: theme.colors.primary,
-                        },
-                      ]}
-                      onPress={() => handleCall(member.phone)}
-                    >
-                      <MaterialCommunityIcons
-                        name="phone"
-                        size={16}
-                        color={theme.colors.onPrimary}
-                      />
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: theme.colors.onPrimary },
-                        ]}
-                      >
-                        Call
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: theme.colors.primary,
-                        },
-                      ]}
-                      onPress={() => handleEmail(member.email)}
-                    >
-                      <MaterialCommunityIcons
-                        name="email"
-                        size={16}
-                        color={theme.colors.onPrimary}
-                      />
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: theme.colors.onPrimary },
-                        ]}
-                      >
-                        Email
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                )}
               </List.Accordion>
             </View>
           ))}
