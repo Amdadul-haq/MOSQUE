@@ -1,16 +1,9 @@
-// src/components/mosque/CommitteeGrid.tsx - Completely Fixed Version
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Clipboard,
-  Alert,
-  Image,
-} from "react-native";
-import { useTheme, Text, Card, Menu, Divider, List } from "react-native-paper";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { useTheme, Text, Card, List } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Linking } from "react-native";
+import { useCopyToClipboard } from "../../utils/copyUtils";
 
 interface CommitteeMember {
   id: string;
@@ -29,16 +22,11 @@ interface CommitteeGridProps {
 
 export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
   const theme = useTheme();
-  const [menuVisible, setMenuVisible] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const openMenu = (memberId: string) => {
-    setMenuVisible(memberId);
-  };
-
-  const closeMenu = () => {
-    setMenuVisible(null);
-  };
+  // ✅ SEPARATE COPY HOOKS FOR PHONE AND EMAIL
+  const { copyText: copyPhone, isCopied: phoneCopied } = useCopyToClipboard();
+  const { copyText: copyEmail, isCopied: emailCopied } = useCopyToClipboard();
 
   const handleAccordionPress = (memberId: string) => {
     setExpandedId(expandedId === memberId ? null : memberId);
@@ -46,24 +34,18 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
 
   const handleCall = (phone: string) => {
     Linking.openURL(`tel:${phone}`);
-    closeMenu();
   };
 
   const handleEmail = (email: string) => {
     Linking.openURL(`mailto:${email}`);
-    closeMenu();
   };
 
   const handleCopyPhone = async (phone: string) => {
-    await Clipboard.setString(phone);
-    Alert.alert("Copied!", "Phone number copied to clipboard");
-    closeMenu();
+    await copyPhone(phone, "phone");
   };
 
   const handleCopyEmail = async (email: string) => {
-    await Clipboard.setString(email);
-    Alert.alert("Copied!", "Email copied to clipboard");
-    closeMenu();
+    await copyEmail(email, "email");
   };
 
   if (members.length === 0) {
@@ -132,7 +114,12 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                               { backgroundColor: theme.colors.primary },
                             ]}
                           >
-                            <Text style={styles.avatarText}>
+                            <Text
+                              style={[
+                                styles.avatarText,
+                                { color: theme.colors.onPrimary },
+                              ]}
+                            >
                               {member.name
                                 .split(" ")
                                 .map((n) => n[0])
@@ -175,14 +162,15 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                   },
                 ]}
                 titleStyle={styles.accordionTitle}
-                left={(props) => (
-                  <List.Icon
+                right={(props) => (
+                  <MaterialCommunityIcons
                     {...props}
-                    icon={
+                    name={
                       expandedId === member.id
                         ? "chevron-down"
                         : "chevron-right"
                     }
+                    size={24}
                     color={theme.colors.primary}
                   />
                 )}
@@ -220,8 +208,9 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                     </View>
                   ) : null}
 
-                  {/* Contact Info */}
+                  {/* Contact Info with DIRECT COPY BUTTONS */}
                   <View style={styles.contactInfo}>
+                    {/* Phone Row */}
                     <View style={styles.contactRow}>
                       <MaterialCommunityIcons
                         name="phone"
@@ -236,7 +225,58 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                       >
                         {member.phone}
                       </Text>
+
+                      {/* ✅ DIRECT COPY BUTTON FOR PHONE */}
+                      <TouchableOpacity
+                        style={[
+                          styles.copyButton,
+                          {
+                            backgroundColor: phoneCopied
+                              ? theme.colors.primary
+                              : theme.colors.surfaceVariant,
+                          },
+                        ]}
+                        onPress={() => handleCopyPhone(member.phone)}
+                      >
+                        {phoneCopied ? (
+                          // ✅ TICK ANIMATION STATE
+                          <View style={styles.copyFeedback}>
+                            <MaterialCommunityIcons
+                              name="check"
+                              size={14}
+                              color={theme.colors.onPrimary}
+                            />
+                            <Text
+                              style={[
+                                styles.copyButtonText,
+                                { color: theme.colors.onPrimary },
+                              ]}
+                            >
+                              Copied
+                            </Text>
+                          </View>
+                        ) : (
+                          // ✅ DEFAULT COPY STATE
+                          <View style={styles.copyFeedback}>
+                            <MaterialCommunityIcons
+                              name="content-copy"
+                              size={14}
+                              color={theme.colors.onSurfaceVariant}
+                            />
+                            <Text
+                              style={[
+                                styles.copyButtonText,
+                                { color: theme.colors.onSurfaceVariant },
+                              ]}
+                            >
+                              Copy
+                            </Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
                     </View>
+
+                    {/* Email Row */}
                     <View style={styles.contactRow}>
                       <MaterialCommunityIcons
                         name="email"
@@ -252,10 +292,59 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                       >
                         {member.email}
                       </Text>
+
+                      {/* ✅ DIRECT COPY BUTTON FOR EMAIL */}
+                      <TouchableOpacity
+                        style={[
+                          styles.copyButton,
+                          {
+                            backgroundColor: emailCopied
+                              ? theme.colors.primary
+                              : theme.colors.surfaceVariant,
+                          },
+                        ]}
+                        onPress={() => handleCopyEmail(member.email)}
+                      >
+                        {emailCopied ? (
+                          // ✅ TICK ANIMATION STATE
+                          <View style={styles.copyFeedback}>
+                            <MaterialCommunityIcons
+                              name="check"
+                              size={14}
+                              color={theme.colors.onPrimary}
+                            />
+                            <Text
+                              style={[
+                                styles.copyButtonText,
+                                { color: theme.colors.onPrimary },
+                              ]}
+                            >
+                              Copied
+                            </Text>
+                          </View>
+                        ) : (
+                          // ✅ DEFAULT COPY STATE
+                          <View style={styles.copyFeedback}>
+                            <MaterialCommunityIcons
+                              name="content-copy"
+                              size={14}
+                              color={theme.colors.onSurfaceVariant}
+                            />
+                            <Text
+                              style={[
+                                styles.copyButtonText,
+                                { color: theme.colors.onSurfaceVariant },
+                              ]}
+                            >
+                              Copy
+                            </Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
                     </View>
                   </View>
 
-                  {/* Action Buttons - Same as Imam section */}
+                  {/* Action Buttons */}
                   <View style={styles.actionButtons}>
                     <TouchableOpacity
                       style={[
@@ -269,9 +358,16 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                       <MaterialCommunityIcons
                         name="phone"
                         size={16}
-                        color="white"
+                        color={theme.colors.onPrimary}
                       />
-                      <Text style={styles.actionButtonText}>Call</Text>
+                      <Text
+                        style={[
+                          styles.actionButtonText,
+                          { color: theme.colors.onPrimary },
+                        ]}
+                      >
+                        Call
+                      </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -286,56 +382,17 @@ export const CommitteeGrid: React.FC<CommitteeGridProps> = ({ members }) => {
                       <MaterialCommunityIcons
                         name="email"
                         size={16}
-                        color="white"
+                        color={theme.colors.onPrimary}
                       />
-                      <Text style={styles.actionButtonText}>Email</Text>
-                    </TouchableOpacity>
-
-                    {/* Menu for More Options - Fixed */}
-                    <View style={styles.menuContainer}>
-                      <Menu
-                        visible={menuVisible === member.id}
-                        onDismiss={closeMenu}
-                        anchor={
-                          <TouchableOpacity
-                            style={[
-                              styles.menuButton,
-                              {
-                                backgroundColor: theme.colors.surfaceVariant,
-                              },
-                            ]}
-                            onPress={() => openMenu(member.id)}
-                          >
-                            <MaterialCommunityIcons
-                              name="dots-vertical"
-                              size={20}
-                              color={theme.colors.onSurfaceVariant}
-                            />
-                          </TouchableOpacity>
-                        }
-                        contentStyle={[
-                          styles.menuContent,
-                          {
-                            backgroundColor: theme.colors.surface,
-                          },
+                      <Text
+                        style={[
+                          styles.actionButtonText,
+                          { color: theme.colors.onPrimary },
                         ]}
-                        style={styles.menuStyle}
                       >
-                        <Menu.Item
-                          leadingIcon="content-copy"
-                          onPress={() => handleCopyPhone(member.phone)}
-                          title="Copy Phone"
-                          titleStyle={{ color: theme.colors.onSurface }}
-                        />
-                        <Divider />
-                        <Menu.Item
-                          leadingIcon="content-copy"
-                          onPress={() => handleCopyEmail(member.email)}
-                          title="Copy Email"
-                          titleStyle={{ color: theme.colors.onSurface }}
-                        />
-                      </Menu>
-                    </View>
+                        Email
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </List.Accordion>
@@ -431,7 +488,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarText: {
-    color: "white",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -470,7 +526,7 @@ const styles = StyleSheet.create({
   },
   contactInfo: {
     marginBottom: 16,
-    gap: 8,
+    gap: 12,
   },
   contactRow: {
     flexDirection: "row",
@@ -479,6 +535,26 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 14,
+    flex: 1,
+  },
+  // ✅ COPY BUTTON STYLES
+  copyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    minWidth: 70,
+    justifyContent: "center",
+  },
+  copyFeedback: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  copyButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   actionButtons: {
     flexDirection: "row",
@@ -496,27 +572,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   actionButtonText: {
-    color: "white",
     fontSize: 14,
     fontWeight: "600",
-  },
-  menuContainer: {
-    position: "relative",
-  },
-  menuStyle: {
-    marginTop: 8,
-    borderRadius: 8,
-  },
-  menuContent: {
-    borderRadius: 8,
-    elevation: 4,
-  },
-  menuButton: {
-    padding: 8,
-    borderRadius: 6,
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
