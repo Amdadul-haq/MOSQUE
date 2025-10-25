@@ -37,7 +37,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       id: "2",
       title: "Donation Received",
       message:
-        "Your donation of ₹2,500 has been successfully processed. JazakAllah Khair!",
+        "Your donation of BDT 2,500 has been successfully processed. JazakAllah Khair!",
       type: "donation",
       date: "2024-01-14",
       time: "02:15 PM",

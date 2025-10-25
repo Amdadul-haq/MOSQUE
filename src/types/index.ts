@@ -171,31 +171,3 @@ export interface FinancialSummaryItem {
   color: string;
 }
 
-// ✅ FIXED: Consistent property name
-export interface DonationData {
-  type: string;
-  amount: number;
-  month: string;
-  isAnonymous: boolean;
-  message?: string;
-  paymentMethod: string;
-  donorName?: string;
-  donorEmail?: string;
-}
-
-export interface DonationType {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-}
-
-// ✅ FIXED: Clear property name (removed confusing comment)
-export interface PaymentMethod {
-  id: string;
-  name: string;
-  description?: string;
-  icon?: string;
-  color: string;
-}
