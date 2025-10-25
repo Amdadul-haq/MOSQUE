@@ -10,13 +10,16 @@ import {
 } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {SimpleHeader } from "../../src/components/SimpleHeader";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
+import {
+  getDonationTypeColor,
+  getPaymentMethodName,
+} from "../../src/utils/donationUtils";
 import * as Haptics from "expo-haptics";
-
 
 export default function DonationReviewScreen() {
   const theme = useTheme();
@@ -54,6 +57,10 @@ export default function DonationReviewScreen() {
     paymentMethod,
   };
 
+  // ✅ USE UTILITY FUNCTIONS
+  const typeColor = getDonationTypeColor(selectedType, theme);
+  const paymentName = getPaymentMethodName(paymentMethod);
+
   const handleConfirmPressIn = () => {
     if (isConfirming) return;
 
@@ -85,9 +92,7 @@ export default function DonationReviewScreen() {
   };
 
   const completeDonation = async () => {
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     addDonation({
       donor: isAnonymous ? "Anonymous" : "Current User",
@@ -106,26 +111,6 @@ export default function DonationReviewScreen() {
         isAnonymous: isAnonymous.toString(),
       },
     });
-  };
-
-  const getTypeColor = () => {
-    const typeColors: { [key: string]: string } = {
-      zakat: "#16a34a",
-      sadaqah: "#f59e0b",
-      construction: "#ef4444",
-      education: "#8b5cf6",
-    };
-    return typeColors[selectedType] || theme.colors.primary;
-  };
-
-  const getPaymentMethodName = (method: string) => {
-    const methodNames: { [key: string]: string } = {
-      bkash: "bKash",
-      nagad: "Nagad",
-      rocket: "Rocket",
-      cash: "Cash",
-    };
-    return methodNames[method] || method;
   };
 
   const animatedBackgroundColor = progressAnim.interpolate({
@@ -150,11 +135,11 @@ export default function DonationReviewScreen() {
         backgroundColor="transparent"
       />
 
-       <SimpleHeader
-         title="Review Donation"
-         showBackButton={true}
-         onBackPress={handleBackPress}
-       />
+      <SimpleHeader
+        title="Review Donation"
+        showBackButton={true}
+        onBackPress={handleBackPress}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -195,10 +180,10 @@ export default function DonationReviewScreen() {
                   <View
                     style={[
                       styles.typeBadge,
-                      { backgroundColor: `${getTypeColor()}20` },
+                      { backgroundColor: `${typeColor}20` },
                     ]}
                   >
-                    <Text style={[styles.typeText, { color: getTypeColor() }]}>
+                    <Text style={[styles.typeText, { color: typeColor }]}>
                       {selectedType}
                     </Text>
                   </View>
@@ -257,7 +242,7 @@ export default function DonationReviewScreen() {
                       { color: theme.colors.onSurface },
                     ]}
                   >
-                    {getPaymentMethodName(paymentMethod)}
+                    {paymentName}
                   </Text>
                 </View>
 
@@ -282,7 +267,6 @@ export default function DonationReviewScreen() {
               </View>
             </Card.Content>
           </Card>
-
         </View>
       </ScrollView>
 
@@ -356,14 +340,6 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: 14, fontWeight: "600" },
   typeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   typeText: { fontSize: 12, fontWeight: "600", textTransform: "capitalize" },
-  instructionsCard: { borderRadius: 16, backgroundColor: "#f8f9fa" },
-  instructionsTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  instructionsText: { fontSize: 12, textAlign: "center", lineHeight: 16 },
   footer: {
     paddingHorizontal: 16,
     paddingTop: 16,

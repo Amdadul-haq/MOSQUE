@@ -6,35 +6,40 @@ import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, PaymentMethod } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  getDonationTypeColor,
+  getPaymentMethodColor,
+} from "../../src/utils/donationUtils";
 
-const paymentMethods: PaymentMethod[] = [
+// ✅ UPDATED: Payment methods with theme colors
+const getPaymentMethods = (theme: any) => [
   {
     id: "bkash",
     name: "bKash",
     description: "Send money to our bKash account",
     icon: "📱",
-    color: "#e2136e",
+    color: getPaymentMethodColor("bkash", theme),
   },
   {
     id: "nagad",
     name: "Nagad",
     description: "Send money to our Nagad account",
     icon: "📲",
-    color: "#f8a61c",
+    color: getPaymentMethodColor("nagad", theme),
   },
   {
     id: "rocket",
     name: "Rocket",
     description: "Send money to our Rocket account",
     icon: "💳",
-    color: "#7848b5",
+    color: getPaymentMethodColor("rocket", theme),
   },
   {
     id: "cash",
     name: "Cash",
     description: "Pay directly at mosque office",
     icon: "💵",
-    color: "#16a34a",
+    color: getPaymentMethodColor("cash", theme),
   },
 ];
 
@@ -73,18 +78,13 @@ export default function DonationPaymentScreen() {
     });
   };
 
-  const getTypeColor = () => {
-    const typeColors: { [key: string]: string } = {
-      zakat: "#16a34a",
-      sadaqah: "#f59e0b",
-      construction: "#ef4444",
-      education: "#8b5cf6",
-    };
-    return typeColors[selectedType] || theme.colors.primary;
-  };
   const handleBackPress = () => {
     router.back();
-  }
+  };
+
+  // ✅ USE UTILITY FUNCTIONS
+  const typeColor = getDonationTypeColor(selectedType, theme);
+  const paymentMethods = getPaymentMethods(theme);
 
   return (
     <Container padding={false}>
@@ -124,10 +124,10 @@ export default function DonationPaymentScreen() {
                 <View
                   style={[
                     styles.typeBadge,
-                    { backgroundColor: `${getTypeColor()}20` },
+                    { backgroundColor: `${typeColor}20` },
                   ]}
                 >
-                  <Text style={[styles.typeText, { color: getTypeColor() }]}>
+                  <Text style={[styles.typeText, { color: typeColor }]}>
                     {selectedType} - ৳{amount}
                   </Text>
                 </View>

@@ -11,10 +11,11 @@ import {
   Chip,
 } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {SimpleHeader } from "../../src/components/SimpleHeader";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getDonationTypeColor } from "../../src/utils/donationUtils";
 
 const quickAmounts = [500, 1000, 2000, 5000];
 
@@ -58,17 +59,10 @@ export default function DonationAmountScreen() {
 
   const handleBackPress = () => {
     router.back();
-  }
-
-  const getTypeColor = () => {
-    const typeColors: { [key: string]: string } = {
-      zakat: "#16a34a",
-      sadaqah: "#f59e0b",
-      construction: "#ef4444",
-      education: "#8b5cf6",
-    };
-    return typeColors[selectedType] || theme.colors.primary;
   };
+
+  // ✅ USE UTILITY FUNCTION
+  const typeColor = getDonationTypeColor(selectedType, theme);
 
   return (
     <Container padding={false}>
@@ -108,10 +102,10 @@ export default function DonationAmountScreen() {
                 <View
                   style={[
                     styles.typeBadge,
-                    { backgroundColor: `${getTypeColor()}20` },
+                    { backgroundColor: `${typeColor}20` },
                   ]}
                 >
-                  <Text style={[styles.typeText, { color: getTypeColor() }]}>
+                  <Text style={[styles.typeText, { color: typeColor }]}>
                     {selectedType}
                   </Text>
                 </View>

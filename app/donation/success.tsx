@@ -1,16 +1,9 @@
 // app/donation/success.tsx
 import React, { useRef } from "react";
-import {
-  ScrollView,
-  View,
-  StyleSheet,
-  StatusBar,
-  Alert,
-  Platform,
-} from "react-native";
+import { ScrollView, View, StyleSheet, StatusBar, Alert } from "react-native";
 import { useTheme, Text, Card, Button } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {SimpleHeader } from "../../src/components/SimpleHeader";
+import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
@@ -18,6 +11,11 @@ import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import { captureRef } from "react-native-view-shot";
 import * as Haptics from "expo-haptics";
+import {
+  getDonationTypeColor,
+  getPaymentMethodName,
+  formatDonationType,
+} from "../../src/utils/donationUtils";
 
 export default function DonationSuccessScreen() {
   const theme = useTheme();
@@ -31,6 +29,11 @@ export default function DonationSuccessScreen() {
   const amount = params.amount as string;
   const paymentMethod = params.paymentMethod as string;
   const isAnonymous = params.isAnonymous === "true";
+
+  // ✅ USE UTILITY FUNCTIONS
+  const typeColor = getDonationTypeColor(selectedType, theme);
+  const paymentName = getPaymentMethodName(paymentMethod);
+  const formattedType = formatDonationType(selectedType);
 
   const donationId = `DON-${Date.now().toString().slice(-6)}`;
   const currentDate = new Date().toLocaleDateString("en-US", {
@@ -60,19 +63,15 @@ export default function DonationSuccessScreen() {
         return;
       }
 
-      // Capture the receipt as image
       const uri = await captureRef(receiptRef.current, {
         format: "png",
         quality: 1,
       });
 
-      // In development build, we can use MediaLibrary directly
       try {
-        // Request permission
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
         if (status === "granted") {
-          // Save directly to gallery
           const asset = await MediaLibrary.createAssetAsync(uri);
           await MediaLibrary.createAlbumAsync("Downloads", asset, false);
 
@@ -85,7 +84,6 @@ export default function DonationSuccessScreen() {
             Haptics.NotificationFeedbackType.Success
           );
         } else {
-          // If permission denied, use sharing as fallback
           Alert.alert(
             "Permission Required",
             "Please allow photo library access to save receipts directly. Using sharing instead.",
@@ -94,7 +92,6 @@ export default function DonationSuccessScreen() {
         }
       } catch (mediaError) {
         console.log("Media library error:", mediaError);
-        // Fallback to sharing
         await shareReceiptDirect(uri);
       }
     } catch (error) {
@@ -134,30 +131,6 @@ export default function DonationSuccessScreen() {
       console.error("Error sharing receipt:", error);
       Alert.alert("Error", "Failed to share receipt. Please try again.");
     }
-  };
-
-  const getTypeColor = () => {
-    const typeColors: { [key: string]: string } = {
-      zakat: "#16a34a",
-      sadaqah: "#f59e0b",
-      construction: "#ef4444",
-      education: "#8b5cf6",
-    };
-    return typeColors[selectedType] || theme.colors.primary;
-  };
-
-  const getPaymentMethodName = (method: string) => {
-    const methodNames: { [key: string]: string } = {
-      bkash: "bKash",
-      nagad: "Nagad",
-      rocket: "Rocket",
-      cash: "Cash",
-    };
-    return methodNames[method] || method;
-  };
-
-  const formatTypeName = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   return (
@@ -206,11 +179,20 @@ export default function DonationSuccessScreen() {
 
           {/* Receipt Card - This will be captured as image */}
           <View ref={receiptRef} collapsable={false}>
-            <Card style={styles.receiptCard}>
+            <Card
+              style={[
+                styles.receiptCard,
+                { borderColor: theme.colors.primary },
+              ]}
+            >
               <Card.Content>
                 {/* Receipt Header */}
                 <View style={styles.receiptHeader}>
-                  <Text style={styles.mosqueName}>Khiarpara Jame Moshjid</Text>
+                  <Text
+                    style={[styles.mosqueName, { color: theme.colors.primary }]}
+                  >
+                    Khiarpara Jame Mosque
+                  </Text>
                   <Text style={styles.receiptTitle}>DONATION RECEIPT</Text>
                   <Text style={styles.receiptSubtitle}>
                     Official Tax Deductible Receipt
@@ -236,15 +218,20 @@ export default function DonationSuccessScreen() {
 
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Donation Type:</Text>
-                    <Text
-                      style={[styles.receiptValue, { color: getTypeColor() }]}
-                    >
-                      {formatTypeName(selectedType)}
+                    <Text style={[styles.receiptValue, { color: typeColor }]}>
+                      {formattedType}
                     </Text>
                   </View>
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Amount:</Text>
-                    <Text style={styles.receiptAmount}>৳{amount} BDT</Text>
+                    <Text
+                      style={[
+                        styles.receiptAmount,
+                        { color: theme.colors.primary },
+                      ]}
+                    >
+                      ৳{amount} BDT
+                    </Text>
                   </View>
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Month:</Text>
@@ -254,9 +241,7 @@ export default function DonationSuccessScreen() {
                   </View>
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Payment Method:</Text>
-                    <Text style={styles.receiptValue}>
-                      {getPaymentMethodName(paymentMethod)}
-                    </Text>
+                    <Text style={styles.receiptValue}>{paymentName}</Text>
                   </View>
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Anonymous:</Text>
@@ -272,8 +257,13 @@ export default function DonationSuccessScreen() {
                       Authorized Signature
                     </Text>
                     <View style={styles.signatureLine} />
-                    <Text style={styles.mosqueStamp}>
-                      Khiarpara Jame Moshjid
+                    <Text
+                      style={[
+                        styles.mosqueStamp,
+                        { color: theme.colors.primary },
+                      ]}
+                    >
+                      Khiarpara Jame Mosque
                     </Text>
                   </View>
 
@@ -399,7 +389,6 @@ const styles = StyleSheet.create({
   receiptCard: {
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#16a34a",
     backgroundColor: "white",
   },
   receiptHeader: {
@@ -407,12 +396,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 2,
-    borderBottomColor: "#16a34a",
   },
   mosqueName: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#16a34a",
     marginBottom: 4,
   },
   receiptTitle: {
@@ -450,7 +437,6 @@ const styles = StyleSheet.create({
   receiptAmount: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#16a34a",
     flex: 1,
     textAlign: "right",
   },
@@ -477,7 +463,6 @@ const styles = StyleSheet.create({
   mosqueStamp: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#16a34a",
     fontStyle: "italic",
   },
   footerNote: {
@@ -524,12 +509,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: "#16a34a",
   },
   instructionsTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#16a34a",
     marginBottom: 8,
   },
   instructionsText: {

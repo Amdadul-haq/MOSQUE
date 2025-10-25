@@ -1,47 +1,43 @@
+// app/donation/type.tsx
 import React, { useState } from "react";
 import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
-import {
-  useTheme,
-  Text,
-  Card,
-  Button,
-  Menu,
-  Divider,
-} from "react-native-paper";
+import { useTheme, Text, Card, Button, Menu } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { DonationData, DonationType } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getDonationTypeColor } from "../../src/utils/donationUtils"; // ✅ ADDED
 
-const donationTypes: DonationType[] = [
+// ✅ FIXED: Use theme colors through utility function
+const getDonationTypes = (theme: any) => [
   {
     id: "zakat",
     name: "Zakat",
     description: "Obligatory charity (2.5% of wealth)",
     icon: "🔄",
-    color: "#16a34a",
+    color: getDonationTypeColor("zakat", theme), // ✅ USE UTILITY
   },
   {
     id: "sadaqah",
     name: "Sadaqah",
     description: "Voluntary charity",
     icon: "💖",
-    color: "#f59e0b",
+    color: getDonationTypeColor("sadaqah", theme), // ✅ USE UTILITY
   },
   {
     id: "construction",
     name: "Construction Fund",
     description: "Mosque development and maintenance",
     icon: "🏗️",
-    color: "#ef4444",
+    color: getDonationTypeColor("construction", theme), // ✅ USE UTILITY
   },
   {
     id: "education",
     name: "Education Fund",
     description: "Educational programs and resources",
     icon: "📚",
-    color: "#8b5cf6",
+    color: getDonationTypeColor("education", theme), // ✅ USE UTILITY
   },
 ];
 
@@ -64,7 +60,9 @@ export default function DonationTypeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams();
+
+  // ✅ FIXED: Remove unused params
+  // const params = useLocalSearchParams(); // ❌ REMOVED
 
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState<string>(
@@ -72,14 +70,13 @@ export default function DonationTypeScreen() {
   );
   const [showMonthMenu, setShowMonthMenu] = useState(false);
 
+  // ✅ FIXED: Get donation types with theme colors
+  const donationTypes = getDonationTypes(theme);
+
   const handleContinue = () => {
     if (!selectedType) return;
 
-    const donationData: Partial<DonationData> = {
-      type: selectedType,
-      month: selectedMonth,
-    };
-
+    // ✅ FIXED: Only include necessary data for this step
     router.push({
       pathname: "/donation/amount",
       params: {
@@ -88,6 +85,7 @@ export default function DonationTypeScreen() {
       },
     });
   };
+
   const handleBackPress = () => {
     router.back();
   };
@@ -251,6 +249,7 @@ export default function DonationTypeScreen() {
   );
 }
 
+// ✅ KEEP THE SAME STYLES (they're good)
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
