@@ -1,4 +1,4 @@
-// app/(tabs)/profile.tsx - SIMPLIFIED VERSION (remove all type casting)
+// app/(tabs)/profile.tsx
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -17,19 +17,14 @@ import {
   Switch,
   List,
   Divider,
-  Avatar,
-  Chip,
-  ToggleButton,
-  FAB,
   ActivityIndicator,
-  Menu,
   Dialog,
   Portal,
 } from "react-native-paper";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
-import { UserProfile, ThemeMode, Language } from "../../src/types";
+import { UserProfile, ThemeMode } from "../../src/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -37,72 +32,53 @@ import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 import { useThemeMode } from "../../src/contexts/ThemeContext";
 import { useAuth } from "../../src/contexts/AuthContext";
 
-// ✅ SIMPLIFIED: No type casting needed now
-const initialProfile: UserProfile = {
-  id: "1",
-  name: "Md.Amdadul Haq Milon",
-  email: "milon.s2k21@gmail.com",
-  phone: "01575494393",
-  joinDate: "January 2020",
-  role: "member",
-  membership: "Premium Member",
-  prayerStreak: 12,
-  totalPrayers: 156,
-  preferences: {
-    notifications: true,
-    prayerReminders: true,
-    language: "en", // ✅ No casting needed
-    theme: "auto", // ✅ No casting needed
-    qiblaDirection: true,
-    vibration: true,
-  },
-};
-
 export default function ProfileScreen() {
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   const { themeMode, setThemeMode, isDark } = useThemeMode();
-  const { logout, isLoading: authLoading } = useAuth();
+  const { user, logout, isLoading: authLoading, isAuthenticated } = useAuth();
+
   const { isLoading, handleRefresh } = useTabNavigation("profile");
 
-  const [profile, setProfile] = useState<UserProfile>(initialProfile);
-  const [editing, setEditing] = useState(false);
-  const [themeMenuVisible, setThemeMenuVisible] = useState(false);
-  const [languageMenuVisible, setLanguageMenuVisible] = useState(false);
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
 
-  React.useEffect(() => {
-    setProfile((prev) => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        theme: themeMode,
-      },
-    }));
-  }, [themeMode]);
+  // ✅ SIMPLIFIED: Guest profile
+  const guestProfile: UserProfile = {
+    id: "guest",
+    name: "Guest User",
+    email: "Login to view profile",
+    phone: "Not available",
+    joinDate: "Not available",
+    preferences: {
+      notifications: true,
+      prayerReminders: true,
+      language: "en",
+      theme: "auto",
+      qiblaDirection: true,
+      vibration: true,
+    },
+  };
 
-  const handlePreferenceChange = (
-    key: keyof UserProfile["preferences"],
-    value: any
-  ) => {
-    setProfile((prev) => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [key]: value,
-      },
-    }));
+  const currentProfile = isAuthenticated ? user : guestProfile;
 
-    if (key === "theme") {
-      setThemeMode(value);
-    }
+  // ✅ UPDATED: Navigate to real auth screens
+  const handleLogin = () => {
+    router.push("/(auth)/login");
+  };
+
+  const handleSignup = () => {
+    router.push("/(auth)/signup");
   };
 
   const handleEditProfile = () => {
-    setEditing(true);
-    Alert.alert("Edit Profile", "Profile editing would open here");
+    if (!isAuthenticated) {
+      Alert.alert("Login Required", "Please login to edit your profile");
+      handleLogin(); // Auto navigate to login
+      return;
+    }
+    Alert.alert("Edit Profile", "Profile editing feature coming soon!");
   };
 
   const handleLogout = async () => {
@@ -113,46 +89,6 @@ export default function ProfileScreen() {
   const confirmLogout = async () => {
     setLogoutDialogVisible(false);
     await logout();
-    Alert.alert("Logged Out", "You have been successfully logged out", [
-      {
-        text: "OK",
-        onPress: () => {
-          console.log("Navigate to login screen");
-        },
-      },
-    ]);
-  };
-
-  const cancelLogout = () => {
-    setLogoutDialogVisible(false);
-  };
-
-  // ✅ FIXED: Use theme colors for role badges
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return theme.colors.error; // ✅ Red - for admin/errors
-      case "volunteer":
-        return theme.colors.secondary; // ✅ Amber - for volunteers
-      case "premium":
-        return "#10b981"; // ✅ Emerald - for premium members
-      default:
-        return theme.colors.primary; // ✅ Green - for regular members
-    }
-  };
-
-
-  const getLanguageDisplayName = (language: Language) => {
-    switch (language) {
-      case "en":
-        return "English";
-      case "bn":
-        return "বাংলা";
-      case "ar":
-        return "العربية";
-      default:
-        return "English";
-    }
   };
 
   const onRefresh = () => {
@@ -216,17 +152,25 @@ export default function ProfileScreen() {
                   <View style={styles.avatarContainer}>
                     <Image
                       source={{
-                        uri: "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg",
+                        uri: isAuthenticated
+                          ? "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1727984749/avatar-placeholder.png"
+                          : "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1727984750/guest-avatar.png",
                       }}
                       style={styles.avatarImage}
                     />
                     <View
                       style={[
                         styles.statusBadge,
-                        { backgroundColor: theme.colors.primary },
+                        {
+                          backgroundColor: isAuthenticated
+                            ? theme.colors.primary
+                            : theme.colors.onSurfaceVariant,
+                        },
                       ]}
                     >
-                      <Text style={styles.statusText}>✓</Text>
+                      <Text style={styles.statusText}>
+                        {isAuthenticated ? "✓" : "?"}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.profileInfo}>
@@ -236,219 +180,151 @@ export default function ProfileScreen() {
                         { color: theme.colors.onSurface },
                       ]}
                     >
-                      {profile.name}
+                      {currentProfile?.name}
                     </Text>
-                    <View style={styles.badgeContainer}>
-                      <View
-                        style={[
-                          styles.roleBadge,
-                          { backgroundColor: getRoleBadgeColor(profile.role) },
-                        ]}
-                      >
-                        <Text style={styles.roleText}>
-                          {profile.role.charAt(0).toUpperCase() +
-                            profile.role.slice(1)}
-                        </Text>
-                      </View>
-                      {profile.membership && (
-                        <Chip
-                          mode="flat"
-                          style={[
-                            styles.membershipChip,
-                            { backgroundColor: theme.colors.surfaceVariant },
-                          ]}
-                          textStyle={[
-                            styles.membershipText,
-                            { color: theme.colors.onSurfaceVariant },
-                          ]}
-                        >
-                          {profile.membership}
-                        </Chip>
-                      )}
-                    </View>
                     <Text
                       style={[
                         styles.joinDate,
                         { color: theme.colors.onSurfaceVariant },
                       ]}
                     >
-                      Member since {profile.joinDate}
+                      {isAuthenticated
+                        ? `Member since ${currentProfile?.joinDate}`
+                        : "Please login to access your profile"}
                     </Text>
                   </View>
                 </View>
+
+                {/* ✅ UPDATED: Real auth navigation buttons */}
+                {!isAuthenticated && (
+                  <View style={styles.authButtons}>
+                    <Button
+                      mode="contained"
+                      onPress={handleLogin}
+                      style={styles.authButton}
+                      contentStyle={styles.authButtonContent}
+                      icon="login"
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      mode="outlined"
+                      onPress={handleSignup}
+                      style={styles.authButton}
+                      contentStyle={styles.authButtonContent}
+                      icon="account-plus"
+                    >
+                      Create Account
+                    </Button>
+                  </View>
+                )}
               </Card.Content>
             </Card>
           </Section>
 
-          {/* Profile Information */}
-          <Section title="Profile Information">
-            <Card style={styles.infoCard}>
-              <Card.Content>
-                <List.Item
-                  title="Email"
-                  description={profile.email}
-                  left={(props) => <List.Icon {...props} icon="email" />}
-                  right={(props) => (
-                    <List.Icon {...props} icon="content-copy" />
-                  )}
-                  onPress={() =>
-                    Alert.alert("Email", `Copied: ${profile.email}`)
-                  }
-                />
-                <Divider />
-                <List.Item
-                  title="Phone"
-                  description={profile.phone}
-                  left={(props) => <List.Icon {...props} icon="phone" />}
-                  right={(props) => (
-                    <List.Icon {...props} icon="content-copy" />
-                  )}
-                  onPress={() =>
-                    Alert.alert("Phone", `Copied: ${profile.phone}`)
-                  }
-                />
-                <Divider />
-                <List.Item
-                  title="Member ID"
-                  description={profile.id}
-                  left={(props) => <List.Icon {...props} icon="identifier" />}
-                  right={(props) => (
-                    <List.Icon {...props} icon="content-copy" />
-                  )}
-                  onPress={() =>
-                    Alert.alert("Member ID", `Copied: ${profile.id}`)
-                  }
-                />
-              </Card.Content>
-            </Card>
-          </Section>
+          {/* Profile Information - Only show when authenticated */}
+          {isAuthenticated && (
+            <Section title="Profile Information">
+              <Card style={styles.infoCard}>
+                <Card.Content>
+                  <List.Item
+                    title="Email"
+                    description={currentProfile?.email}
+                    left={(props) => <List.Icon {...props} icon="email" />}
+                    onPress={() =>
+                      Alert.alert("Email", `Copied: ${currentProfile?.email}`)
+                    }
+                  />
+                  <Divider />
+                  <List.Item
+                    title="Phone"
+                    description={currentProfile?.phone}
+                    left={(props) => <List.Icon {...props} icon="phone" />}
+                    onPress={() =>
+                      Alert.alert("Phone", `Copied: ${currentProfile?.phone}`)
+                    }
+                  />
+                  <Divider />
+                  <List.Item
+                    title="Member ID"
+                    description={currentProfile?.id}
+                    left={(props) => <List.Icon {...props} icon="identifier" />}
+                    onPress={() =>
+                      Alert.alert("Member ID", `Copied: ${currentProfile?.id}`)
+                    }
+                  />
+                </Card.Content>
+              </Card>
+            </Section>
+          )}
 
-          {/* Preferences */}
-          <Section title="Preferences">
-            <Card style={styles.preferencesCard}>
-              <Card.Content>
-                <List.Item
-                  title="Push Notifications"
-                  description="Receive important updates and reminders"
-                  left={(props) => <List.Icon {...props} icon="bell" />}
-                  right={(props) => (
-                    <Switch
-                      value={profile.preferences.notifications}
-                      onValueChange={(value) =>
-                        handlePreferenceChange("notifications", value)
-                      }
-                    />
-                  )}
-                />
-                <Divider />
-                <List.Item
-                  title="Prayer Reminders"
-                  description="Get notified for prayer times"
-                  left={(props) => <List.Icon {...props} icon="clock" />}
-                  right={(props) => (
-                    <Switch
-                      value={profile.preferences.prayerReminders}
-                      onValueChange={(value) =>
-                        handlePreferenceChange("prayerReminders", value)
-                      }
-                    />
-                  )}
-                />
-                <Divider />
-                <List.Item
-                  title="Qibla Direction"
-                  description="Show qibla compass in prayer screen"
-                  left={(props) => <List.Icon {...props} icon="compass" />}
-                  right={(props) => (
-                    <Switch
-                      value={profile.preferences.qiblaDirection}
-                      onValueChange={(value) =>
-                        handlePreferenceChange("qiblaDirection", value)
-                      }
-                    />
-                  )}
-                />
-                <Divider />
-                <List.Item
-                  title="Haptic Feedback"
-                  description="Vibration for notifications"
-                  left={(props) => <List.Icon {...props} icon="vibrate" />}
-                  right={(props) => (
-                    <Switch
-                      value={profile.preferences.vibration}
-                      onValueChange={(value) =>
-                        handlePreferenceChange("vibration", value)
-                      }
-                    />
-                  )}
-                />
-                <Divider />
-                {/* Language Menu */}
-                <Menu
-                  visible={languageMenuVisible}
-                  onDismiss={() => setLanguageMenuVisible(false)}
-                  anchor={
-                    <List.Item
-                      title="Language"
-                      description={getLanguageDisplayName(
-                        profile.preferences.language
-                      )}
-                      left={(props) => (
-                        <List.Icon {...props} icon="translate" />
-                      )}
-                      right={(props) => (
-                        <List.Icon {...props} icon="chevron-down" />
-                      )}
-                      onPress={() => setLanguageMenuVisible(true)}
-                    />
-                  }
-                >
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("language", "en"); // ✅ No casting
-                      setLanguageMenuVisible(false);
-                    }}
-                    title="English"
+          {/* Preferences - Only show when authenticated */}
+          {isAuthenticated && (
+            <Section title="Preferences">
+              <Card style={styles.preferencesCard}>
+                <Card.Content>
+                  <List.Item
+                    title="Push Notifications"
+                    description="Receive important updates and reminders"
+                    left={(props) => <List.Icon {...props} icon="bell" />}
+                    right={(props) => (
+                      <Switch
+                        value={
+                          currentProfile?.preferences.notifications || false
+                        }
+                        onValueChange={() => {
+                          // Handle preference change
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                        }}
+                      />
+                    )}
                   />
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("language", "bn"); // ✅ No casting
-                      setLanguageMenuVisible(false);
-                    }}
-                    title="বাংলা"
+                  <Divider />
+                  <List.Item
+                    title="Prayer Reminders"
+                    description="Get notified for prayer times"
+                    left={(props) => <List.Icon {...props} icon="clock" />}
+                    right={(props) => (
+                      <Switch
+                        value={
+                          currentProfile?.preferences.prayerReminders || false
+                        }
+                        onValueChange={() => {
+                          // Handle preference change
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                        }}
+                      />
+                    )}
                   />
-                  <Menu.Item
-                    onPress={() => {
-                      handlePreferenceChange("language", "ar"); // ✅ No casting
-                      setLanguageMenuVisible(false);
-                    }}
-                    title="العربية"
+                  <Divider />
+                  <List.Item
+                    title="Dark Mode"
+                    description="Toggle between light and dark themes"
+                    left={(props) => (
+                      <List.Icon {...props} icon="theme-light-dark" />
+                    )}
+                    right={(props) => (
+                      <Switch
+                        value={isDark}
+                        onValueChange={(isDarkMode) => {
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                          setThemeMode(isDarkMode ? "dark" : "light");
+                        }}
+                      />
+                    )}
                   />
-                </Menu>
-                <Divider />
-                {/* Theme Toggle */}
-                <List.Item
-                  title="Dark Mode"
-                  description="Toggle between light and dark themes"
-                  left={(props) => (
-                    <List.Icon {...props} icon="theme-light-dark" />
-                  )}
-                  right={(props) => (
-                    <Switch
-                      value={isDark} // ✅ Use isDark from theme context
-                      onValueChange={(isDarkMode) => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        // ✅ Simplified: Directly set theme mode
-                        setThemeMode(isDarkMode ? "dark" : "light");
-                      }}
-                    />
-                  )}
-                />
-              </Card.Content>
-            </Card>
-          </Section>
+                </Card.Content>
+              </Card>
+            </Section>
+          )}
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Show for both authenticated and guest */}
           <Section title="Quick Actions">
             <Card style={styles.actionsCard}>
               <Card.Content>
@@ -469,7 +345,7 @@ export default function ProfileScreen() {
                   onPress={() =>
                     Alert.alert(
                       "About",
-                      "Mosque Management System v2.0\n\nA modern app for mosque community management."
+                      "Khiarpara Jame Masjid App\n\nA modern app for mosque community."
                     )
                   }
                   style={styles.actionButton}
@@ -477,50 +353,33 @@ export default function ProfileScreen() {
                 >
                   About App
                 </Button>
-                <Button
-                  mode="outlined"
-                  icon="shield-account"
-                  onPress={() =>
-                    Alert.alert("Privacy", "Privacy settings would open here")
-                  }
-                  style={styles.actionButton}
-                  contentStyle={styles.actionButtonContent}
-                >
-                  Privacy & Security
-                </Button>
-                <Button
-                  mode="outlined"
-                  icon="export"
-                  onPress={() =>
-                    Alert.alert("Export Data", "Exporting your data...")
-                  }
-                  style={styles.actionButton}
-                  contentStyle={styles.actionButtonContent}
-                >
-                  Export Data
-                </Button>
               </Card.Content>
             </Card>
           </Section>
 
-          {/* Logout Button */}
-          <Button
-            mode="contained"
-            buttonColor={theme.colors.error}
-            onPress={handleLogout}
-            icon={authLoading ? "loading" : "logout"}
-            style={styles.logoutButton}
-            contentStyle={styles.logoutButtonContent}
-            disabled={authLoading}
-          >
-            {authLoading ? "Logging Out..." : "Logout"}
-          </Button>
+          {/* Logout Button - Only show when authenticated */}
+          {isAuthenticated && (
+            <Button
+              mode="contained"
+              buttonColor={theme.colors.error}
+              onPress={handleLogout}
+              icon={authLoading ? "loading" : "logout"}
+              style={styles.logoutButton}
+              contentStyle={styles.logoutButtonContent}
+              disabled={authLoading}
+            >
+              {authLoading ? "Logging Out..." : "Logout"}
+            </Button>
+          )}
         </View>
       </ScrollView>
 
       {/* Logout Confirmation Dialog */}
       <Portal>
-        <Dialog visible={logoutDialogVisible} onDismiss={cancelLogout}>
+        <Dialog
+          visible={logoutDialogVisible}
+          onDismiss={() => setLogoutDialogVisible(false)}
+        >
           <Dialog.Icon icon="alert" size={40} />
           <Dialog.Title style={styles.dialogTitle}>Confirm Logout</Dialog.Title>
           <Dialog.Content>
@@ -530,7 +389,9 @@ export default function ProfileScreen() {
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={cancelLogout}>Cancel</Button>
+            <Button onPress={() => setLogoutDialogVisible(false)}>
+              Cancel
+            </Button>
             <Button
               onPress={confirmLogout}
               mode="contained"
@@ -542,20 +403,23 @@ export default function ProfileScreen() {
         </Dialog>
       </Portal>
 
-      <FAB
-        icon="pencil"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={handleEditProfile}
-        color="white"
-        label="Edit"
-      />
+      {/* Edit Button - Only show when authenticated */}
+      {isAuthenticated && (
+        <Button
+          mode="contained"
+          icon="pencil"
+          onPress={handleEditProfile}
+          style={[styles.editButton, { backgroundColor: theme.colors.primary }]}
+          contentStyle={styles.editButtonContent}
+        >
+          Edit Profile
+        </Button>
+      )}
     </Container>
   );
 }
 
-// Keep the same styles object...
 const styles = StyleSheet.create({
-  // ... (keep all the same styles from previous version)
   scrollContent: {
     flexGrow: 1,
   },
@@ -585,6 +449,7 @@ const styles = StyleSheet.create({
   avatarSection: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 16,
   },
   avatarContainer: {
     position: "relative",
@@ -594,7 +459,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 16,
   },
   statusBadge: {
     position: "absolute",
@@ -619,35 +483,20 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 24,
     fontWeight: "700",
-    marginBottom: 8,
-  },
-  badgeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     marginBottom: 4,
-    flexWrap: "wrap",
-  },
-  roleBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 4,
-  },
-  roleText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  membershipChip: {
-    marginBottom: 4,
-  },
-  membershipText: {
-    fontSize: 11,
-    fontWeight: "500",
   },
   joinDate: {
     fontSize: 14,
+  },
+  // ✅ UPDATED: Auth buttons styles
+  authButtons: {
+    gap: 12,
+  },
+  authButton: {
+    borderRadius: 12,
+  },
+  authButtonContent: {
+    paddingVertical: 8,
   },
   infoCard: {
     borderRadius: 16,
@@ -672,12 +521,13 @@ const styles = StyleSheet.create({
   logoutButtonContent: {
     paddingVertical: 6,
   },
-  fab: {
-    position: "absolute",
+  editButton: {
+    borderRadius: 12,
     margin: 16,
-    right: 0,
-    bottom: 0,
-    borderRadius: 16,
+    marginTop: 8,
+  },
+  editButtonContent: {
+    paddingVertical: 6,
   },
   dialogTitle: {
     textAlign: "center",

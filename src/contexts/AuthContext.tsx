@@ -1,14 +1,59 @@
-// src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from "react";
+// src/contexts/AuthContext.tsx - FIXED NAVIGATION
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UserProfile } from "../types";
 
-interface AuthContextType {
+interface AuthState {
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  user: UserProfile | null;
   isLoading: boolean;
+  token: string | null;
 }
+
+interface AuthContextType extends AuthState {
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (userData: SignupData) => Promise<boolean>;
+  logout: () => Promise<void>;
+  updateProfile: (profile: Partial<UserProfile>) => Promise<void>;
+  clearAllData: () => Promise<void>;
+}
+
+interface SignupData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+const AUTH_TOKEN_KEY = "authToken";
+const USER_PROFILE_KEY = "userProfile";
+
+const createUserProfile = (userData: SignupData): UserProfile => ({
+  id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+  name: userData.name,
+  email: userData.email,
+  phone: userData.phone,
+  joinDate: new Date().toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  }),
+  preferences: {
+    notifications: true,
+    prayerReminders: true,
+    language: "en",
+    theme: "auto",
+    qiblaDirection: true,
+    vibration: true,
+  },
+});
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -17,68 +62,256 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Start as authenticated for demo
-  const [isLoading, setIsLoading] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>({
+    isAuthenticated: false,
+    user: null,
+    isLoading: true,
+    token: null,
+  });
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+  useEffect(() => {
+    loadAuthState();
+  }, []);
+
+  const loadAuthState = async () => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      console.log("🔄 Loading auth state from storage...");
 
-      // In real app, you would call your authentication API
-      // const response = await api.login(email, password);
-      // if (response.success) {
-      //   setIsAuthenticated(true);
-      //   await AsyncStorage.setItem('authToken', response.token);
-      //   return true;
-      // }
+      const [token, userData] = await Promise.all([
+        AsyncStorage.getItem(AUTH_TOKEN_KEY),
+        AsyncStorage.getItem(USER_PROFILE_KEY),
+      ]);
 
-      // For demo, always return true
-      setIsAuthenticated(true);
-      return true;
+      console.log("📦 Storage data:", {
+        token: token ? "YES" : "NO",
+        userData: userData ? "YES" : "NO",
+      });
+
+      if (token && userData) {
+        try {
+          const userProfile = JSON.parse(userData);
+          console.log("✅ User loaded from storage:", userProfile.name);
+
+          setAuthState({
+            isAuthenticated: true,
+            user: userProfile,
+            isLoading: false,
+            token,
+          });
+        } catch (parseError) {
+          console.error("❌ Error parsing user data:", parseError);
+          await clearAuthDataOnly();
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
+        }
+      } else {
+        console.log("❌ No auth data found in storage");
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+      }
     } catch (error) {
-      console.error("Login error:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
+      console.error("❌ Error loading auth state:", error);
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
+  const clearAuthDataOnly = async () => {
+    try {
+      await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+      console.log("🔐 Auth token cleared (user data preserved)");
+    } catch (error) {
+      console.error("Error clearing auth data:", error);
+    }
+  };
+
+  // ✅ FIXED: Logout navigation - explicitly navigate to profile tab
   const logout = async (): Promise<void> => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    setIsLoading(true);
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("🚪 Logging out...");
 
-      // In real app, you would call your logout API
-      // await api.logout();
-      // await AsyncStorage.removeItem('authToken');
-      // await AsyncStorage.removeItem('userProfile');
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      setIsAuthenticated(false);
+      await clearAuthDataOnly();
+
+      setAuthState({
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        token: null,
+      });
+
+      console.log("✅ Logout successful - User data preserved in storage");
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // Navigate to login screen (you'll need to create this)
-      // router.replace('/auth/login');
-
-      // For now, just show alert since we don't have login screen
-      console.log("User logged out successfully");
+      // ✅ FIXED: Explicitly navigate to profile tab
+      router.replace("/(tabs)/profile");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("❌ Logout error:", error);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
-      setIsLoading(false);
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  const value = {
-    isAuthenticated,
+  const clearAllData = async (): Promise<void> => {
+    try {
+      await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, USER_PROFILE_KEY]);
+      console.log("🧹 All user data cleared from storage");
+    } catch (error) {
+      console.error("Error clearing all data:", error);
+    }
+  };
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      console.log("🔐 Attempting login for:", email);
+
+      const existingUserData = await AsyncStorage.getItem(USER_PROFILE_KEY);
+
+      if (!existingUserData) {
+        console.log("❌ Login failed: No user account exists");
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return false;
+      }
+
+      const existingUser = JSON.parse(existingUserData);
+      console.log("📧 Found user in storage:", existingUser.email);
+
+      if (existingUser.email === email) {
+        const demoToken = `demo_token_${Date.now()}`;
+
+        console.log("✅ Email matches, generating token...");
+
+        await AsyncStorage.setItem(AUTH_TOKEN_KEY, demoToken);
+
+        setAuthState({
+          isAuthenticated: true,
+          user: existingUser,
+          isLoading: false,
+          token: demoToken,
+        });
+
+        console.log("🎉 Login successful:", existingUser.name);
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success
+        );
+
+        // ✅ FIXED: Navigate to profile after successful login
+        router.replace("/(tabs)/profile");
+        return true;
+      } else {
+        console.log("❌ Login failed: Email does not match");
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return false;
+    } finally {
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const signup = async (userData: SignupData): Promise<boolean> => {
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+      console.log("👤 Creating new account for:", userData.email);
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      if (
+        userData.name &&
+        userData.email &&
+        userData.phone &&
+        userData.password
+      ) {
+        const userProfile = createUserProfile(userData);
+        const demoToken = `demo_token_${Date.now()}`;
+
+        console.log("💾 Saving user to storage...");
+
+        await Promise.all([
+          AsyncStorage.setItem(AUTH_TOKEN_KEY, demoToken),
+          AsyncStorage.setItem(USER_PROFILE_KEY, JSON.stringify(userProfile)),
+        ]);
+
+        const verifyToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+        const verifyUser = await AsyncStorage.getItem(USER_PROFILE_KEY);
+
+        if (verifyToken && verifyUser) {
+          setAuthState({
+            isAuthenticated: true,
+            user: userProfile,
+            isLoading: false,
+            token: demoToken,
+          });
+
+          console.log("🎉 Signup successful:", userProfile.name);
+          await Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+          );
+
+          // ✅ FIXED: Navigate to profile after successful signup
+          router.replace("/(tabs)/profile");
+          return true;
+        } else {
+          console.log("❌ Signup failed: Data not saved properly");
+          await Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Error
+          );
+          return false;
+        }
+      }
+
+      console.log("❌ Signup failed: Invalid form data");
+      return false;
+    } catch (error) {
+      console.error("❌ Signup error:", error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return false;
+    } finally {
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const updateProfile = async (
+    profile: Partial<UserProfile>
+  ): Promise<void> => {
+    if (!authState.user) return;
+
+    try {
+      const updatedUser = { ...authState.user, ...profile };
+
+      await AsyncStorage.setItem(USER_PROFILE_KEY, JSON.stringify(updatedUser));
+      setAuthState((prev) => ({ ...prev, user: updatedUser }));
+
+      console.log("✅ Profile updated:", updatedUser.name);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("❌ Profile update error:", error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      throw error;
+    }
+  };
+
+  const value: AuthContextType = {
+    ...authState,
     login,
+    signup,
     logout,
-    isLoading,
+    updateProfile,
+    clearAllData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
