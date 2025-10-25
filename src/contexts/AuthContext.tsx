@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.tsx - FIXED NAVIGATION
+// src/contexts/AuthContext.tsx - FIXED PROFILE NAVIGATION
 import React, {
   createContext,
   useContext,
@@ -19,8 +19,12 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (userData: SignupData) => Promise<boolean>;
+  login: (
+    email: string,
+    password: string,
+    redirectPath?: string
+  ) => Promise<boolean>;
+  signup: (userData: SignupData, redirectPath?: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateProfile: (profile: Partial<UserProfile>) => Promise<void>;
   clearAllData: () => Promise<void>;
@@ -122,7 +126,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // ✅ FIXED: Logout navigation - explicitly navigate to profile tab
   const logout = async (): Promise<void> => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     setAuthState((prev) => ({ ...prev, isLoading: true }));
@@ -144,8 +147,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("✅ Logout successful - User data preserved in storage");
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // ✅ FIXED: Explicitly navigate to profile tab
-      router.replace("/(tabs)/profile");
+      // ✅ FIXED: Stay in profile tab after logout
+      console.log("🏠 Staying in profile tab after logout");
     } catch (error) {
       console.error("❌ Logout error:", error);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -163,7 +166,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  // ✅ UPDATED: Accept redirectPath parameter
+  const login = async (
+    email: string,
+    password: string,
+    redirectPath?: string
+  ): Promise<boolean> => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
@@ -203,8 +211,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           Haptics.NotificationFeedbackType.Success
         );
 
-        // ✅ FIXED: Navigate to profile after successful login
-        router.replace("/(tabs)/profile");
+        // ✅ FIXED: Smart navigation - stay in profile if no redirect, else go to redirect
+        if (redirectPath) {
+          console.log("🎯 Redirecting to:", redirectPath);
+          router.replace(redirectPath);
+        } else {
+          // If login from profile tab, stay in profile
+          console.log("👤 Staying in profile tab");
+        }
+
         return true;
       } else {
         console.log("❌ Login failed: Email does not match");
@@ -220,7 +235,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signup = async (userData: SignupData): Promise<boolean> => {
+  // ✅ UPDATED: Accept redirectPath parameter
+  const signup = async (
+    userData: SignupData,
+    redirectPath?: string
+  ): Promise<boolean> => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
@@ -262,8 +281,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             Haptics.NotificationFeedbackType.Success
           );
 
-          // ✅ FIXED: Navigate to profile after successful signup
-          router.replace("/(tabs)/profile");
+          // ✅ FIXED: Smart navigation
+          setTimeout(() => {
+            if (redirectPath) {
+              console.log("🎯 Redirecting to:", redirectPath);
+              router.replace(redirectPath);
+            } else {
+              // If signup from profile tab, stay in profile
+              console.log("👤 Staying in profile tab");
+            }
+          }, 500);
+
           return true;
         } else {
           console.log("❌ Signup failed: Data not saved properly");

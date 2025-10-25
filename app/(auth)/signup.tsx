@@ -1,4 +1,4 @@
-// app/(auth)/signup.tsx
+// app/(auth)/signup.tsx - UPDATED TO HANDLE REDIRECT
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -51,9 +51,10 @@ export default function SignupScreen() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarType, setSnackbarType] = useState<"error" | "success">(
     "error"
-  ); // ✅ ADDED
+  );
 
-  const redirectPath = (params.redirect as string) || "/(tabs)";
+  // ✅ UPDATED: Get redirect path
+  const redirectPath = params.redirect as string;
 
   const handleBackPress = () => {
     router.back();
@@ -124,16 +125,20 @@ export default function SignupScreen() {
     });
 
     if (success) {
-      // ✅ SUCCESS: Show success message and navigate
-      setSnackbarMessage("Account created successfully!");
+      setSnackbarMessage("Account created successfully! 🎉");
       setSnackbarType("success");
       setSnackbarVisible(true);
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // Navigate after a short delay to show the success message
+      // ✅ UPDATED: Navigate to the intended destination after signup
       setTimeout(() => {
-        router.replace(redirectPath);
+        if (redirectPath) {
+          console.log("🎯 Redirecting to:", redirectPath);
+          router.replace(redirectPath);
+        } else {
+          router.replace("/(tabs)");
+        }
       }, 1500);
     } else {
       setSnackbarMessage("Signup failed. Please try again.");

@@ -1,4 +1,4 @@
-// app/(auth)/login.tsx
+// app/(auth)/login.tsx - UPDATED TO HANDLE REDIRECT
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -41,11 +41,10 @@ export default function LoginScreen() {
   });
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  // ✅ ADDED: Password visibility state
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectPath = (params.redirect as string) || "/(tabs)";
+  // ✅ UPDATED: Get redirect path and handle it properly
+  const redirectPath = params.redirect as string;
 
   const handleBackPress = () => {
     router.back();
@@ -85,7 +84,15 @@ export default function LoginScreen() {
 
     if (success) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      // Navigation is now handled in AuthContext
+
+      // ✅ UPDATED: Navigate to the intended destination after login
+      if (redirectPath) {
+        console.log("🎯 Redirecting to:", redirectPath);
+        router.replace(redirectPath);
+      } else {
+        // Default navigation if no redirect specified
+        router.replace("/(tabs)");
+      }
     } else {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setSnackbarMessage(
@@ -102,7 +109,6 @@ export default function LoginScreen() {
     }
   };
 
-  // ✅ ADDED: Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -156,13 +162,13 @@ export default function LoginScreen() {
                   value={formData.password}
                   onChangeText={(value) => handleInputChange("password", value)}
                   mode="outlined"
-                  secureTextEntry={!showPassword} // ✅ FIXED: Use state for visibility
+                  secureTextEntry={!showPassword}
                   error={!!errors.password}
                   style={styles.input}
                   left={<TextInput.Icon icon="lock" />}
                   right={
                     <TextInput.Icon
-                      icon={showPassword ? "eye-off" : "eye"} // ✅ FIXED: Toggle icon
+                      icon={showPassword ? "eye-off" : "eye"}
                       onPress={togglePasswordVisibility}
                     />
                   }
@@ -213,7 +219,13 @@ export default function LoginScreen() {
                 >
                   Don't have an account?
                 </Text>
-                <Link href="/(auth)/signup" asChild>
+                <Link
+                  href={{
+                    pathname: "/(auth)/signup",
+                    params: { redirect: redirectPath }, // ✅ Pass redirect to signup
+                  }}
+                  asChild
+                >
                   <Button
                     mode="outlined"
                     style={styles.signupButton}
@@ -241,6 +253,7 @@ export default function LoginScreen() {
     </Container>
   );
 }
+
 
 const styles = StyleSheet.create({
   keyboardAvoid: {
