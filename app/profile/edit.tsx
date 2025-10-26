@@ -241,7 +241,7 @@ export default function EditProfileScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // ✅ Show success snackbar instead of alert
-      setSnackbarMessage("Profile updated successfully! 🎉");
+      setSnackbarMessage("Profile updated successfully!");
       setSnackbarVisible(true);
 
       // Navigate back after a short delay
