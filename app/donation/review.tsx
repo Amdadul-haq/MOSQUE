@@ -1,4 +1,4 @@
-// app/donation/review.tsx
+// app/donation/review.tsx - COMPLETE FIXED VERSION
 import React, { useState, useRef, useEffect } from "react";
 import {
   ScrollView,
@@ -48,6 +48,19 @@ export default function DonationReviewScreen() {
   const amount = params.amount as string;
   const isAnonymous = params.isAnonymous === "true";
   const paymentMethod = params.paymentMethod as string;
+  const donorName = params.donorName as string;
+
+  // ✅ DEBUG: Check parameters
+  useEffect(() => {
+    console.log("📋 Review Screen Params:", {
+      donorName: donorName,
+      type: selectedType,
+      amount: amount,
+      month: selectedMonth,
+      paymentMethod: paymentMethod,
+      isAnonymous: isAnonymous,
+    });
+  }, []);
 
   const donationData: DonationData = {
     type: selectedType,
@@ -55,9 +68,9 @@ export default function DonationReviewScreen() {
     month: selectedMonth,
     isAnonymous,
     paymentMethod,
+    donorName,
   };
 
-  // ✅ USE UTILITY FUNCTIONS
   const typeColor = getDonationTypeColor(selectedType, theme);
   const paymentName = getPaymentMethodName(paymentMethod);
 
@@ -94,8 +107,9 @@ export default function DonationReviewScreen() {
   const completeDonation = async () => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
+    // ✅ FIXED: Use actual donor name
     addDonation({
-      donor: isAnonymous ? "Anonymous" : "Current User",
+      donor: donorName, // ✅ Use donorName from params
       type: selectedType,
       amount: Number(amount),
       anonymous: isAnonymous,
@@ -109,6 +123,7 @@ export default function DonationReviewScreen() {
         month: selectedMonth,
         paymentMethod: paymentMethod,
         isAnonymous: isAnonymous.toString(),
+        donorName: donorName, // ✅ PASS donorName to success screen
       },
     });
   };
@@ -168,6 +183,25 @@ export default function DonationReviewScreen() {
               </Text>
 
               <View style={styles.summaryList}>
+                <View style={styles.summaryItem}>
+                  <Text
+                    style={[
+                      styles.summaryLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    Donor Name:
+                  </Text>
+                  <Text
+                    style={[
+                      styles.summaryValue,
+                      { color: theme.colors.primary, fontWeight: "600" },
+                    ]}
+                  >
+                    {donorName}
+                  </Text>
+                </View>
+
                 <View style={styles.summaryItem}>
                   <Text
                     style={[
@@ -258,7 +292,12 @@ export default function DonationReviewScreen() {
                   <Text
                     style={[
                       styles.summaryValue,
-                      { color: theme.colors.onSurface },
+                      {
+                        color: isAnonymous
+                          ? theme.colors.primary
+                          : theme.colors.onSurface,
+                        fontWeight: "600",
+                      },
                     ]}
                   >
                     {isAnonymous ? "Yes" : "No"}

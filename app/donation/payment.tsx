@@ -56,28 +56,29 @@ export default function DonationPaymentScreen() {
   const amount = params.amount as string;
   const isAnonymous = params.isAnonymous === "true";
 
-  const handleContinue = () => {
-    if (!selectedPayment) return;
+const handleContinue = () => {
+  if (!selectedPayment) return;
 
-    const donationData: Partial<DonationData> = {
-      type: selectedType,
-      month: selectedMonth,
-      amount: Number(amount),
-      isAnonymous,
-      paymentMethod: selectedPayment,
-    };
-
-    router.push({
-      pathname: "/donation/review",
-      params: {
-        ...donationData,
-        amount: amount,
-        isAnonymous: isAnonymous.toString(),
-        paymentMethod: selectedPayment,
-      },
-    });
+  const donationData: Partial<DonationData> = {
+    type: selectedType,
+    month: selectedMonth,
+    amount: Number(amount),
+    isAnonymous,
+    paymentMethod: selectedPayment,
+    donorName: params.donorName as string, // ✅ Make sure this exists
   };
 
+  router.push({
+    pathname: "/donation/review",
+    params: {
+      ...donationData,
+      amount: amount,
+      isAnonymous: isAnonymous.toString(),
+      paymentMethod: selectedPayment,
+      donorName: params.donorName as string, // ✅ Pass forward
+    },
+  });
+};
   const handleBackPress = () => {
     router.back();
   };

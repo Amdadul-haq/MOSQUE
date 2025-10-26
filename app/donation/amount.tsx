@@ -1,4 +1,4 @@
-// app/donation/amount.tsx
+// app/donation/amount.tsx - UPDATED
 import React, { useState } from "react";
 import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
 import {
@@ -7,7 +7,6 @@ import {
   Card,
   Button,
   TextInput,
-  Switch,
   Chip,
 } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -16,6 +15,7 @@ import { Container } from "../../src/components/common/Container";
 import { DonationData } from "../../src/types/donation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDonationTypeColor } from "../../src/utils/donationUtils";
+import { useAuth } from "../../src/contexts/AuthContext";
 
 const quickAmounts = [500, 1000, 2000, 5000];
 
@@ -24,9 +24,9 @@ export default function DonationAmountScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
+  const { isAuthenticated, user } = useAuth(); // ✅ ADDED user
 
   const [amount, setAmount] = useState<string>("");
-  const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
   const selectedType = params.type as string;
@@ -39,8 +39,10 @@ export default function DonationAmountScreen() {
       type: selectedType,
       month: selectedMonth,
       amount: Number(amount),
-      isAnonymous,
+      isAnonymous: !isAuthenticated,
       message: message.trim() || undefined,
+      donorName: isAuthenticated ? user?.name : "Guest User", // ✅ ADD donor name
+      donorEmail: isAuthenticated ? user?.email : undefined,
     };
 
     router.push({
@@ -48,7 +50,8 @@ export default function DonationAmountScreen() {
       params: {
         ...donationData,
         amount: amount,
-        isAnonymous: isAnonymous.toString(),
+        isAnonymous: (!isAuthenticated).toString(),
+        donorName: isAuthenticated ? user?.name : "Guest User", // ✅ PASS donor name
       },
     });
   };
@@ -61,7 +64,6 @@ export default function DonationAmountScreen() {
     router.back();
   };
 
-  // ✅ USE UTILITY FUNCTION
   const typeColor = getDonationTypeColor(selectedType, theme);
 
   return (
@@ -90,6 +92,24 @@ export default function DonationAmountScreen() {
           {/* Donation Summary */}
           <Card style={styles.summaryCard}>
             <Card.Content style={styles.summaryContent}>
+              <View style={styles.summaryRow}>
+                <Text
+                  style={[
+                    styles.summaryLabel,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Donor:
+                </Text>
+                <Text
+                  style={[
+                    styles.summaryValue,
+                    { color: theme.colors.primary, fontWeight: "600" },
+                  ]}
+                >
+                  {isAuthenticated ? user?.name : "Guest User"}
+                </Text>
+              </View>
               <View style={styles.summaryRow}>
                 <Text
                   style={[
@@ -126,6 +146,29 @@ export default function DonationAmountScreen() {
                   ]}
                 >
                   {selectedMonth}
+                </Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text
+                  style={[
+                    styles.summaryLabel,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Anonymous:
+                </Text>
+                <Text
+                  style={[
+                    styles.summaryValue,
+                    {
+                      color: !isAuthenticated
+                        ? theme.colors.primary
+                        : theme.colors.onSurface,
+                      fontWeight: "600",
+                    },
+                  ]}
+                >
+                  {!isAuthenticated ? "Yes" : "No"}
                 </Text>
               </View>
             </Card.Content>
@@ -210,36 +253,7 @@ export default function DonationAmountScreen() {
             </Card.Content>
           </Card>
 
-          {/* Anonymous Toggle */}
-          <Card style={styles.sectionCard}>
-            <Card.Content style={styles.anonymousContent}>
-              <View style={styles.anonymousRow}>
-                <View style={styles.anonymousInfo}>
-                  <Text
-                    style={[
-                      styles.anonymousTitle,
-                      { color: theme.colors.onSurface },
-                    ]}
-                  >
-                    Make this donation anonymous
-                  </Text>
-                  <Text
-                    style={[
-                      styles.anonymousDescription,
-                      { color: theme.colors.onSurfaceVariant },
-                    ]}
-                  >
-                    Your name will not be shown publicly
-                  </Text>
-                </View>
-                <Switch
-                  value={isAnonymous}
-                  onValueChange={setIsAnonymous}
-                  color={theme.colors.primary}
-                />
-              </View>
-            </Card.Content>
-          </Card>
+          {/* ✅ REMOVED: Anonymous Toggle Section */}
 
           {/* Optional Message */}
           <Card style={styles.sectionCard}>
@@ -389,26 +403,6 @@ const styles = StyleSheet.create({
   quickAmountText: {
     fontSize: 14,
     fontWeight: "600",
-  },
-  anonymousContent: {
-    paddingVertical: 8,
-  },
-  anonymousRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  anonymousInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  anonymousTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  anonymousDescription: {
-    fontSize: 12,
   },
   messageInput: {
     marginTop: 8,

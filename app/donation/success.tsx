@@ -29,6 +29,7 @@ export default function DonationSuccessScreen() {
   const amount = params.amount as string;
   const paymentMethod = params.paymentMethod as string;
   const isAnonymous = params.isAnonymous === "true";
+  const donorName = params.donorName as string; // ✅ ADD donor name
 
   // ✅ USE UTILITY FUNCTIONS
   const typeColor = getDonationTypeColor(selectedType, theme);
@@ -215,6 +216,18 @@ export default function DonationSuccessScreen() {
                   </View>
 
                   <View style={styles.divider} />
+                  {/* ✅ ADD Donor Name Row */}
+                  <View style={styles.receiptRow}>
+                    <Text style={styles.receiptLabel}>Donor Name:</Text>
+                    <Text
+                      style={[
+                        styles.receiptValue,
+                        { color: theme.colors.primary, fontWeight: "600" },
+                      ]}
+                    >
+                      {donorName}
+                    </Text>
+                  </View>
 
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Donation Type:</Text>
@@ -236,7 +249,7 @@ export default function DonationSuccessScreen() {
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Month:</Text>
                     <Text style={styles.receiptValue}>
-                      {selectedMonth} 2024
+                      {selectedMonth} 2025
                     </Text>
                   </View>
                   <View style={styles.receiptRow}>
@@ -246,7 +259,7 @@ export default function DonationSuccessScreen() {
                   <View style={styles.receiptRow}>
                     <Text style={styles.receiptLabel}>Anonymous:</Text>
                     <Text style={styles.receiptValue}>
-                      {isAnonymous ? "Yes" : "No"}
+                      {isAnonymous ? "Yes (Guest User)" : "No"}
                     </Text>
                   </View>
 

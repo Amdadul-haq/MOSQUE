@@ -60,10 +60,6 @@ export interface UserProfile {
   email: string;
   phone: string;
   joinDate: string;
-  role: string;
-  membership?: string;
-  prayerStreak?: number;
-  totalPrayers?: number;
   preferences: {
     notifications: boolean;
     prayerReminders: boolean;

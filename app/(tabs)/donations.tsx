@@ -1,4 +1,4 @@
-// app/(tabs)/donations.tsx - COMPLETE UPDATED VERSION
+// app/(tabs)/donations.tsx - UPDATED WITH CUSTOM DIALOG
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -17,7 +17,9 @@ import {
   SegmentedButtons,
   Chip,
   ActivityIndicator,
-} from "react-native-paper";
+  Dialog,
+  Portal,
+} from "react-native-paper"; // ✅ ADDED Dialog, Portal
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
@@ -25,13 +27,14 @@ import { StatsGrid } from "../../src/components/StatsGrid";
 import { useDonationManager } from "../../src/hooks/useDonationManager";
 import { useRouter } from "expo-router";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation";
-
+import { useAuth } from "../../src/contexts/AuthContext";
 import {
   formatCurrency,
   formatDate,
   capitalizeWords,
 } from "../../src/utils/formatters";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 
 type TimeFilter = "all" | "month" | "week" | "today";
 
@@ -41,9 +44,11 @@ export default function DonationsScreen() {
   const insets = useSafeAreaInsets();
 
   const { isLoading, handleRefresh } = useTabNavigation("donations");
+  const { isAuthenticated } = useAuth();
 
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [guestDialogVisible, setGuestDialogVisible] = useState(false); // ✅ ADDED
 
   const {
     donations,
@@ -86,7 +91,6 @@ export default function DonationsScreen() {
     }
   };
 
-  // ✅ FIXED: Use theme colors
   const donationStatsData = [
     {
       label: "Total",
@@ -115,7 +119,6 @@ export default function DonationsScreen() {
     },
   ];
 
-  // ✅ FIXED: Consistent color scheme
   const donationTypes = [
     {
       type: "zakat",
@@ -148,6 +151,47 @@ export default function DonationsScreen() {
       icon: "charity",
     },
   ];
+
+  // ✅ UPDATED: Show custom dialog instead of direct navigation
+  const handleAddDonation = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (!isAuthenticated) {
+      // Show custom dialog for guest users
+      setGuestDialogVisible(true);
+      return;
+    }
+
+    // User is authenticated, proceed to donation flow
+    router.push("/donation/type");
+  };
+
+  // ✅ ADDED: Handle guest donation
+  const handleGuestDonation = () => {
+    setGuestDialogVisible(false);
+    router.push("/donation/type");
+  };
+
+  // ✅ ADDED: Handle login with redirect
+  const handleLoginForDonation = () => {
+    setGuestDialogVisible(false);
+    router.push({
+      pathname: "/(auth)/login",
+      params: {
+        redirect: "/donation/type",
+      },
+    });
+  };
+
+  // ✅ UPDATED: Handle "Make First Donation" button
+  const handleMakeFirstDonation = () => {
+    if (!isAuthenticated) {
+      setGuestDialogVisible(true);
+      return;
+    }
+
+    router.push("/donation/type");
+  };
 
   const onRefresh = () => {
     handleRefresh();
@@ -260,7 +304,6 @@ export default function DonationsScreen() {
               </Button>
             }
           >
-            {/* ✅ FIXED: Inline border styles */}
             <Card
               style={[
                 styles.tableCard,
@@ -303,7 +346,7 @@ export default function DonationsScreen() {
                               donationTypes.find(
                                 (t) => t.type === donation.type
                               )?.color
-                            }15`, // ✅ Lighter opacity
+                            }15`,
                           },
                         ]}
                       >
@@ -344,7 +387,7 @@ export default function DonationsScreen() {
                   </Text>
                   <Button
                     mode="outlined"
-                    onPress={() => router.push("/donation/type")}
+                    onPress={handleMakeFirstDonation}
                     style={styles.emptyButton}
                   >
                     Make First Donation
@@ -356,7 +399,6 @@ export default function DonationsScreen() {
 
           {/* Donation Types Info */}
           <Section title="Donation Types">
-            {/* ✅ FIXED: Inline border styles */}
             <Card
               style={[
                 styles.typesCard,
@@ -374,7 +416,7 @@ export default function DonationsScreen() {
                       styles.typeItem,
                       index !== donationTypes.length - 1 && {
                         borderBottomWidth: 1,
-                        borderBottomColor: theme.colors.surfaceVariant, // ✅ Inline style
+                        borderBottomColor: theme.colors.surfaceVariant,
                       },
                     ]}
                   >
@@ -437,13 +479,72 @@ export default function DonationsScreen() {
         </View>
       </ScrollView>
 
+      {/* FAB Button */}
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/donation/type")}
+        onPress={handleAddDonation}
         color="white"
         label="Add Donation"
       />
+
+      {/* ✅ ADDED: Guest Donation Dialog */}
+      <Portal>
+        <Dialog
+          visible={guestDialogVisible}
+          onDismiss={() => setGuestDialogVisible(false)}
+          style={styles.dialog}
+        >
+          <Dialog.Icon
+            icon="account-question"
+            size={40}
+            color={theme.colors.primary}
+          />
+          <Dialog.Title style={styles.dialogTitle}>
+            Continue as Guest?
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium" style={styles.dialogText}>
+              📝{" "}
+              <Text style={{ fontWeight: "bold" }}>You're not logged in</Text>
+            </Text>
+            <Text variant="bodyMedium" style={styles.dialogText}>
+              • Your donation history won't be saved for future reference
+            </Text>
+            <Text variant="bodyMedium" style={styles.dialogText}>
+              • You won't be able to track your contributions
+            </Text>
+            <Text
+              variant="bodyMedium"
+              style={[styles.dialogText, styles.recommendation]}
+            >
+              💡{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                We recommend creating an account
+              </Text>{" "}
+              to keep track of your charitable activities and receive updates on
+              how your donations are making a difference.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions style={styles.dialogActions}>
+            <Button
+              mode="outlined"
+              onPress={handleGuestDonation}
+              style={styles.guestButton}
+              textColor={theme.colors.onSurfaceVariant}
+            >
+              Donate as Guest
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleLoginForDonation}
+              style={styles.loginButton}
+            >
+              Log In to Continue
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </Container>
   );
 }
@@ -472,7 +573,6 @@ const styles = StyleSheet.create({
   chip: {
     marginRight: 8,
   },
-  // ✅ REMOVED: border styles from here
   tableCard: {
     borderRadius: 16,
     overflow: "hidden",
@@ -511,7 +611,6 @@ const styles = StyleSheet.create({
   emptyButton: {
     borderRadius: 8,
   },
-  // ✅ REMOVED: border styles from here
   typesCard: {
     borderRadius: 16,
   },
@@ -521,7 +620,6 @@ const styles = StyleSheet.create({
   typeItem: {
     paddingVertical: 12,
   },
-  // typeItemBorder removed - using inline styles instead
   typeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -578,5 +676,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
+  },
+  dialog: {
+    borderRadius: 20,
+    backgroundColor: "white",
+  },
+  dialogTitle: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 8,
+  },
+  dialogText: {
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  recommendation: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: "#f0f9ff",
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#0ea5e9",
+  },
+  dialogActions: {
+    flexDirection: "column",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  guestButton: {
+    width: "100%",
+    borderRadius: 12,
+  },
+  loginButton: {
+    width: "100%",
+    borderRadius: 12,
   },
 });
