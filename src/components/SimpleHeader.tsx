@@ -115,12 +115,12 @@ export const SimpleHeader: React.FC<SimpleHeaderProps> = ({
         </View>
 
         {/* Bottom Curve Decoration */}
-        <View
+        {/* <View
           style={[
             styles.headerCurve,
             { backgroundColor: theme.colors.background },
           ]}
-        />
+        /> */}
       </LinearGradient>
     </View>
   );
@@ -129,9 +129,9 @@ export const SimpleHeader: React.FC<SimpleHeaderProps> = ({
 const styles = StyleSheet.create({
   headerContainer: {},
   gradientHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 5,
-    paddingBottom: 20,
+    paddingHorizontal: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    minHeight: 60,
+    minHeight: 50,
   },
   section: {
     width: 40, // Fixed width for balanced spacing
