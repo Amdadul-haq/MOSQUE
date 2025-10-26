@@ -1,4 +1,4 @@
-// app/(auth)/signup.tsx - UPDATED TO HANDLE REDIRECT
+// app/(auth)/signup.tsx 
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -52,6 +52,10 @@ export default function SignupScreen() {
   const [snackbarType, setSnackbarType] = useState<"error" | "success">(
     "error"
   );
+
+  // ✅ ADDED: Password visibility states
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // ✅ UPDATED: Get redirect path
   const redirectPath = params.redirect as string;
@@ -155,6 +159,18 @@ export default function SignupScreen() {
     }
   };
 
+  // ✅ ADDED: Toggle password visibility with haptic feedback
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // ✅ ADDED: Toggle confirm password visibility with haptic feedback
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   return (
     <Container padding={false}>
       <SimpleHeader
@@ -234,15 +250,22 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Password field with eye icon */}
                 <TextInput
                   label="Password"
                   value={formData.password}
                   onChangeText={(value) => handleInputChange("password", value)}
                   mode="outlined"
-                  secureTextEntry
+                  secureTextEntry={!showPassword} // ✅ Toggle visibility
                   error={!!errors.password}
                   style={styles.input}
                   left={<TextInput.Icon icon="lock" />}
+                  right={
+                    <TextInput.Icon
+                      icon={showPassword ? "eye-off" : "eye"} // ✅ Eye icon
+                      onPress={togglePasswordVisibility} // ✅ Toggle function
+                    />
+                  }
                 />
                 {errors.password ? (
                   <Text
@@ -252,6 +275,7 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Confirm Password field with eye icon */}
                 <TextInput
                   label="Confirm Password"
                   value={formData.confirmPassword}
@@ -259,10 +283,16 @@ export default function SignupScreen() {
                     handleInputChange("confirmPassword", value)
                   }
                   mode="outlined"
-                  secureTextEntry
+                  secureTextEntry={!showConfirmPassword} // ✅ Toggle visibility
                   error={!!errors.confirmPassword}
                   style={styles.input}
                   left={<TextInput.Icon icon="lock-check" />}
+                  right={
+                    <TextInput.Icon
+                      icon={showConfirmPassword ? "eye-off" : "eye"} // ✅ Eye icon
+                      onPress={toggleConfirmPasswordVisibility} // ✅ Toggle function
+                    />
+                  }
                 />
                 {errors.confirmPassword ? (
                   <Text

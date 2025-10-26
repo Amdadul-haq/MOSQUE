@@ -1,4 +1,4 @@
-// app/(auth)/login.tsx - UPDATED TO HANDLE REDIRECT
+// app/(auth)/login.tsx - UPDATED WITH CONSISTENT INPUT DESIGN
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -80,7 +80,11 @@ export default function LoginScreen() {
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    const success = await login(formData.email, formData.password);
+    const success = await login(
+      formData.email,
+      formData.password,
+      redirectPath
+    );
 
     if (success) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -138,6 +142,7 @@ export default function LoginScreen() {
             {/* Login Form */}
             <Card style={styles.formCard}>
               <Card.Content style={styles.formContent}>
+                {/* ✅ UPDATED: Consistent input design like donation screen */}
                 <TextInput
                   label="Email Address"
                   value={formData.email}
@@ -147,6 +152,8 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   error={!!errors.email}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="email" />}
                 />
                 {errors.email ? (
@@ -157,6 +164,7 @@ export default function LoginScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Consistent password input design */}
                 <TextInput
                   label="Password"
                   value={formData.password}
@@ -165,6 +173,8 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                   error={!!errors.password}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="lock" />}
                   right={
                     <TextInput.Icon
@@ -222,7 +232,7 @@ export default function LoginScreen() {
                 <Link
                   href={{
                     pathname: "/(auth)/signup",
-                    params: { redirect: redirectPath }, // ✅ Pass redirect to signup
+                    params: { redirect: redirectPath },
                   }}
                   asChild
                 >
@@ -237,6 +247,9 @@ export default function LoginScreen() {
                 </Link>
               </Card.Content>
             </Card>
+
+            {/* ✅ ADDED: Extra padding for keyboard space */}
+            <View style={styles.keyboardSpacer} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -253,7 +266,6 @@ export default function LoginScreen() {
     </Container>
   );
 }
-
 
 const styles = StyleSheet.create({
   keyboardAvoid: {
@@ -274,8 +286,15 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingVertical: 8,
   },
+  // ✅ UPDATED: Consistent input styles with donation screen
   input: {
     marginBottom: 4,
+  },
+  inputContent: {
+    // Same styling as donation screen inputs
+  },
+  inputOutline: {
+    borderRadius: 12, // ✅ Same border radius
   },
   errorText: {
     fontSize: 12,
@@ -284,18 +303,18 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   loginButton: {
-    borderRadius: 12,
+    borderRadius: 12, // ✅ Same border radius
     marginTop: 8,
   },
   loginButtonContent: {
-    paddingVertical: 8,
+    paddingVertical: 8, // ✅ Same padding
   },
   forgotPasswordContainer: {
     alignItems: "center",
     marginTop: 8,
   },
   signupCard: {
-    borderRadius: 16,
+    borderRadius: 16, // ✅ Same border radius
   },
   signupContent: {
     alignItems: "center",
@@ -306,9 +325,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signupButton: {
-    borderRadius: 12,
+    borderRadius: 12, // ✅ Same border radius
   },
   signupButtonContent: {
     paddingVertical: 6,
+  },
+  keyboardSpacer: {
+    height: 100, // ✅ Extra space for keyboard
   },
 });
