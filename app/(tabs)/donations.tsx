@@ -1,4 +1,4 @@
-// app/(tabs)/donations.tsx - UPDATED WITH CUSTOM DIALOG
+// app/(tabs)/donations.tsx - FULL UPDATED CODE
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -19,7 +19,7 @@ import {
   ActivityIndicator,
   Dialog,
   Portal,
-} from "react-native-paper"; // ✅ ADDED Dialog, Portal
+} from "react-native-paper";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
@@ -35,6 +35,7 @@ import {
 } from "../../src/utils/formatters";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import { useThemeMode } from "../../src/contexts/ThemeContext";
 
 type TimeFilter = "all" | "month" | "week" | "today";
 
@@ -42,13 +43,14 @@ export default function DonationsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { isDark } = useThemeMode();
 
   const { isLoading, handleRefresh } = useTabNavigation("donations");
   const { isAuthenticated } = useAuth();
 
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [guestDialogVisible, setGuestDialogVisible] = useState(false); // ✅ ADDED
+  const [guestDialogVisible, setGuestDialogVisible] = useState(false);
 
   const {
     donations,
@@ -152,27 +154,51 @@ export default function DonationsScreen() {
     },
   ];
 
-  // ✅ UPDATED: Show custom dialog instead of direct navigation
+  // Theme-aware dialog styles
+  const dialogStyles = {
+    dialog: {
+      borderRadius: 20,
+      backgroundColor: theme.colors.surface,
+      elevation: 4,
+    },
+    dialogTitle: {
+      textAlign: "center" as const,
+      fontSize: 20,
+      fontWeight: "700" as const,
+      marginTop: 8,
+      color: theme.colors.onSurface,
+    },
+    dialogText: {
+      marginBottom: 8,
+      lineHeight: 20,
+      color: theme.colors.onSurface,
+    },
+    recommendation: {
+      marginTop: 12,
+      padding: 12,
+      backgroundColor: isDark ? "#1e3a5f" : "#f0f9ff",
+      borderRadius: 8,
+      borderLeftWidth: 4,
+      borderLeftColor: "#0ea5e9",
+    },
+  };
+
   const handleAddDonation = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (!isAuthenticated) {
-      // Show custom dialog for guest users
       setGuestDialogVisible(true);
       return;
     }
 
-    // User is authenticated, proceed to donation flow
     router.push("/donation/type");
   };
 
-  // ✅ ADDED: Handle guest donation
   const handleGuestDonation = () => {
     setGuestDialogVisible(false);
     router.push("/donation/type");
   };
 
-  // ✅ ADDED: Handle login with redirect
   const handleLoginForDonation = () => {
     setGuestDialogVisible(false);
     router.push({
@@ -183,13 +209,11 @@ export default function DonationsScreen() {
     });
   };
 
-  // ✅ UPDATED: Handle "Make First Donation" button
   const handleMakeFirstDonation = () => {
     if (!isAuthenticated) {
       setGuestDialogVisible(true);
       return;
     }
-
     router.push("/donation/type");
   };
 
@@ -488,38 +512,44 @@ export default function DonationsScreen() {
         label="Add Donation"
       />
 
-      {/* ✅ ADDED: Guest Donation Dialog */}
+      {/* Guest Donation Dialog */}
       <Portal>
         <Dialog
           visible={guestDialogVisible}
           onDismiss={() => setGuestDialogVisible(false)}
-          style={styles.dialog}
+          style={dialogStyles.dialog}
         >
           <Dialog.Icon
             icon="account-question"
             size={40}
             color={theme.colors.primary}
           />
-          <Dialog.Title style={styles.dialogTitle}>
+          <Dialog.Title style={dialogStyles.dialogTitle}>
             Continue as Guest?
           </Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium" style={styles.dialogText}>
+            <Text variant="bodyMedium" style={dialogStyles.dialogText}>
               📝{" "}
-              <Text style={{ fontWeight: "bold" }}>You're not logged in</Text>
+              <Text
+                style={{ fontWeight: "bold", color: theme.colors.onSurface }}
+              >
+                You're not logged in
+              </Text>
             </Text>
-            <Text variant="bodyMedium" style={styles.dialogText}>
+            <Text variant="bodyMedium" style={dialogStyles.dialogText}>
               • Your donation history won't be saved for future reference
             </Text>
-            <Text variant="bodyMedium" style={styles.dialogText}>
+            <Text variant="bodyMedium" style={dialogStyles.dialogText}>
               • You won't be able to track your contributions
             </Text>
             <Text
               variant="bodyMedium"
-              style={[styles.dialogText, styles.recommendation]}
+              style={[dialogStyles.dialogText, dialogStyles.recommendation]}
             >
               💡{" "}
-              <Text style={{ fontWeight: "bold" }}>
+              <Text
+                style={{ fontWeight: "bold", color: theme.colors.onSurface }}
+              >
                 We recommend creating an account
               </Text>{" "}
               to keep track of your charitable activities and receive updates on
@@ -676,28 +706,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
-  },
-  dialog: {
-    borderRadius: 20,
-    backgroundColor: "white",
-  },
-  dialogTitle: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "700",
-    marginTop: 8,
-  },
-  dialogText: {
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  recommendation: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: "#f0f9ff",
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: "#0ea5e9",
   },
   dialogActions: {
     flexDirection: "column",

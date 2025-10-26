@@ -1,4 +1,4 @@
-// app/(auth)/signup.tsx - UPDATED TO HANDLE REDIRECT
+// app/(auth)/signup.tsx - UPDATED WITH CONSISTENT INPUT DESIGN
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -52,6 +52,10 @@ export default function SignupScreen() {
   const [snackbarType, setSnackbarType] = useState<"error" | "success">(
     "error"
   );
+
+  // ✅ ADDED: Password visibility states
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // ✅ UPDATED: Get redirect path
   const redirectPath = params.redirect as string;
@@ -155,6 +159,18 @@ export default function SignupScreen() {
     }
   };
 
+  // ✅ ADDED: Toggle password visibility with haptic feedback
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // ✅ ADDED: Toggle confirm password visibility with haptic feedback
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   return (
     <Container padding={false}>
       <SimpleHeader
@@ -179,6 +195,7 @@ export default function SignupScreen() {
             {/* Signup Form */}
             <Card style={styles.formCard}>
               <Card.Content style={styles.formContent}>
+                {/* ✅ UPDATED: Consistent input design like donation screen */}
                 <TextInput
                   label="Full Name"
                   value={formData.name}
@@ -187,6 +204,8 @@ export default function SignupScreen() {
                   autoCapitalize="words"
                   error={!!errors.name}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="account" />}
                 />
                 {errors.name ? (
@@ -197,6 +216,7 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Consistent email input design */}
                 <TextInput
                   label="Email Address"
                   value={formData.email}
@@ -206,6 +226,8 @@ export default function SignupScreen() {
                   keyboardType="email-address"
                   error={!!errors.email}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="email" />}
                 />
                 {errors.email ? (
@@ -216,6 +238,7 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Consistent phone input design */}
                 <TextInput
                   label="Phone Number"
                   value={formData.phone}
@@ -224,6 +247,8 @@ export default function SignupScreen() {
                   keyboardType="phone-pad"
                   error={!!errors.phone}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="phone" />}
                 />
                 {errors.phone ? (
@@ -234,15 +259,24 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Password field with consistent design */}
                 <TextInput
                   label="Password"
                   value={formData.password}
                   onChangeText={(value) => handleInputChange("password", value)}
                   mode="outlined"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   error={!!errors.password}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="lock" />}
+                  right={
+                    <TextInput.Icon
+                      icon={showPassword ? "eye-off" : "eye"}
+                      onPress={togglePasswordVisibility}
+                    />
+                  }
                 />
                 {errors.password ? (
                   <Text
@@ -252,6 +286,7 @@ export default function SignupScreen() {
                   </Text>
                 ) : null}
 
+                {/* ✅ UPDATED: Confirm Password field with consistent design */}
                 <TextInput
                   label="Confirm Password"
                   value={formData.confirmPassword}
@@ -259,10 +294,18 @@ export default function SignupScreen() {
                     handleInputChange("confirmPassword", value)
                   }
                   mode="outlined"
-                  secureTextEntry
+                  secureTextEntry={!showConfirmPassword}
                   error={!!errors.confirmPassword}
                   style={styles.input}
+                  contentStyle={styles.inputContent} // ✅ Same content style
+                  outlineStyle={styles.inputOutline} // ✅ Same outline style
                   left={<TextInput.Icon icon="lock-check" />}
+                  right={
+                    <TextInput.Icon
+                      icon={showConfirmPassword ? "eye-off" : "eye"}
+                      onPress={toggleConfirmPasswordVisibility}
+                    />
+                  }
                 />
                 {errors.confirmPassword ? (
                   <Text
@@ -336,6 +379,9 @@ export default function SignupScreen() {
                 </Link>
               </Card.Content>
             </Card>
+
+            {/* ✅ ADDED: Extra padding for keyboard space */}
+            <View style={styles.keyboardSpacer} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -377,8 +423,15 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingVertical: 8,
   },
+  // ✅ UPDATED: Consistent input styles with donation screen
   input: {
     marginBottom: 4,
+  },
+  inputContent: {
+    // Same styling as donation screen inputs
+  },
+  inputOutline: {
+    borderRadius: 12, // ✅ Same border radius as donation screen
   },
   errorText: {
     fontSize: 12,
@@ -399,10 +452,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   signupButton: {
-    borderRadius: 12,
+    borderRadius: 12, // ✅ Same border radius as donation screen
   },
   signupButtonContent: {
-    paddingVertical: 8,
+    paddingVertical: 8, // ✅ Same padding as donation screen
   },
   loginCard: {
     borderRadius: 16,
@@ -416,9 +469,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    borderRadius: 12,
+    borderRadius: 12, // ✅ Same border radius as donation screen
   },
   loginButtonContent: {
     paddingVertical: 6,
+  },
+  keyboardSpacer: {
+    height: 100, // ✅ Extra space for keyboard
   },
 });

@@ -1,4 +1,4 @@
-// app/(tabs)/index.tsx - FIXED VERSION
+// app/(tabs)/index.tsx - FULL UPDATED WITH THEME-AWARE DIALOG
 import React from "react";
 import {
   ScrollView,
@@ -16,7 +16,7 @@ import {
   Dialog,
   Portal,
   Text,
-} from "react-native-paper"; // ✅ Paper Text imported
+} from "react-native-paper";
 import { HomeHeader } from "../../src/components/Header";
 import { Container } from "../../src/components/common/Container";
 import { Section } from "../../src/components/common/Section";
@@ -30,12 +30,15 @@ import { useNotifications } from "../../src/contexts/NotificationContext";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { Event } from "../../src/types";
 import * as Haptics from "expo-haptics";
+import { useThemeMode } from "../../src/contexts/ThemeContext"; // ✅ ADDED
 
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { isAuthenticated, user } = useAuth();
+  const { isDark } = useThemeMode(); // ✅ ADDED
+
   const {
     stats,
     upcomingEvents,
@@ -52,6 +55,35 @@ export default function HomeScreen() {
 
   // Loading state management for home tab
   const { isLoading, handleRefresh } = useTabNavigation("home");
+
+  // ✅ ADDED: Theme-aware dialog styles
+  const dialogStyles = {
+    dialog: {
+      borderRadius: 20,
+      backgroundColor: theme.colors.surface,
+      elevation: 4,
+    },
+    dialogTitle: {
+      textAlign: "center" as const,
+      fontSize: 20,
+      fontWeight: "700" as const,
+      marginTop: 8,
+      color: theme.colors.onSurface,
+    },
+    dialogText: {
+      marginBottom: 8,
+      lineHeight: 20,
+      color: theme.colors.onSurface,
+    },
+    recommendation: {
+      marginTop: 12,
+      padding: 12,
+      backgroundColor: isDark ? "#1e3a5f" : "#f0f9ff",
+      borderRadius: 8,
+      borderLeftWidth: 4,
+      borderLeftColor: "#0ea5e9",
+    },
+  };
 
   const handleProfilePress = () => {
     handleQuickAction("profile");
@@ -258,7 +290,7 @@ export default function HomeScreen() {
                 {/* ✅ UPDATED: Donation Button with guest handling */}
                 <Button
                   mode="contained"
-                  onPress={handleMakeDonation} // ✅ UPDATED handler
+                  onPress={handleMakeDonation}
                   style={styles.donateButton}
                   icon="heart"
                   contentStyle={styles.donateButtonContent}
@@ -400,39 +432,44 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        {/* ✅ ADDED: Guest Donation Dialog */}
+        {/* ✅ UPDATED: Guest Donation Dialog with theme styles */}
         <Portal>
           <Dialog
             visible={guestDialogVisible}
             onDismiss={() => setGuestDialogVisible(false)}
-            style={styles.dialog}
+            style={dialogStyles.dialog}
           >
             <Dialog.Icon
               icon="account-question"
               size={40}
               color={theme.colors.primary}
             />
-            <Dialog.Title style={styles.dialogTitle}>
+            <Dialog.Title style={dialogStyles.dialogTitle}>
               Continue as Guest?
             </Dialog.Title>
             <Dialog.Content>
-              {/* ✅ FIXED: Using react-native-paper Text component with variant */}
-              <Text variant="bodyMedium" style={styles.dialogText}>
+              <Text variant="bodyMedium" style={dialogStyles.dialogText}>
                 📝{" "}
-                <Text style={{ fontWeight: "bold" }}>You're not logged in</Text>
+                <Text
+                  style={{ fontWeight: "bold", color: theme.colors.onSurface }}
+                >
+                  You're not logged in
+                </Text>
               </Text>
-              <Text variant="bodyMedium" style={styles.dialogText}>
+              <Text variant="bodyMedium" style={dialogStyles.dialogText}>
                 • Your donation history won't be saved for future reference
               </Text>
-              <Text variant="bodyMedium" style={styles.dialogText}>
+              <Text variant="bodyMedium" style={dialogStyles.dialogText}>
                 • You won't be able to track your contributions
               </Text>
               <Text
                 variant="bodyMedium"
-                style={[styles.dialogText, styles.recommendation]}
+                style={[dialogStyles.dialogText, dialogStyles.recommendation]}
               >
                 💡{" "}
-                <Text style={{ fontWeight: "bold" }}>
+                <Text
+                  style={{ fontWeight: "bold", color: theme.colors.onSurface }}
+                >
                   We recommend creating an account
                 </Text>{" "}
                 to keep track of your charitable activities and receive updates
@@ -625,29 +662,7 @@ const styles = StyleSheet.create({
   eventButton: {
     borderRadius: 8,
   },
-  // ✅ ADDED: Dialog styles
-  dialog: {
-    borderRadius: 20,
-    backgroundColor: "white",
-  },
-  dialogTitle: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "700",
-    marginTop: 8,
-  },
-  dialogText: {
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  recommendation: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: "#f0f9ff",
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: "#0ea5e9",
-  },
+  // ✅ UPDATED: Dialog styles - removed hardcoded background colors
   dialogActions: {
     flexDirection: "column",
     gap: 8,

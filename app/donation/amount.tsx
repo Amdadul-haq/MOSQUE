@@ -1,6 +1,13 @@
-// app/donation/amount.tsx - UPDATED
+// app/donation/amount.tsx - UPDATED WITH KEYBOARD AVOIDING VIEW
 import React, { useState } from "react";
-import { ScrollView, View, StyleSheet, StatusBar } from "react-native";
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native"; // ✅ ADDED KeyboardAvoidingView
 import {
   useTheme,
   Text,
@@ -24,7 +31,7 @@ export default function DonationAmountScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
-  const { isAuthenticated, user } = useAuth(); // ✅ ADDED user
+  const { isAuthenticated, user } = useAuth();
 
   const [amount, setAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -41,7 +48,7 @@ export default function DonationAmountScreen() {
       amount: Number(amount),
       isAnonymous: !isAuthenticated,
       message: message.trim() || undefined,
-      donorName: isAuthenticated ? user?.name : "Guest User", // ✅ ADD donor name
+      donorName: isAuthenticated ? user?.name : "Guest User",
       donorEmail: isAuthenticated ? user?.email : undefined,
     };
 
@@ -51,7 +58,7 @@ export default function DonationAmountScreen() {
         ...donationData,
         amount: amount,
         isAnonymous: (!isAuthenticated).toString(),
-        donorName: isAuthenticated ? user?.name : "Guest User", // ✅ PASS donor name
+        donorName: isAuthenticated ? user?.name : "Guest User",
       },
     });
   };
@@ -80,213 +87,228 @@ export default function DonationAmountScreen() {
         onBackPress={handleBackPress}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 20 },
-        ]}
-        showsVerticalScrollIndicator={false}
+      {/* ✅ ADDED: Keyboard Avoiding View */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
       >
-        <View style={styles.content}>
-          {/* Donation Summary */}
-          <Card style={styles.summaryCard}>
-            <Card.Content style={styles.summaryContent}>
-              <View style={styles.summaryRow}>
-                <Text
-                  style={[
-                    styles.summaryLabel,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  Donor:
-                </Text>
-                <Text
-                  style={[
-                    styles.summaryValue,
-                    { color: theme.colors.primary, fontWeight: "600" },
-                  ]}
-                >
-                  {isAuthenticated ? user?.name : "Guest User"}
-                </Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text
-                  style={[
-                    styles.summaryLabel,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  Type:
-                </Text>
-                <View
-                  style={[
-                    styles.typeBadge,
-                    { backgroundColor: `${typeColor}20` },
-                  ]}
-                >
-                  <Text style={[styles.typeText, { color: typeColor }]}>
-                    {selectedType}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 20 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled" // ✅ Allows tapping outside to dismiss keyboard
+        >
+          <View style={styles.content}>
+            {/* Donation Summary */}
+            <Card style={styles.summaryCard}>
+              <Card.Content style={styles.summaryContent}>
+                <View style={styles.summaryRow}>
+                  <Text
+                    style={[
+                      styles.summaryLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    Donor:
+                  </Text>
+                  <Text
+                    style={[
+                      styles.summaryValue,
+                      { color: theme.colors.primary, fontWeight: "600" },
+                    ]}
+                  >
+                    {isAuthenticated ? user?.name : "Guest User"}
                   </Text>
                 </View>
-              </View>
-              <View style={styles.summaryRow}>
+                <View style={styles.summaryRow}>
+                  <Text
+                    style={[
+                      styles.summaryLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    Type:
+                  </Text>
+                  <View
+                    style={[
+                      styles.typeBadge,
+                      { backgroundColor: `${typeColor}20` },
+                    ]}
+                  >
+                    <Text style={[styles.typeText, { color: typeColor }]}>
+                      {selectedType}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text
+                    style={[
+                      styles.summaryLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    Month:
+                  </Text>
+                  <Text
+                    style={[
+                      styles.summaryValue,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    {selectedMonth}
+                  </Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text
+                    style={[
+                      styles.summaryLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    Anonymous:
+                  </Text>
+                  <Text
+                    style={[
+                      styles.summaryValue,
+                      {
+                        color: !isAuthenticated
+                          ? theme.colors.primary
+                          : theme.colors.onSurface,
+                        fontWeight: "600",
+                      },
+                    ]}
+                  >
+                    {!isAuthenticated ? "Yes" : "No"}
+                  </Text>
+                </View>
+              </Card.Content>
+            </Card>
+
+            {/* Amount Input */}
+            <Card style={styles.sectionCard}>
+              <Card.Content>
                 <Text
                   style={[
-                    styles.summaryLabel,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  Month:
-                </Text>
-                <Text
-                  style={[
-                    styles.summaryValue,
+                    styles.sectionTitle,
                     { color: theme.colors.onSurface },
                   ]}
                 >
-                  {selectedMonth}
+                  Enter Amount
                 </Text>
-              </View>
-              <View style={styles.summaryRow}>
                 <Text
                   style={[
-                    styles.summaryLabel,
+                    styles.sectionSubtitle,
                     { color: theme.colors.onSurfaceVariant },
                   ]}
                 >
-                  Anonymous:
+                  How much would you like to donate?
+                </Text>
+
+                <View style={styles.amountInputContainer}>
+                  <TextInput
+                    mode="outlined"
+                    value={amount}
+                    onChangeText={setAmount}
+                    keyboardType="numeric"
+                    style={styles.amountInput}
+                    contentStyle={styles.amountInputContent}
+                    outlineStyle={styles.amountInputOutline}
+                    left={
+                      <TextInput.Affix
+                        text="৳"
+                        textStyle={styles.currencyAffix}
+                      />
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.currencyLabel,
+                      { color: theme.colors.onSurfaceVariant },
+                    ]}
+                  >
+                    BDT
+                  </Text>
+                </View>
+
+                {/* Quick Amounts */}
+                <Text
+                  style={[
+                    styles.quickAmountsLabel,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Quick Amounts:
+                </Text>
+                <View style={styles.quickAmountsContainer}>
+                  {quickAmounts.map((quickAmount) => (
+                    <Chip
+                      key={quickAmount}
+                      mode="outlined"
+                      selected={amount === quickAmount.toString()}
+                      onPress={() => handleQuickAmount(quickAmount)}
+                      style={[
+                        styles.quickAmountChip,
+                        amount === quickAmount.toString() && {
+                          backgroundColor: theme.colors.primary,
+                          borderColor: theme.colors.primary,
+                        },
+                      ]}
+                      textStyle={[
+                        styles.quickAmountText,
+                        amount === quickAmount.toString() && { color: "white" },
+                      ]}
+                      showSelectedCheck={false}
+                    >
+                      ৳{quickAmount}
+                    </Chip>
+                  ))}
+                </View>
+              </Card.Content>
+            </Card>
+
+            {/* Optional Message */}
+            <Card style={styles.sectionCard}>
+              <Card.Content>
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    { color: theme.colors.onSurface },
+                  ]}
+                >
+                  Optional Message
                 </Text>
                 <Text
                   style={[
-                    styles.summaryValue,
-                    {
-                      color: !isAuthenticated
-                        ? theme.colors.primary
-                        : theme.colors.onSurface,
-                      fontWeight: "600",
-                    },
+                    styles.sectionSubtitle,
+                    { color: theme.colors.onSurfaceVariant },
                   ]}
                 >
-                  {!isAuthenticated ? "Yes" : "No"}
+                  Add a note with your donation (optional)
                 </Text>
-              </View>
-            </Card.Content>
-          </Card>
 
-          {/* Amount Input */}
-          <Card style={styles.sectionCard}>
-            <Card.Content>
-              <Text
-                style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-              >
-                Enter Amount
-              </Text>
-              <Text
-                style={[
-                  styles.sectionSubtitle,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                How much would you like to donate?
-              </Text>
-
-              <View style={styles.amountInputContainer}>
                 <TextInput
                   mode="outlined"
-                  value={amount}
-                  onChangeText={setAmount}
-                  keyboardType="numeric"
-                  style={styles.amountInput}
-                  contentStyle={styles.amountInputContent}
-                  outlineStyle={styles.amountInputOutline}
-                  left={
-                    <TextInput.Affix
-                      text="৳"
-                      textStyle={styles.currencyAffix}
-                    />
-                  }
+                  placeholder="Write your message here..."
+                  value={message}
+                  onChangeText={setMessage}
+                  multiline
+                  numberOfLines={3}
+                  style={styles.messageInput}
+                  contentStyle={styles.messageInputContent}
+                  outlineStyle={styles.messageInputOutline}
                 />
-                <Text
-                  style={[
-                    styles.currencyLabel,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  BDT
-                </Text>
-              </View>
+              </Card.Content>
+            </Card>
 
-              {/* Quick Amounts */}
-              <Text
-                style={[
-                  styles.quickAmountsLabel,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                Quick Amounts:
-              </Text>
-              <View style={styles.quickAmountsContainer}>
-                {quickAmounts.map((quickAmount) => (
-                  <Chip
-                    key={quickAmount}
-                    mode="outlined"
-                    selected={amount === quickAmount.toString()}
-                    onPress={() => handleQuickAmount(quickAmount)}
-                    style={[
-                      styles.quickAmountChip,
-                      amount === quickAmount.toString() && {
-                        backgroundColor: theme.colors.primary,
-                        borderColor: theme.colors.primary,
-                      },
-                    ]}
-                    textStyle={[
-                      styles.quickAmountText,
-                      amount === quickAmount.toString() && { color: "white" },
-                    ]}
-                    showSelectedCheck={false}
-                  >
-                    ৳{quickAmount}
-                  </Chip>
-                ))}
-              </View>
-            </Card.Content>
-          </Card>
-
-          {/* ✅ REMOVED: Anonymous Toggle Section */}
-
-          {/* Optional Message */}
-          <Card style={styles.sectionCard}>
-            <Card.Content>
-              <Text
-                style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-              >
-                Optional Message
-              </Text>
-              <Text
-                style={[
-                  styles.sectionSubtitle,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                Add a note with your donation (optional)
-              </Text>
-
-              <TextInput
-                mode="outlined"
-                placeholder="Write your message here..."
-                value={message}
-                onChangeText={setMessage}
-                multiline
-                numberOfLines={3}
-                style={styles.messageInput}
-                contentStyle={styles.messageInputContent}
-                outlineStyle={styles.messageInputOutline}
-              />
-            </Card.Content>
-          </Card>
-        </View>
-      </ScrollView>
+            {/* ✅ ADDED: Extra padding for keyboard space */}
+            <View style={styles.keyboardSpacer} />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Continue Button */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
@@ -306,6 +328,9 @@ export default function DonationAmountScreen() {
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoid: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
@@ -424,5 +449,8 @@ const styles = StyleSheet.create({
   },
   continueButtonContent: {
     paddingVertical: 8,
+  },
+  keyboardSpacer: {
+    height: 100, // ✅ Extra space for keyboard
   },
 });
