@@ -68,11 +68,7 @@ export default function MosqueInfoScreen() {
           await Linking.openURL(`mailto:${value}`);
           break;
         case "maps":
-          await Linking.openURL(
-            `https://maps.google.com/?q=${encodeURIComponent(
-              mosqueData.name + " " + value
-            )}`
-          );
+          await Linking.openURL(`https://maps.app.goo.gl/MtgLZcL24Q9RsNHo9`);
           break;
       }
     } catch (error) {
