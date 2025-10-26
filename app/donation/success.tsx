@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   },
   receiptCard: {
     borderRadius: 12,
-    borderWidth: 2,
+    borderWidth: 1,
     backgroundColor: "white",
   },
   receiptHeader: {
@@ -517,31 +517,9 @@ const styles = StyleSheet.create({
   receiptButtonContent: {
     paddingVertical: 6,
   },
-  downloadInstructions: {
-    padding: 12,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 8,
-    borderLeftWidth: 4,
-  },
-  instructionsTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  instructionsText: {
-    fontSize: 12,
-    color: "#666",
-    lineHeight: 18,
-  },
   messageCard: {
     borderRadius: 16,
-    backgroundColor: "#f8f9fa",
-  },
-  gratitudeText: {
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 20,
-    fontStyle: "italic",
+    // backgroundColor: "#f8f9fa",
   },
   navigationContainer: {
     gap: 12,
