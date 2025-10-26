@@ -1,4 +1,4 @@
-// app/(tabs)/profile.tsx
+// app/(tabs)/profile.tsx - FIXED FAB BUTTON
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -20,6 +20,7 @@ import {
   ActivityIndicator,
   Dialog,
   Portal,
+  FAB, // ✅ ADDED FAB
 } from "react-native-paper";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
@@ -44,7 +45,7 @@ export default function ProfileScreen() {
 
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
 
-  // ✅ SIMPLIFIED: Guest profile
+  // ✅ FIXED: Guest profile with proper avatar
   const guestProfile: UserProfile = {
     id: "guest",
     name: "Guest User",
@@ -132,7 +133,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom + 80 }, // ✅ INCREASED padding for FAB
         ]}
         refreshControl={
           <RefreshControl
@@ -150,13 +151,18 @@ export default function ProfileScreen() {
               <Card.Content style={styles.profileContent}>
                 <View style={styles.avatarSection}>
                   <View style={styles.avatarContainer}>
+                    {/* ✅ FIXED: Avatar image with proper source */}
                     <Image
                       source={{
                         uri: isAuthenticated
-                          ? "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1727984749/avatar-placeholder.png"
-                          : "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1727984750/guest-avatar.png",
+                          ? "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg"
+                          : "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1761436552/profile_o1gfxf.png",
                       }}
                       style={styles.avatarImage}
+                      onError={(e) => {
+                        console.log("Image load error:", e.nativeEvent.error);
+                        // Fallback to default avatar
+                      }}
                     />
                     <View
                       style={[
@@ -227,31 +233,23 @@ export default function ProfileScreen() {
             <Section title="Profile Information">
               <Card style={styles.infoCard}>
                 <Card.Content>
+                  {/* ✅ REMOVED: onPress handlers for copy functionality */}
                   <List.Item
                     title="Email"
                     description={currentProfile?.email}
                     left={(props) => <List.Icon {...props} icon="email" />}
-                    onPress={() =>
-                      Alert.alert("Email", `Copied: ${currentProfile?.email}`)
-                    }
                   />
                   <Divider />
                   <List.Item
                     title="Phone"
                     description={currentProfile?.phone}
                     left={(props) => <List.Icon {...props} icon="phone" />}
-                    onPress={() =>
-                      Alert.alert("Phone", `Copied: ${currentProfile?.phone}`)
-                    }
                   />
                   <Divider />
                   <List.Item
                     title="Member ID"
                     description={currentProfile?.id}
                     left={(props) => <List.Icon {...props} icon="identifier" />}
-                    onPress={() =>
-                      Alert.alert("Member ID", `Copied: ${currentProfile?.id}`)
-                    }
                   />
                 </Card.Content>
               </Card>
@@ -374,6 +372,17 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
+      {/* ✅ FIXED: FAB Button for Edit Profile (like donations screen) */}
+      {isAuthenticated && (
+        <FAB
+          icon="pencil"
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          onPress={handleEditProfile}
+          color="white"
+          label="Edit Profile"
+        />
+      )}
+
       {/* Logout Confirmation Dialog */}
       <Portal>
         <Dialog
@@ -402,19 +411,6 @@ export default function ProfileScreen() {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-
-      {/* Edit Button - Only show when authenticated */}
-      {isAuthenticated && (
-        <Button
-          mode="contained"
-          icon="pencil"
-          onPress={handleEditProfile}
-          style={[styles.editButton, { backgroundColor: theme.colors.primary }]}
-          contentStyle={styles.editButtonContent}
-        >
-          Edit Profile
-        </Button>
-      )}
     </Container>
   );
 }
@@ -459,6 +455,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
   },
   statusBadge: {
     position: "absolute",
@@ -521,13 +519,24 @@ const styles = StyleSheet.create({
   logoutButtonContent: {
     paddingVertical: 6,
   },
-  editButton: {
-    borderRadius: 12,
+  // ✅ REMOVED: Old edit button styles
+
+  // ✅ ADDED: FAB styles (like donations screen)
+  fab: {
+    position: "absolute",
     margin: 16,
-    marginTop: 8,
-  },
-  editButtonContent: {
-    paddingVertical: 6,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+    zIndex: 1000,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
   },
   dialogTitle: {
     textAlign: "center",
