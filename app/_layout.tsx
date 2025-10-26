@@ -39,6 +39,10 @@ function ThemedApp() {
                 name="notifications"
                 options={{ headerShown: false }}
               />
+              <Stack.Screen
+                name="profile/edit"
+                options={{ headerShown: false }}
+              />
             </Stack>
           </TabLoadingProvider>
         </NotificationProvider>

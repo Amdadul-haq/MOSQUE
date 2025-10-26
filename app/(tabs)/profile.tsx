@@ -1,5 +1,5 @@
-// app/(tabs)/profile.tsx - FIXED FAB BUTTON
-import React, { useState } from "react";
+// app/(tabs)/profile.tsx
+import React, { useState, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   Dialog,
   Portal,
-  FAB, // ✅ ADDED FAB
+  FAB,
 } from "react-native-paper";
 import { SimpleHeader } from "../../src/components/SimpleHeader";
 import { Container } from "../../src/components/common/Container";
@@ -32,6 +32,10 @@ import * as Haptics from "expo-haptics";
 import { useTabNavigation } from "../../src/hooks/useTabNavigation";
 import { useThemeMode } from "../../src/contexts/ThemeContext";
 import { useAuth } from "../../src/contexts/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native"; // ✅ ADDED
+
+const USER_AVATAR_KEY = "userAvatar";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -44,6 +48,34 @@ export default function ProfileScreen() {
   const { isLoading, handleRefresh } = useTabNavigation("profile");
 
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
+  // ✅ FIXED: Load avatar every time screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadAvatar = async () => {
+        if (isAuthenticated) {
+          try {
+            console.log("🔄 Loading avatar from storage...");
+            const savedAvatar = await AsyncStorage.getItem(USER_AVATAR_KEY);
+            console.log("📸 Saved avatar found:", !!savedAvatar);
+            
+            if (savedAvatar) {
+              setAvatarUri(savedAvatar);
+            } else {
+              // Fallback to default
+              setAvatarUri("https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg");
+            }
+          } catch (error) {
+            console.log("❌ Error loading avatar:", error);
+            setAvatarUri("https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg");
+          }
+        }
+      };
+
+      loadAvatar();
+    }, [isAuthenticated]) // ✅ Re-run when authentication changes
+  );
 
   // ✅ FIXED: Guest profile with proper avatar
   const guestProfile: UserProfile = {
@@ -76,10 +108,10 @@ export default function ProfileScreen() {
   const handleEditProfile = () => {
     if (!isAuthenticated) {
       Alert.alert("Login Required", "Please login to edit your profile");
-      handleLogin(); // Auto navigate to login
+      handleLogin();
       return;
     }
-    Alert.alert("Edit Profile", "Profile editing feature coming soon!");
+    router.push("/profile/edit");
   };
 
   const handleLogout = async () => {
@@ -94,6 +126,16 @@ export default function ProfileScreen() {
 
   const onRefresh = () => {
     handleRefresh();
+  };
+
+  // ✅ GET AVATAR SOURCE - FIXED with proper fallbacks
+  const getAvatarSource = () => {
+    if (!isAuthenticated) {
+      return "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1761436552/profile_o1gfxf.png";
+    }
+    
+    // Return saved avatar or default
+    return avatarUri || "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg";
   };
 
   if (isLoading) {
@@ -133,7 +175,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 80 }, // ✅ INCREASED padding for FAB
+          { paddingBottom: insets.bottom + 80 },
         ]}
         refreshControl={
           <RefreshControl
@@ -151,17 +193,17 @@ export default function ProfileScreen() {
               <Card.Content style={styles.profileContent}>
                 <View style={styles.avatarSection}>
                   <View style={styles.avatarContainer}>
-                    {/* ✅ FIXED: Avatar image with proper source */}
+                    {/* ✅ UPDATED: Dynamic avatar source with key for force re-render */}
                     <Image
+                      key={avatarUri} // ✅ Force re-render when avatar changes
                       source={{
-                        uri: isAuthenticated
-                          ? "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg"
-                          : "https://res.cloudinary.com/dx5b8xdgt/image/upload/v1761436552/profile_o1gfxf.png",
+                        uri: getAvatarSource(),
                       }}
                       style={styles.avatarImage}
                       onError={(e) => {
-                        console.log("Image load error:", e.nativeEvent.error);
-                        // Fallback to default avatar
+                        console.log("❌ Image load error:", e.nativeEvent.error);
+                        // Fallback to default
+                        setAvatarUri("https://res.cloudinary.com/dx5b8xdgt/image/upload/v1760313945/new_pxkwiq.jpg");
                       }}
                     />
                     <View
@@ -233,7 +275,6 @@ export default function ProfileScreen() {
             <Section title="Profile Information">
               <Card style={styles.infoCard}>
                 <Card.Content>
-                  {/* ✅ REMOVED: onPress handlers for copy functionality */}
                   <List.Item
                     title="Email"
                     description={currentProfile?.email}
@@ -246,11 +287,11 @@ export default function ProfileScreen() {
                     left={(props) => <List.Icon {...props} icon="phone" />}
                   />
                   <Divider />
-                  <List.Item
+                  {/* <List.Item
                     title="Member ID"
                     description={currentProfile?.id}
                     left={(props) => <List.Icon {...props} icon="identifier" />}
-                  />
+                  /> */}
                 </Card.Content>
               </Card>
             </Section>
@@ -271,10 +312,7 @@ export default function ProfileScreen() {
                           currentProfile?.preferences.notifications || false
                         }
                         onValueChange={() => {
-                          // Handle preference change
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                       />
                     )}
@@ -290,10 +328,7 @@ export default function ProfileScreen() {
                           currentProfile?.preferences.prayerReminders || false
                         }
                         onValueChange={() => {
-                          // Handle preference change
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                       />
                     )}
@@ -309,9 +344,7 @@ export default function ProfileScreen() {
                       <Switch
                         value={isDark}
                         onValueChange={(isDarkMode) => {
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                           setThemeMode(isDarkMode ? "dark" : "light");
                         }}
                       />
@@ -372,7 +405,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* ✅ FIXED: FAB Button for Edit Profile (like donations screen) */}
+      {/* ✅ FIXED: FAB Button for Edit Profile */}
       {isAuthenticated && (
         <FAB
           icon="pencil"
@@ -414,6 +447,7 @@ export default function ProfileScreen() {
     </Container>
   );
 }
+
 
 const styles = StyleSheet.create({
   scrollContent: {
